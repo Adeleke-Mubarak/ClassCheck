@@ -1,0 +1,365 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background-color: #f9fafb;
+    color: #111827;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  input, textarea, select {
+    font-family: inherit;
+    font-size: inherit;
+  }
+}
+
+@layer components {
+  /* Form input base */
+  .form-input {
+    @apply w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply w-full py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 active:bg-gray-950 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply w-full py-2.5 px-6 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    @apply relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2;
+  }
+
+  .toggle-thumb {
+    @apply inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform;
+  }
+
+  /* Card */
+  .card {
+    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
+  }
+
+  /* Page container */
+  .page-container {
+    @apply pt-14 min-h-screen;
+    background: #0A0A0A;
+  }
+
+  /* Content max-width for feeds */
+  .feed-container {
+    @apply max-w-[680px] mx-auto px-4 sm:px-6 py-8;
+  }
+
+  /* Content max-width for forms */
+  .form-container {
+    @apply max-w-[520px] mx-auto px-4 sm:px-6 py-8;
+  }
+
+  /* Label */
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
+  }
+
+  /* Tab button */
+  .tab-btn {
+    @apply px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+  }
+
+  .tab-btn-active {
+    @apply bg-gray-900 text-white;
+  }
+
+  .tab-btn-inactive {
+    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+  }
+}
+
+/* ============================================================
+   LANDING PAGE — custom classes that need pseudo-elements
+   or keyframe animations (can't do these in Tailwind inline)
+   ============================================================ */
+
+/* ---- Marquee ---- */
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.3333%); }
+}
+
+.marquee-outer {
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee-track {
+  display: flex;
+  white-space: nowrap;
+  width: max-content;
+  animation: marquee-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.marquee-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding-right: 0;
+}
+
+/* ---- Navbar create account button ---- */
+.land-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  background: #FFFFFF;
+  color: #0A0A0A;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.2s;
+}
+
+.land-nav-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #f0f0f0;
+  transform: translateX(-101%);
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.land-nav-btn:hover::before {
+  transform: translateX(0);
+}
+
+.land-nav-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Hero primary button ---- */
+.land-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 32px;
+  background: #2563EB;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: -0.015em;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.28s;
+  cursor: pointer;
+}
+
+.land-btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #1d4ed8;
+  transform: translateX(-101%);
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.land-btn-primary:hover::before {
+  transform: translateX(0);
+}
+
+.land-btn-primary span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Hero secondary button ---- */
+.land-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 15px 32px;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.12);
+  letter-spacing: -0.015em;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.28s, border-color 0.28s;
+  cursor: pointer;
+}
+
+.land-btn-secondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.06);
+  transform: translateX(-101%);
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.land-btn-secondary:hover {
+  color: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.land-btn-secondary:hover::before {
+  transform: translateX(0);
+}
+
+.land-btn-secondary span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Final CTA button ---- */
+.land-btn-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 16px 40px;
+  background: #FFFFFF;
+  color: #0A0A0A;
+  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 4px;
+  letter-spacing: -0.015em;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.28s;
+  cursor: pointer;
+}
+
+.land-btn-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #f0f0f0;
+  transform: translateX(-101%);
+  transition: transform 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 0;
+}
+
+.land-btn-cta:hover::before {
+  transform: translateX(0);
+}
+
+.land-btn-cta span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Footer & nav hover links ---- */
+.land-link {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  transition: color 0.2s;
+}
+
+.land-link:hover {
+  color: #FFFFFF;
+}
+
+.land-nav-link {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  padding: 8px 12px;
+  transition: color 0.2s;
+  font-weight: 500;
+}
+
+.land-nav-link:hover {
+  color: #FFFFFF;
+}
+
+/* ---- Responsive: stack hero buttons on mobile ---- */
+@media (max-width: 540px) {
+  .land-hero-btns {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .land-btn-primary,
+  .land-btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---- Signup: responsive split → stack on mobile ---- */
+@media (max-width: 820px) {
+  .signup-left {
+    display: none !important;
+  }
+  .signup-right {
+    width: 100% !important;
+    border-left: none !important;
+    padding: 32px 20px !important;
+  }
+}
+
+/* ---- Dark dropdown scrollbar ---- */
+[role="listbox"]::-webkit-scrollbar {
+  width: 6px;
+}
+[role="listbox"]::-webkit-scrollbar-track {
+  background: transparent;
+}
+[role="listbox"]::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+/* ---- Placeholder colour override for dark inputs ---- */
+input::placeholder {
+  color: rgba(255,255,255,0.22);
+}
