@@ -231,3 +231,14 @@ on conflict (course_code) do nothing;
 -- 3. Copy your Project URL and anon key to .env:
 --    VITE_SUPABASE_URL=https://xxxx.supabase.co
 --    VITE_SUPABASE_ANON_KEY=eyJ...
+CREATE TABLE IF NOT EXISTS public.waitlist (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name text NOT NULL,
+  email text NOT NULL UNIQUE,
+  department text NOT NULL,
+  university text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow anonymous inserts" ON public.waitlist;
+CREATE POLICY "Allow anonymous inserts" ON public.waitlist FOR INSERT TO anon WITH CHECK (true);

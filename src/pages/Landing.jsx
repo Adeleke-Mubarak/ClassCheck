@@ -136,7 +136,10 @@ export default function Landing() {
           </Link>
 
           {/* Nav links */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link to="/waitlist" className="land-nav-link" style={{ marginRight: '12px' }}>
+              Join waitlist
+            </Link>
             <Link to="/sender" className="land-nav-link">
               Sender login
             </Link>
@@ -420,9 +423,14 @@ export default function Landing() {
         }}>
           Ready to stop missing classes?
         </h2>
-        <Link to="/signup" className="land-btn-cta">
-          <span>Create your free account</span>
-        </Link>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', alignItems: 'center', marginTop: '24px' }}>
+          <Link to="/signup" className="land-btn-cta">
+            <span>Create your free account</span>
+          </Link>
+          <Link to="/waitlist" className="land-btn-secondary" style={{ padding: '0 24px', height: '48px', lineHeight: '48px', borderRadius: '100px' }}>
+            <span>Join waitlist</span>
+          </Link>
+        </div>
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────── */}

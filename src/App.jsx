@@ -9,6 +9,7 @@ import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import SenderSignIn from './pages/SenderSignIn'
 import ForgotPassword from './pages/ForgotPassword'
+import Waitlist from './pages/Waitlist'
 import NotFound from './pages/NotFound'
 
 // Student pages
@@ -47,6 +48,7 @@ export default function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/sender" element={<SenderSignIn />} />
           <Route path="/reset" element={<ForgotPassword />} />
+          <Route path="/waitlist" element={<Waitlist />} />
 
           {/* Student */}
           <Route
