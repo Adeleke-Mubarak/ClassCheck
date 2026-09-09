@@ -1,6 +1,6 @@
 // This is the new API client that replaces Supabase.
 // Your backend developer can configure this BASE_URL to point to their new custom backend.
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1'
 
 // Helper for making fetch requests
 async function fetchApi(endpoint, options = {}) {
