@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import AddCourseModal from '../../../components/AddCourseModal'
-import { supabase } from '../../../lib/supabase'
+import { api } from '../../../lib/api'
 
 export default function Courses() {
   const [courses, setCourses] = useState([])
@@ -10,15 +10,12 @@ export default function Courses() {
   const [removing, setRemoving] = useState(null)
 
   async function load() {
-    const { data } = await supabase
-      .from('courses')
-      .select(`
-        *,
-        sender_courses(sender_id, senders(full_name)),
-        updates(id)
-      `)
-      .order('course_code')
-    setCourses(data || [])
+    try {
+      const { data } = await api.getCourses()
+      setCourses(data || [])
+    } catch (error) {
+      toast.error('Failed to load courses')
+    }
     setLoading(false)
   }
 
@@ -26,12 +23,12 @@ export default function Courses() {
 
   async function remove(id) {
     setRemoving(id)
-    const { error } = await supabase.from('courses').delete().eq('id', id)
-    if (error) {
-      toast.error('Failed to remove course')
-    } else {
+    try {
+      await api.deleteCourse(id)
       setCourses((prev) => prev.filter((c) => c.id !== id))
       toast.success('Course removed')
+    } catch (error) {
+      toast.error('Failed to remove course')
     }
     setRemoving(null)
   }

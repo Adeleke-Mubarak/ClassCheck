@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import SenderNavbar from '../../components/SenderNavbar'
-import { supabase } from '../../lib/supabase'
+import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 
 export default function History() {
@@ -12,28 +12,27 @@ export default function History() {
   const [deleting, setDeleting] = useState(null)
 
   async function loadUpdates() {
-    const { data, error } = await supabase
-      .from('updates')
-      .select('*, courses(course_code, course_name)')
-      .eq('sender_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (!error) setUpdates(data || [])
+    try {
+      const { data } = await api.getSenderHistory(user.id)
+      setUpdates(data || [])
+    } catch (error) {
+      toast.error('Failed to load history')
+    }
     setLoading(false)
   }
 
   useEffect(() => {
-    loadUpdates()
+    if (user?.id) loadUpdates()
   }, [user])
 
   async function handleDelete(id) {
     setDeleting(id)
-    const { error } = await supabase.from('updates').delete().eq('id', id)
-    if (error) {
-      toast.error('Failed to delete update')
-    } else {
+    try {
+      await api.deleteUpdate(id)
       setUpdates((prev) => prev.filter((u) => u.id !== id))
       toast.success('Update deleted')
+    } catch (error) {
+      toast.error('Failed to delete update')
     }
     setDeleting(null)
   }

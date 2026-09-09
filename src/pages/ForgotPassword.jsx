@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { resetPasswordByMatric } from '../lib/auth'
+import { api } from '../lib/api'
 
 export default function ForgotPassword() {
   const [matricNo, setMatricNo] = useState('')
@@ -12,7 +12,7 @@ export default function ForgotPassword() {
     e.preventDefault()
     setLoading(true)
     try {
-      await resetPasswordByMatric(matricNo)
+      await api.resetPassword(matricNo)
       setDone(true)
     } catch (err) {
       toast.error(err.message || 'Failed to send reset link')

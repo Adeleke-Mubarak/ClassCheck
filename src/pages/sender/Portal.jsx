@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import SenderNavbar from '../../components/SenderNavbar'
-import { supabase } from '../../lib/supabase'
+import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Portal() {
@@ -18,13 +18,14 @@ export default function Portal() {
 
   useEffect(() => {
     async function loadCourses() {
-      const { data } = await supabase
-        .from('sender_courses')
-        .select('course_id, courses(id, course_code, course_name)')
-        .eq('sender_id', user.id)
-      setCourses((data || []).map((d) => d.courses))
+      try {
+        const { data } = await api.getSenderCourses(user.id)
+        setCourses(data || [])
+      } catch (err) {
+        toast.error('Failed to load courses')
+      }
     }
-    loadCourses()
+    if (user?.id) loadCourses()
   }, [user])
 
   function handleChange(field, value) {
@@ -41,14 +42,13 @@ export default function Portal() {
 
     setLoading(true)
     try {
-      const { error } = await supabase.from('updates').insert({
+      await api.postUpdate({
         course_id: form.courseId,
         sender_id: user.id,
         type: form.type,
         new_venue: form.type === 'venue_change' ? form.newVenue.trim() : null,
         note: form.note.trim() || null,
       })
-      if (error) throw error
 
       const course = courses.find((c) => c.id === form.courseId)
       setSuccess({

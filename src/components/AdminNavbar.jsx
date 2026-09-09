@@ -1,5 +1,5 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { signOut } from '../lib/auth'
+import { api } from '../lib/api'
 
 const TABS = [
   { label: 'Overview', path: '/admin' },
@@ -13,7 +13,7 @@ export default function AdminNavbar({ activeTab, onTabChange }) {
   const location = useLocation()
 
   async function handleSignOut() {
-    await signOut()
+    await api.signOut()
     navigate('/')
   }
 

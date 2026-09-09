@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import toast from 'react-hot-toast'
 import Typewriter from '../components/Typewriter'
 
@@ -20,19 +20,16 @@ export default function Waitlist() {
       university: formData.get('university'),
     }
 
-    const { error } = await supabase
-      .from('waitlist')
-      .insert([data])
-
-    if (error) {
-      if (error.code === '23505') {
+    try {
+      await api.joinWaitlist(data)
+      setSuccess(true)
+      toast.success('You are on the list!')
+    } catch (error) {
+      if (error.code === '23505' || error.message?.includes('already')) {
         toast.error('This email is already on the waitlist!')
       } else {
         toast.error('Something went wrong. Please try again.')
       }
-    } else {
-      setSuccess(true)
-      toast.success('You are on the list!')
     }
     
     setLoading(false)

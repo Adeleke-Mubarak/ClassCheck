@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import FilterPills from '../components/FilterPills'
 import UpdateCard from '../components/UpdateCard'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
 export default function Feed() {
@@ -16,67 +16,37 @@ export default function Feed() {
   const fetchUpdates = useCallback(async () => {
     if (!user) return
 
-    // Get subscribed course IDs
-    const { data: subs } = await supabase
-      .from('student_courses')
-      .select('course_id')
-      .eq('student_id', user.id)
+    try {
+      // Get subscribed course IDs
+      const { data: subs } = await api.getStudentSubscriptions(user.id)
 
-    if (!subs || subs.length === 0) {
-      setHasSubscriptions(false)
-      setLoading(false)
-      return
-    }
+      if (!subs || subs.length === 0) {
+        setHasSubscriptions(false)
+        setLoading(false)
+        return
+      }
 
-    setHasSubscriptions(true)
-    const courseIds = subs.map((s) => s.course_id)
-
-    let query = supabase
-      .from('updates')
-      .select(`
-        *,
-        courses (course_code, course_name),
-        senders (role, full_name)
-      `)
-      .in('course_id', courseIds)
-      .order('created_at', { ascending: false })
-
-    const { data, error } = await query
-    if (!error) {
+      setHasSubscriptions(true)
+      const { data } = await api.getFeed()
       setUpdates(data || [])
+    } catch (err) {
+      console.error('Failed to fetch updates:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [user])
 
   useEffect(() => {
     fetchUpdates()
   }, [fetchUpdates])
 
-  // Realtime subscription
+  // Polling every 10s
   useEffect(() => {
     if (!user) return
-
-    const channel = supabase
-      .channel('feed-updates')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'updates' },
-        () => {
-          fetchUpdates()
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'updates' },
-        () => {
-          fetchUpdates()
-        }
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
+    const intervalId = setInterval(() => {
+      fetchUpdates()
+    }, 10000)
+    return () => clearInterval(intervalId)
   }, [user, fetchUpdates])
 
   const filtered = updates.filter((u) => {

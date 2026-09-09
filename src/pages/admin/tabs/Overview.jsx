@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
-import { supabase } from '../../../lib/supabase'
+import { api } from '../../../lib/api'
 
 export default function Overview() {
   const [stats, setStats] = useState({ students: 0, senders: 0, todayUpdates: 0, courses: 0 })
@@ -10,33 +10,19 @@ export default function Overview() {
   const [loading, setLoading] = useState(true)
 
   async function load() {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-
-    const [
-      { count: students },
-      { count: activeSenders },
-      { count: todayUpdates },
-      { count: courses },
-      { data: updates },
-      { data: senderList },
-    ] = await Promise.all([
-      supabase.from('students').select('*', { count: 'exact', head: true }),
-      supabase.from('senders').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-      supabase.from('updates').select('*', { count: 'exact', head: true }).gte('created_at', today.toISOString()),
-      supabase.from('courses').select('*', { count: 'exact', head: true }),
-      supabase.from('updates').select('*, courses(course_code), senders(full_name, role)').order('created_at', { ascending: false }).limit(5),
-      supabase.from('senders').select('*').order('created_at', { ascending: false }).limit(8),
-    ])
-
-    setStats({
-      students: students || 0,
-      senders: activeSenders || 0,
-      todayUpdates: todayUpdates || 0,
-      courses: courses || 0,
-    })
-    setRecentUpdates(updates || [])
-    setSenders(senderList || [])
+    try {
+      const { data } = await api.getOverviewMetrics()
+      setStats({
+        students: data?.students || 0,
+        senders: data?.senders || 0,
+        todayUpdates: data?.updates || data?.todayUpdates || 0,
+        courses: data?.courses || 0,
+      })
+      setRecentUpdates(data?.recentUpdates || [])
+      setSenders(data?.recentSenders || data?.senderList || [])
+    } catch (error) {
+      toast.error('Failed to load overview')
+    }
     setLoading(false)
   }
 
@@ -44,12 +30,12 @@ export default function Overview() {
 
   async function toggleSenderStatus(sender) {
     const newStatus = sender.status === 'active' ? 'inactive' : 'active'
-    const { error } = await supabase.from('senders').update({ status: newStatus }).eq('id', sender.id)
-    if (error) {
-      toast.error('Failed to update status')
-    } else {
+    try {
+      await api.updateSenderStatus(sender.id, newStatus)
       setSenders((prev) => prev.map((s) => s.id === sender.id ? { ...s, status: newStatus } : s))
       toast.success(`Sender ${newStatus === 'active' ? 'activated' : 'deactivated'}`)
+    } catch (error) {
+      toast.error('Failed to update status')
     }
   }
 

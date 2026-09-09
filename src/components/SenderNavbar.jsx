@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { signOut } from '../lib/auth'
+import { api } from '../lib/api'
 
 export default function SenderNavbar() {
   const { profile } = useAuth()
@@ -8,7 +8,7 @@ export default function SenderNavbar() {
   const location = useLocation()
 
   async function handleSignOut() {
-    await signOut()
+    await api.signOut()
     navigate('/sender')
   }
 

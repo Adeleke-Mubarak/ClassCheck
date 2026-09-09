@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { signOut } from '../lib/auth'
+import { api } from '../lib/api'
 
 const font = "'Plus Jakarta Sans', 'Inter', ui-sans-serif, sans-serif"
 
@@ -15,7 +15,7 @@ export default function Navbar() {
   const location = useLocation()
 
   async function handleSignOut() {
-    await signOut()
+    await api.signOut()
     navigate('/')
   }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
 export default function MyCourses() {
@@ -15,20 +15,21 @@ export default function MyCourses() {
     async function load() {
       if (!profile) return
 
-      const [{ data: allCourses }, { data: subs }] = await Promise.all([
-        supabase
-          .from('courses')
-          .select('*')
-          .order('course_code'),
-        supabase
-          .from('student_courses')
-          .select('course_id')
-          .eq('student_id', user.id),
-      ])
+      try {
+        const [{ data: allCourses }, { data: subs }] = await Promise.all([
+          api.getCourses(),
+          api.getStudentSubscriptions(user.id),
+        ])
 
-      setCourses(allCourses || [])
-      setSubscribed(new Set((subs || []).map((s) => s.course_id)))
-      setLoading(false)
+        setCourses(allCourses || [])
+        // api.getStudentSubscriptions returns either full course objects or objects with course_id depending on backend.
+        // Assuming it matches the old shape (objects with course_id)
+        setSubscribed(new Set((subs || []).map((s) => s.course_id || s.id)))
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
     }
     load()
   }, [profile, user])
@@ -38,27 +39,17 @@ export default function MyCourses() {
     setToggling(courseId)
 
     const isSubscribed = subscribed.has(courseId)
+    const newSubscribed = new Set(subscribed)
+
+    if (isSubscribed) {
+      newSubscribed.delete(courseId)
+    } else {
+      newSubscribed.add(courseId)
+    }
 
     try {
-      if (isSubscribed) {
-        const { error } = await supabase
-          .from('student_courses')
-          .delete()
-          .eq('student_id', user.id)
-          .eq('course_id', courseId)
-        if (error) throw error
-        setSubscribed((prev) => {
-          const next = new Set(prev)
-          next.delete(courseId)
-          return next
-        })
-      } else {
-        const { error } = await supabase
-          .from('student_courses')
-          .insert({ student_id: user.id, course_id: courseId })
-        if (error) throw error
-        setSubscribed((prev) => new Set([...prev, courseId]))
-      }
+      await api.updateSubscriptions(user.id, Array.from(newSubscribed))
+      setSubscribed(newSubscribed)
     } catch (err) {
       toast.error('Failed to update subscription')
     } finally {

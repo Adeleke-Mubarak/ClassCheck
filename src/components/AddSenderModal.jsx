@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import Modal from './Modal'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 const ROLES = ['lecturer', 'class_rep']
 
@@ -18,9 +18,9 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
 
   useEffect(() => {
     if (!isOpen) return
-    supabase.from('courses').select('*').order('course_code').then(({ data }) => {
+    api.getCourses().then(({ data }) => {
       setCourses(data || [])
-    })
+    }).catch(() => toast.error('Failed to load courses'))
   }, [isOpen])
 
   function toggleCourse(id) {
@@ -43,36 +43,13 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
 
     setLoading(true)
     try {
-      // Create auth user via admin API (requires service role key in production)
-      // For this build we use signUp which works with anon key + email confirm disabled
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
-      })
-      if (authError) throw authError
-
-      const userId = authData.user?.id
-      if (!userId) throw new Error('Failed to create user')
-
-      // Insert sender profile
-      const { error: senderError } = await supabase.from('senders').insert({
-        id: userId,
+      await api.createSender({
         full_name: form.fullName,
         email: form.email,
+        password: form.password,
         role: form.role,
-        status: 'active',
+        courses: form.selectedCourses,
       })
-      if (senderError) throw senderError
-
-      // Assign courses
-      if (form.selectedCourses.length > 0) {
-        const rows = form.selectedCourses.map((course_id) => ({
-          sender_id: userId,
-          course_id,
-        }))
-        const { error: courseError } = await supabase.from('sender_courses').insert(rows)
-        if (courseError) throw courseError
-      }
 
       toast.success('Sender added successfully')
       reset()

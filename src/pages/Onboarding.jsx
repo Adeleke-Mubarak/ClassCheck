@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
 export default function Onboarding() {
@@ -15,17 +15,14 @@ export default function Onboarding() {
   useEffect(() => {
     async function load() {
       if (!profile) return
-      const { data, error } = await supabase
-        .from('courses')
-        .select('*')
-        .order('course_code')
-
-      if (error) {
+      try {
+        const { data } = await api.getCourses()
+        setCourses(data || [])
+      } catch (error) {
         toast.error('Failed to load courses')
-      } else {
-        setCourses(data)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     load()
   }, [profile])
@@ -45,22 +42,11 @@ export default function Onboarding() {
   async function handleContinue() {
     setSaving(true)
     try {
-      // Insert subscriptions
+      // Update subscriptions
       if (selected.size > 0) {
-        const rows = Array.from(selected).map((course_id) => ({
-          student_id: user.id,
-          course_id,
-        }))
-        const { error } = await supabase.from('student_courses').insert(rows)
-        if (error) throw error
+        const courseIds = Array.from(selected)
+        await api.updateSubscriptions(user.id, courseIds)
       }
-
-      // Mark as onboarded
-      const { error: updateError } = await supabase
-        .from('students')
-        .update({ onboarded: true })
-        .eq('id', user.id)
-      if (updateError) throw updateError
 
       await refreshProfile()
       navigate('/feed')

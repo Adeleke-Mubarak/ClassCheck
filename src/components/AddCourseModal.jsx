@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Modal from './Modal'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 const DEPARTMENTS = [
   'Accounting', 'Architecture', 'Banking and Finance', 'Biochemistry',
@@ -35,13 +35,12 @@ export default function AddCourseModal({ isOpen, onClose, onAdded }) {
 
     setLoading(true)
     try {
-      const { error } = await supabase.from('courses').insert({
+      await api.createCourse({
         course_code: form.courseCode.toUpperCase().trim(),
         course_name: form.courseName.trim(),
         department: form.department,
         level: form.level,
       })
-      if (error) throw error
 
       toast.success('Course added')
       reset()

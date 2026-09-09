@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
-import { supabase } from '../../../lib/supabase'
+import { api } from '../../../lib/api'
 
 const TYPE_FILTERS = ['All', 'Cancelled', 'Venue change']
 
@@ -14,15 +14,16 @@ export default function AllUpdates() {
   const [deleting, setDeleting] = useState(null)
 
   async function load() {
-    const [{ data: upd }, { data: crs }] = await Promise.all([
-      supabase
-        .from('updates')
-        .select('*, courses(course_code, course_name), senders(full_name, role)')
-        .order('created_at', { ascending: false }),
-      supabase.from('courses').select('id, course_code').order('course_code'),
-    ])
-    setUpdates(upd || [])
-    setCourses(crs || [])
+    try {
+      const [{ data: upd }, { data: crs }] = await Promise.all([
+        api.getAllUpdates(),
+        api.getCourses(),
+      ])
+      setUpdates(upd || [])
+      setCourses(crs || [])
+    } catch (error) {
+      toast.error('Failed to load data')
+    }
     setLoading(false)
   }
 
@@ -30,12 +31,12 @@ export default function AllUpdates() {
 
   async function handleDelete(id) {
     setDeleting(id)
-    const { error } = await supabase.from('updates').delete().eq('id', id)
-    if (error) {
-      toast.error('Failed to delete')
-    } else {
+    try {
+      await api.deleteUpdate(id)
       setUpdates((prev) => prev.filter((u) => u.id !== id))
       toast.success('Update deleted')
+    } catch (error) {
+      toast.error('Failed to delete')
     }
     setDeleting(null)
   }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { signInStudent } from '../lib/auth'
+import { api } from '../lib/api'
 import Typewriter from '../components/Typewriter'
 
 /* ------------------------------------------------------------------ */
@@ -221,7 +221,7 @@ export default function SignIn() {
     e.preventDefault()
     setLoading(true)
     try {
-      await signInStudent(form)
+      await api.signInStudent(form)
       navigate('/feed')
     } catch (err) {
       toast.error('Invalid matric number or password')

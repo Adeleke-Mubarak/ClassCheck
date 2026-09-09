@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { signUpStudent } from '../lib/auth'
+import { api } from '../lib/api'
 import Typewriter from '../components/Typewriter'
 
 /* ------------------------------------------------------------------ */
@@ -378,7 +378,7 @@ export default function SignUp() {
 
     setLoading(true)
     try {
-      await signUpStudent(form)
+      await api.signUpStudent(form)
       navigate('/onboarding')
     } catch (err) {
       toast.error(err.message || 'Failed to create account')

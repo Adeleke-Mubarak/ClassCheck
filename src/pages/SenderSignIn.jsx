@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
-import { signInSender, signInAdmin, getUserRole } from '../lib/auth'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 export default function SenderSignIn() {
   const navigate = useNavigate()
@@ -17,15 +16,15 @@ export default function SenderSignIn() {
     e.preventDefault()
     setLoading(true)
     try {
-      const { user } = await signInSender(form)
+      const { user } = await api.signInSender(form)
       // Determine role and redirect appropriately
-      const role = await getUserRole(user)
+      const role = user?.role
       if (role === 'admin') {
         navigate('/admin')
       } else if (role === 'sender') {
         navigate('/sender/portal')
       } else {
-        await supabase.auth.signOut()
+        await api.signOut()
         toast.error('Your account is not authorised. Contact your department admin.')
       }
     } catch (err) {

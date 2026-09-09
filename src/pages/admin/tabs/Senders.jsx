@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import AddSenderModal from '../../../components/AddSenderModal'
-import { supabase } from '../../../lib/supabase'
+import { api } from '../../../lib/api'
 
 export default function Senders() {
   const [senders, setSenders] = useState([])
@@ -10,14 +10,12 @@ export default function Senders() {
   const [removing, setRemoving] = useState(null)
 
   async function load() {
-    const { data } = await supabase
-      .from('senders')
-      .select(`
-        *,
-        sender_courses(course_id, courses(course_code))
-      `)
-      .order('created_at', { ascending: false })
-    setSenders(data || [])
+    try {
+      const { data } = await api.getSenders()
+      setSenders(data || [])
+    } catch (error) {
+      toast.error('Failed to load senders')
+    }
     setLoading(false)
   }
 
@@ -25,22 +23,22 @@ export default function Senders() {
 
   async function toggleStatus(sender) {
     const newStatus = sender.status === 'active' ? 'inactive' : 'active'
-    const { error } = await supabase.from('senders').update({ status: newStatus }).eq('id', sender.id)
-    if (error) {
-      toast.error('Failed to update status')
-    } else {
+    try {
+      await api.updateSenderStatus(sender.id, newStatus)
       setSenders((prev) => prev.map((s) => s.id === sender.id ? { ...s, status: newStatus } : s))
+    } catch (error) {
+      toast.error('Failed to update status')
     }
   }
 
   async function remove(id) {
     setRemoving(id)
-    const { error } = await supabase.from('senders').delete().eq('id', id)
-    if (error) {
-      toast.error('Failed to remove sender')
-    } else {
+    try {
+      await api.deleteSender(id)
       setSenders((prev) => prev.filter((s) => s.id !== id))
       toast.success('Sender removed')
+    } catch (error) {
+      toast.error('Failed to remove sender')
     }
     setRemoving(null)
   }
