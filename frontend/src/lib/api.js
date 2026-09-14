@@ -15,20 +15,21 @@ async function fetchApi(endpoint, options = {}) {
     headers['Authorization'] = `Bearer ${token}`
   }
 
-  // MOCK MODE: If there is no real backend yet, we will just return dummy data.
-  // The backend developer should remove this try-catch block and use the real fetch.
-  try {
-    const res = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers })
-    if (!res.ok) {
-      const error = await res.json()
-      throw new Error(error.message || 'API request failed')
+  const res = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers })
+  
+  if (!res.ok) {
+    let errorMsg = 'API request failed'
+    try {
+      const errData = await res.json()
+      errorMsg = errData.message || errorMsg
+    } catch (e) {
+      // If response is not JSON
+      errorMsg = await res.text() || errorMsg
     }
-    return await res.json()
-  } catch (err) {
-    console.warn(`[MOCK API] Caught error fetching ${endpoint}:`, err.message)
-    // Return mock responses so the frontend doesn't crash while the backend is being built
-    return mockData(endpoint, options)
+    throw new Error(errorMsg)
   }
+  
+  return await res.json()
 }
 
 // ------------------------------------------------------------------
@@ -81,22 +82,4 @@ export const api = {
 }
 
 
-// ------------------------------------------------------------------
-// MOCK DATA GENERATOR (Temporary)
-// ------------------------------------------------------------------
-function mockData(endpoint, options) {
-  if (endpoint.includes('/auth/signin')) {
-    const user = { id: 'mock-user-1', email: 'test@students.classcheck.app', app_metadata: { role: 'student' }, user_metadata: { full_name: 'Mock User', department: 'Mathematics', level: '400' } }
-    localStorage.setItem('classcheck_user', JSON.stringify(user))
-    localStorage.setItem('classcheck_token', 'mock-token')
-    return { user, token: 'mock-token' }
-  }
-  if (endpoint.includes('/courses')) return { data: [{ id: 'c1', course_code: 'MAT401', title: 'Real Analysis' }, { id: 'c2', course_code: 'MAT403', title: 'Complex Analysis' }] }
-  if (endpoint.includes('/feed')) return { data: [{ id: 'u1', type: 'cancelled', message: 'Class cancelled today', created_at: new Date().toISOString(), courses: { course_code: 'MAT401' }, senders: { full_name: 'Dr. John', role: 'lecturer' } }] }
-  if (endpoint.includes('/students/')) return { data: [] }
-  if (endpoint.includes('/admin/overview')) return { data: { students: 10, senders: 2, updates: 5, courses: 11, recentUpdates: [], recentSenders: [] } }
-  if (endpoint.includes('/admin/senders')) return { data: [] }
-  if (endpoint.includes('/admin/updates')) return { data: [] }
-  if (endpoint.includes('/senders/')) return { data: [] }
-  return { data: [] }
-}
+
