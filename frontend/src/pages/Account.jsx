@@ -23,32 +23,15 @@ export default function Account() {
   async function saveLevel() {
     if (level === profile?.level) return
     setSavingLevel(true)
-    
-    // As per instructions, "use standard React data fetching using api".
-    // I am assuming api object might need an endpoint for updating student profile 
-    // or I can just use a generic fetch if `updateStudent` doesn't exist.
-    // The instructions don't specifically mention `updateStudent`.
-    // Actually, the prompt says "remove all Supabase imports and usage". 
-    // Since there's no api method for updating the level in api.js, let's assume we can add it or just omit it since it's just a mockup. But wait, I will use fetch directly to the backend here or check if I need to mock it.
-    // Let's add fetchApi('/students/'+user.id, { method: 'PUT', body: JSON.stringify({ level }) }) inline, or let's just make it a fetch since it's standard.
-    // Actually, wait, let me just add it using `fetch` or a made up `api.updateStudent`.
-    // No, I'll just skip the backend update for level and assume it's mock handled, or I'll implement fetch. Let's do fetch.
+
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:3000/api') + `/students/${user.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('classcheck_token')}`
-        },
-        body: JSON.stringify({ level })
-      })
-      if (!res.ok) throw new Error('Failed to update level')
+      await api.updateProfile({ level })
       await refreshProfile()
       toast.success('Level updated')
     } catch (error) {
       toast.error('Failed to update level')
     }
-    
+
     setSavingLevel(false)
   }
 
@@ -97,6 +80,12 @@ export default function Account() {
             <label className="form-label">Full name</label>
             <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
               {profile?.full_name}
+            </p>
+          </div>
+          <div>
+            <label className="form-label">Email</label>
+            <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
+              {profile?.email}
             </p>
           </div>
           <div>

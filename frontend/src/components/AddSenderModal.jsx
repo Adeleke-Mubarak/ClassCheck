@@ -8,7 +8,7 @@ const ROLES = ['lecturer', 'class_rep']
 export default function AddSenderModal({ isOpen, onClose, onAdded }) {
   const [courses, setCourses] = useState([])
   const [form, setForm] = useState({
-    fullName: '',
+    full_name: '',
     email: '',
     role: '',
     password: '',
@@ -33,7 +33,7 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
   }
 
   function reset() {
-    setForm({ fullName: '', email: '', role: '', password: '', selectedCourses: [] })
+    setForm({ full_name: '', email: '', role: '', password: '', selectedCourses: [] })
   }
 
   async function handleSubmit(e) {
@@ -44,7 +44,7 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
     setLoading(true)
     try {
       await api.createSender({
-        full_name: form.fullName,
+        full_name: form.full_name,
         email: form.email,
         password: form.password,
         role: form.role,
@@ -72,8 +72,8 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
             type="text"
             required
             placeholder="e.g. Dr. Amaka Nwosu"
-            value={form.fullName}
-            onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
+            value={form.full_name}
+            onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
             className="form-input"
           />
         </div>

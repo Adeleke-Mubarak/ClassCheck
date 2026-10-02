@@ -21,7 +21,7 @@ export default function SenderSignIn() {
       const role = user?.role
       if (role === 'admin') {
         navigate('/admin')
-      } else if (role === 'sender') {
+      } else if (role === 'lecturer' || role === 'class_rep') {
         navigate('/sender/portal')
       } else {
         await api.signOut()

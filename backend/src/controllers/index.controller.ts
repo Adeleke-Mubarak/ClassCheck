@@ -1,10 +1,12 @@
 import type { Request, Response } from 'express'
+import { env } from '../config/env.js'
 import {
-  AuthService, ProfileService,
-  DepartmentService, PostService, ReactionService, NotificationService,
+  AuthService, ProfileService, CourseService,
+  StudentCourseService, SenderCourseService, UpdatePostService,
+  SenderService, NotificationService, WaitlistService, AdminService,
 } from '../services/index.service.js'
 
-type IdParam        = { id: string }
+type IdParam = { id: string }
 
 function ok(res: Response, data: unknown, status = 200) {
   res.status(status).json({ data })
@@ -18,13 +20,15 @@ function fail(res: Response, error: unknown, status = 400) {
 
 export const AuthController = {
   signUp: async (req: Request, res: Response) => {
-    const { full_name, matric_no, email, password } = req.body
+    const { full_name, matric_no, email, department, level, password } = req.body
 
     const { data: authData, error: authError } = await AuthService.signUp(email, password)
     if (authError) { fail(res, authError.message); return }
     if (!authData.user) { fail(res, 'Signup failed.'); return }
 
-    const { error: profileError } = await ProfileService.create(authData.user.id, full_name, matric_no)
+    const { error: profileError } = await ProfileService.create(authData.user.id, {
+      full_name, email, matric_no, department, level, role: 'student',
+    })
     if (profileError) { fail(res, profileError.message); return }
 
     const { data: session, error: sessionError } = await AuthService.signIn(email, password)
@@ -33,10 +37,23 @@ export const AuthController = {
     ok(res, session, 201)
   },
 
+  // Students sign in with matric_no, senders/admin sign in with email.
   signIn: async (req: Request, res: Response) => {
-    const { email, password } = req.body
-    const { data, error } = await AuthService.signIn(email, password)
-    if (error) { fail(res, error.message, 401); return }
+    const { email, matric_no, password } = req.body
+
+    let resolvedEmail = email as string | undefined
+
+    if (!resolvedEmail && matric_no) {
+      const { data: profile } = await ProfileService.getByMatricNo(matric_no)
+      if (!profile) { fail(res, 'Invalid matric number or password.', 401); return }
+
+      const { data: userData } = await AuthService.getUserById(profile.id)
+      resolvedEmail = userData?.user?.email ?? undefined
+      if (!resolvedEmail) { fail(res, 'Invalid matric number or password.', 401); return }
+    }
+
+    const { data, error } = await AuthService.signIn(resolvedEmail!, password)
+    if (error) { fail(res, 'Invalid credentials.', 401); return }
     ok(res, data)
   },
 
@@ -45,6 +62,37 @@ export const AuthController = {
     const { error } = await AuthService.signOut(token!)
     if (error) { fail(res, error.message); return }
     ok(res, { message: 'Signed out.' })
+  },
+
+  // Students only have a matric_no, not a memorised email, so reset is keyed
+  // off matric_no. Always respond the same way whether or not it matched, so
+  // this can't be used to enumerate valid matric numbers.
+  forgotPassword: async (req: Request, res: Response) => {
+    const { matric_no } = req.body
+
+    const { data: profile } = await ProfileService.getByMatricNo(matric_no)
+    if (profile) {
+      const { data: userData } = await AuthService.getUserById(profile.id)
+      const email = userData?.user?.email
+      if (email) {
+        await AuthService.sendPasswordReset(email, `${env.clientUrl}/reset-password`)
+      }
+    }
+
+    ok(res, { message: 'If that matric number exists, a reset link has been sent.' })
+  },
+
+  updatePassword: async (req: Request, res: Response) => {
+    const { password } = req.body
+    const { error } = await AuthService.updatePassword(req.user!.id, password)
+    if (error) { fail(res, error.message); return }
+    ok(res, { message: 'Password updated.' })
+  },
+
+  deleteAccount: async (req: Request, res: Response) => {
+    const { error } = await AuthService.deleteUser(req.user!.id)
+    if (error) { fail(res, error.message); return }
+    ok(res, { message: 'Account deleted.' })
   },
 }
 
@@ -68,97 +116,148 @@ export const ProfileController = {
   },
 }
 
-export const DepartmentController = {
+export const CourseController = {
   getAll: async (_req: Request, res: Response) => {
-    const { data, error } = await DepartmentService.getAll()
+    const { data, error } = await CourseService.getAll()
     if (error) { fail(res, error.message); return }
     ok(res, data)
   },
 
   create: async (req: Request, res: Response) => {
-    const { name, code } = req.body
-    const { data, error } = await DepartmentService.create(name, code)
+    const { data, error } = await CourseService.create(req.body)
     if (error) { fail(res, error.message); return }
     ok(res, data, 201)
+  },
+
+  remove: async (req: Request<IdParam>, res: Response) => {
+    const { error } = await CourseService.remove(req.params.id)
+    if (error) { fail(res, error.message); return }
+    ok(res, { message: 'Course deleted.' })
   },
 }
 
-export const PostController = {
+export const StudentCourseController = {
+  getMine: async (req: Request<IdParam>, res: Response) => {
+    const { data, error } = await StudentCourseService.getForStudent(req.params.id)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  replace: async (req: Request<IdParam>, res: Response) => {
+    const { course_ids } = req.body
+    const { data, error } = await StudentCourseService.replaceAll(req.params.id, course_ids)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+}
+
+export const SenderCourseController = {
+  getMine: async (req: Request<IdParam>, res: Response) => {
+    const { data, error } = await SenderCourseService.getForSender(req.params.id)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+}
+
+export const UpdateController = {
   create: async (req: Request, res: Response) => {
-    const { department_id, ...rest } = req.body
+    const { course_id, type, new_venue, note } = req.body
 
-    const targetDepartmentId =
-      req.user!.role === 'admin' && department_id ? department_id : req.user!.department_id
-
-    if (!targetDepartmentId) {
-      fail(res, 'You are not assigned to a department, so you cannot post.', 400)
-      return
+    if (req.user!.role !== 'admin') {
+      const assigned = await SenderCourseService.isAssigned(req.user!.id, course_id)
+      if (!assigned) { fail(res, 'You are not assigned to post updates for this course.', 403); return }
     }
 
-    const { data, error } = await PostService.create(req.user!.id, targetDepartmentId, rest)
+    const { data, error } = await UpdatePostService.create(req.user!.id, { course_id, type, new_venue, note })
     if (error) { fail(res, error.message); return }
     ok(res, data, 201)
   },
 
-  getAll: async (req: Request, res: Response) => {
-    const departmentId = typeof req.query.department_id === 'string' ? req.query.department_id : undefined
-    const { data, error } = await PostService.getAll(departmentId)
+  getAll: async (_req: Request, res: Response) => {
+    const { data, error } = await UpdatePostService.getAll()
     if (error) { fail(res, error.message); return }
     ok(res, data)
   },
 
-  getById: async (req: Request<IdParam>, res: Response) => {
-    const { data, error } = await PostService.getById(req.params.id)
-    if (error) { fail(res, error.message, 404); return }
+  getMine: async (req: Request<IdParam>, res: Response) => {
+    const { data, error } = await UpdatePostService.getForSender(req.params.id)
+    if (error) { fail(res, error.message); return }
     ok(res, data)
   },
 
-  update: async (req: Request<IdParam>, res: Response) => {
-    const { data: existing, error: fetchError } = await PostService.getById(req.params.id)
-    if (fetchError || !existing) { fail(res, 'Post not found.', 404); return }
+  // A student's feed: updates for courses they're subscribed to only.
+  getFeed: async (req: Request, res: Response) => {
+    const { data: subs, error: subsError } = await StudentCourseService.getForStudent(req.user!.id)
+    if (subsError) { fail(res, subsError.message); return }
 
-    if (existing.author_id !== req.user!.id && req.user!.role !== 'admin') {
-      fail(res, 'You can only edit your own posts.', 403)
-      return
-    }
+    const courseIds = (subs ?? []).map((s: any) => s.course_id)
+    if (courseIds.length === 0) { ok(res, []); return }
 
-    const { data, error } = await PostService.update(req.params.id, req.body)
+    const { data, error } = await UpdatePostService.getForCourses(courseIds)
     if (error) { fail(res, error.message); return }
     ok(res, data)
   },
 
   remove: async (req: Request<IdParam>, res: Response) => {
-    const { data: existing, error: fetchError } = await PostService.getById(req.params.id)
-    if (fetchError || !existing) { fail(res, 'Post not found.', 404); return }
+    const { data: existing, error: fetchError } = await UpdatePostService.getById(req.params.id)
+    if (fetchError || !existing) { fail(res, 'Update not found.', 404); return }
 
-    if (existing.author_id !== req.user!.id && req.user!.role !== 'admin') {
-      fail(res, 'You can only delete your own posts.', 403)
+    if (existing.sender_id !== req.user!.id && req.user!.role !== 'admin') {
+      fail(res, 'You can only delete your own updates.', 403)
       return
     }
 
-    const { error } = await PostService.remove(req.params.id)
+    const { error } = await UpdatePostService.remove(req.params.id)
     if (error) { fail(res, error.message); return }
-    ok(res, { message: 'Post deleted.' })
+    ok(res, { message: 'Update deleted.' })
   },
 }
 
-export const ReactionController = {
-  react: async (req: Request<IdParam>, res: Response) => {
-    const { type } = req.body
-    const { data, error } = await ReactionService.upsert(req.params.id, req.user!.id, type)
+export const SenderController = {
+  getAll: async (_req: Request, res: Response) => {
+    const { data, error } = await SenderService.getAll()
     if (error) { fail(res, error.message); return }
-    ok(res, data, 201)
+    ok(res, data)
   },
 
-  unreact: async (req: Request<IdParam>, res: Response) => {
-    const { error } = await ReactionService.remove(req.params.id, req.user!.id)
-    if (error) { fail(res, error.message); return }
-    ok(res, { message: 'Reaction removed.' })
+  // Admin creates a sender account directly (senders cannot self-register).
+  create: async (req: Request, res: Response) => {
+    const { full_name, email, password, role, courses } = req.body
+
+    const { data: authData, error: authError } = await AuthService.createUser(email, password)
+    if (authError) { fail(res, authError.message); return }
+    if (!authData.user) { fail(res, 'Failed to create sender account.'); return }
+
+    const { data: profile, error: profileError } = await ProfileService.create(authData.user.id, {
+      full_name, email, role,
+    })
+    if (profileError) { fail(res, profileError.message); return }
+
+    if (courses?.length) {
+      const { error: assignError } = await SenderCourseService.assign(authData.user.id, courses)
+      if (assignError) { fail(res, assignError.message); return }
+    }
+
+    ok(res, profile, 201)
   },
 
-  getForPost: async (req: Request<IdParam>, res: Response) => {
-    const { data, error } = await ReactionService.getForPost(req.params.id)
+  updateStatus: async (req: Request<IdParam>, res: Response) => {
+    const { status } = req.body
+    const { data, error } = await SenderService.updateStatus(req.params.id, status)
     if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  remove: async (req: Request<IdParam>, res: Response) => {
+    const { error } = await AuthService.deleteUser(req.params.id)
+    if (error) { fail(res, error.message); return }
+    ok(res, { message: 'Sender removed.' })
+  },
+}
+
+export const AdminController = {
+  getOverview: async (_req: Request, res: Response) => {
+    const data = await AdminService.getOverview()
     ok(res, data)
   },
 }
@@ -180,5 +279,17 @@ export const NotificationController = {
     const { error } = await NotificationService.markAllRead(req.user!.id)
     if (error) { fail(res, error.message); return }
     ok(res, { message: 'All notifications marked read.' })
+  },
+}
+
+export const WaitlistController = {
+  join: async (req: Request, res: Response) => {
+    const { data, error } = await WaitlistService.join(req.body)
+    if (error) {
+      if ((error as any).code === '23505') { fail(res, 'This email is already on the waitlist.', 409); return }
+      fail(res, error.message)
+      return
+    }
+    ok(res, data, 201)
   },
 }

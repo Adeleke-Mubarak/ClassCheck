@@ -1,54 +1,68 @@
-export type ProfileRole = 'student' | 'lecturer' | 'hod' | 'dept_head' | 'admin'
+export type ProfileRole   = 'student' | 'lecturer' | 'class_rep' | 'admin'
+export type SenderStatus  = 'active' | 'inactive'
+export type UpdateType    = 'cancelled' | 'venue_change'
 
 export interface Profile {
-  id:            string
-  full_name:     string
-  matric_no:     number
-  is_admin:      boolean
-  role:          ProfileRole
-  department_id: string | null
-  phone?:        string | null
-  location?:     string | null
-  created_at:    string
-  updated_at:    string
+  id:         string
+  full_name:  string
+  email:      string
+  matric_no:  string | null
+  department: string | null
+  level:      string | null
+  role:       ProfileRole
+  status:     SenderStatus
+  created_at: string
+  updated_at: string
 }
 
-export interface Department {
+export interface Course {
+  id:          string
+  course_code: string
+  course_name: string
+  department:  string
+  level:       string
+  created_at:  string
+}
+
+export interface StudentCourse {
   id:         string
-  name:       string
-  code:       string
+  student_id: string
+  course_id:  string
   created_at: string
 }
 
-export type ReactionType = 'like' | 'heart' | 'seen'
-
-export interface Post {
-  id:             string
-  author_id:      string
-  department_id:  string
-  title:          string
-  content:        string
-  course_code:    string | null
-  location:       string | null
-  class_time:     string | null
-  created_at:     string
-  updated_at:     string
+export interface SenderCourse {
+  id:         string
+  sender_id:  string
+  course_id:  string
+  created_at: string
 }
 
-export interface Reaction {
+export interface UpdatePost {
   id:         string
-  post_id:    string
-  user_id:    string
-  type:       ReactionType
+  course_id:  string
+  sender_id:  string
+  type:       UpdateType
+  new_venue:  string | null
+  note:       string | null
   created_at: string
 }
 
 export interface Notification {
   id:         string
   user_id:    string
-  post_id:    string | null
+  update_id:  string | null
   message:    string
   is_read:    boolean
+  created_at: string
+}
+
+export interface WaitlistEntry {
+  id:         string
+  name:       string
+  email:      string
+  department: string
+  university: string
   created_at: string
 }
 
@@ -56,11 +70,12 @@ declare global {
   namespace Express {
     interface Request {
       user?: {
-        id:            string
-        email:         string
-        is_admin:      boolean
-        role:          ProfileRole
-        department_id: string | null
+        id:         string
+        email:      string
+        role:       ProfileRole
+        status:     SenderStatus
+        department: string | null
+        level:      string | null
       }
     }
   }

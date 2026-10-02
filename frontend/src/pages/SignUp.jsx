@@ -359,6 +359,7 @@ export default function SignUp() {
   const [form, setForm] = useState({
     fullName: '',
     matricNo: '',
+    email: '',
     department: '',
     level: '',
     password: '',
@@ -436,7 +437,20 @@ export default function SignUp() {
                 required
                 autoComplete="name"
                 placeholder="e.g. Chukwuemeka Obi"
-                value={form.fullName}
+                value={form.full_name}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div style={styles.fieldGroup}>
+              <label style={styles.label} htmlFor="email">Email</label>
+              <DarkInput
+                id="email"
+                name="email"
+                required
+                autoComplete="email"
+                placeholder="e.g. johndoe@email.com"
+                value={form.email}
                 onChange={handleChange}
               />
             </div>

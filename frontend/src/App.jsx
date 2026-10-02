@@ -88,7 +88,7 @@ export default function App() {
           <Route
             path="/sender/portal"
             element={
-              <ProtectedRoute allowedRoles={['sender']} redirectTo="/sender">
+              <ProtectedRoute allowedRoles={['lecturer', 'class_rep']} redirectTo="/sender">
                 <Portal />
               </ProtectedRoute>
             }
@@ -96,7 +96,7 @@ export default function App() {
           <Route
             path="/sender/history"
             element={
-              <ProtectedRoute allowedRoles={['sender']} redirectTo="/sender">
+              <ProtectedRoute allowedRoles={['lecturer', 'class_rep']} redirectTo="/sender">
                 <History />
               </ProtectedRoute>
             }
