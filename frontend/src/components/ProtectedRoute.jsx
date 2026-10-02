@@ -1,9 +1,11 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const SENDER_ROLES = ['lecturer', 'class_rep']
+
 /**
  * ProtectedRoute wraps a component with role-based access control.
- * allowedRoles: array of 'student' | 'sender' | 'admin'
+ * allowedRoles: array of 'student' | 'lecturer' | 'class_rep' | 'admin'
  * redirectTo: where to send unauthorised users
  */
 export default function ProtectedRoute({ children, allowedRoles, redirectTo = '/signin' }) {
@@ -28,7 +30,7 @@ export default function ProtectedRoute({ children, allowedRoles, redirectTo = '/
   if (allowedRoles && !allowedRoles.includes(role)) {
     // Redirect to the appropriate home for their role
     if (role === 'admin') return <Navigate to="/admin" replace />
-    if (role === 'sender') return <Navigate to="/sender/portal" replace />
+    if (SENDER_ROLES.includes(role)) return <Navigate to="/sender/portal" replace />
     return <Navigate to="/feed" replace />
   }
 

@@ -27,60 +27,37 @@ async function fetchApi(endpoint, options = {}) {
           .map((detail) => `${detail.field}: ${detail.message}`)
           .join('\n')
       } else {
-        errorMessage =
-          data?.message ||
-          data?.error ||
-          errorMessage
+        errorMessage = data?.error || errorMessage
       }
     } catch {
       const text = await response.text().catch(() => '')
-
-      if (text) {
-        errorMessage = text
-      }
+      if (text) errorMessage = text
     }
 
     throw new Error(errorMessage)
   }
 
-  if (response.status === 204) {
-    return null
-  }
+  if (response.status === 204) return null
 
   const contentType = response.headers.get('content-type') || ''
 
-  if (!contentType.includes('application/json')) {
-    return response.text()
-  }
+  if (!contentType.includes('application/json')) return response.text()
 
   return response.json()
 }
 
-function saveAuth(data) {
-  if (!data) return data
+async function completeAuth(authResult) {
+  const session = authResult?.data?.session
+  const token = session?.access_token
 
-  const token =
-    data.token ||
-    data.accessToken ||
-    data.access_token
+  if (token) localStorage.setItem('classcheck_token', token)
 
-  const user =
-    data.user ||
-    data.profile ||
-    data.account
+  const profileResult = await fetchApi('/profile/me')
+  const profile = profileResult?.data
 
-  if (token) {
-    localStorage.setItem('classcheck_token', token)
-  }
+  if (profile) localStorage.setItem('classcheck_user', JSON.stringify(profile))
 
-  if (user) {
-    localStorage.setItem(
-      'classcheck_user',
-      JSON.stringify(user)
-    )
-  }
-
-  return data
+  return { user: profile, session }
 }
 
 export const api = {
@@ -88,47 +65,48 @@ export const api = {
   // AUTH
   // ================================================================
 
-  signUpStudent: async (data) => {
+  signUpStudent: async ({ fullName, matricNo, email, department, level, password }) => {
     const result = await fetchApi('/auth/signup', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        full_name: fullName,
+        matric_no: matricNo,
+        email,
+        department,
+        level,
+        password,
+      }),
     })
-
-    return saveAuth(result)
+    return completeAuth(result)
   },
 
-  signInStudent: async (data) => {
+  signInStudent: async ({ matricNo, password }) => {
     const result = await fetchApi('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ matric_no: matricNo, password }),
     })
-
-    return saveAuth(result)
+    return completeAuth(result)
   },
 
-  signInSender: async (data) => {
+  signInSender: async ({ email, password }) => {
     const result = await fetchApi('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ email, password }),
     })
-
-    return saveAuth(result)
+    return completeAuth(result)
   },
 
-  signInAdmin: async (data) => {
+  signInAdmin: async ({ email, password }) => {
     const result = await fetchApi('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ email, password }),
     })
-
-    return saveAuth(result)
+    return completeAuth(result)
   },
 
   signOut: async () => {
     try {
-      await fetchApi('/auth/signout', {
-        method: 'POST',
-      })
+      await fetchApi('/auth/signout', { method: 'POST' })
     } finally {
       localStorage.removeItem('classcheck_token')
       localStorage.removeItem('classcheck_user')
@@ -139,50 +117,42 @@ export const api = {
     const token = localStorage.getItem('classcheck_token')
     const userString = localStorage.getItem('classcheck_user')
 
-    if (!token || !userString) {
-      return {
-        user: null,
-        token: null,
-      }
-    }
+    if (!token || !userString) return { user: null, token: null }
 
     try {
-      return {
-        user: JSON.parse(userString),
-        token,
-      }
+      return { user: JSON.parse(userString), token }
     } catch {
       localStorage.removeItem('classcheck_user')
-
-      return {
-        user: null,
-        token,
-      }
+      return { user: null, token }
     }
   },
 
-  // These routes do NOT exist in the backend you provided.
-  resetPassword: () => {
-    throw new Error(
-      'Password reset is not available in the current backend API.'
-    )
-  },
+  resetPassword: (matricNo) =>
+    fetchApi('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ matric_no: matricNo }),
+    }),
 
-  updatePassword: () => {
-    throw new Error(
-      'Password update is not available in the current backend API.'
-    )
+  updatePassword: (password) =>
+    fetchApi('/auth/password', {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
+    }),
+
+  deleteAccount: async () => {
+    const result = await fetchApi('/auth/account', { method: 'DELETE' })
+    localStorage.removeItem('classcheck_token')
+    localStorage.removeItem('classcheck_user')
+    return result
   },
 
   // ================================================================
   // PROFILE
   // ================================================================
 
-  getMyProfile: () =>
-    fetchApi('/profile/me'),
+  getMyProfile: () => fetchApi('/profile/me'),
 
-  getProfile: (id) =>
-    fetchApi(`/profile/${id}`),
+  getProfile: (id) => fetchApi(`/profile/${id}`),
 
   updateProfile: (data) =>
     fetchApi('/profile/me', {
@@ -191,186 +161,110 @@ export const api = {
     }),
 
   // ================================================================
-  // DEPARTMENTS
+  // COURSES (catalog)
   // ================================================================
 
-  getDepartments: () =>
-    fetchApi('/departments'),
+  getCourses: () => fetchApi('/courses'),
 
-  createDepartment: (data) =>
-    fetchApi('/departments', {
+  createCourse: (data) =>
+    fetchApi('/courses', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  // Compatibility with old frontend naming.
-  getCourses: () =>
-    fetchApi('/departments'),
+  deleteCourse: (id) =>
+    fetchApi(`/courses/${id}`, { method: 'DELETE' }),
 
   // ================================================================
-  // POSTS
+  // STUDENT SUBSCRIPTIONS
   // ================================================================
 
-  getPosts: () =>
-    fetchApi('/posts'),
+  getStudentSubscriptions: (studentId) =>
+    fetchApi(`/students/${studentId}/courses`),
 
-  getPost: (id) =>
-    fetchApi(`/posts/${id}`),
-
-  createPost: (data) =>
-    fetchApi('/posts', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
-
-  updatePost: (id, data) =>
-    fetchApi(`/posts/${id}`, {
+  updateSubscriptions: (studentId, courseIds) =>
+    fetchApi(`/students/${studentId}/courses`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ course_ids: courseIds }),
     }),
 
-  deletePost: (id) =>
-    fetchApi(`/posts/${id}`, {
-      method: 'DELETE',
-    }),
+  // ================================================================
+  // SENDER COURSES + UPDATES
+  // ================================================================
+  
+  getSenderCourses: async (senderId) => {
+    const result = await fetchApi(`/senders/${senderId}/courses`)
+    return { data: (result?.data || []).map((row) => row.courses).filter(Boolean) }
+  },
 
-  // Compatibility with old frontend naming.
-  getFeed: () =>
-    fetchApi('/posts'),
+  getSenderHistory: (senderId) => fetchApi(`/senders/${senderId}/updates`),
+
+  getFeed: () => fetchApi('/feed'),
 
   postUpdate: (data) =>
-    fetchApi('/posts', {
+    fetchApi('/updates', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        course_id: data.course_id,
+        type:      data.type,
+        new_venue: data.new_venue,
+        note:      data.note,
+      }),
     }),
-
-  getSenderHistory: () =>
-    fetchApi('/posts'),
 
   deleteUpdate: (updateId) =>
-    fetchApi(`/posts/${updateId}`, {
-      method: 'DELETE',
-    }),
+    fetchApi(`/updates/${updateId}`, { method: 'DELETE' }),
+
+  getAllUpdates: () => fetchApi('/updates'),
 
   // ================================================================
-  // REACTIONS
+  // ADMIN: SENDERS
   // ================================================================
 
-  getPostReactions: (postId) =>
-    fetchApi(`/posts/${postId}/reactions`),
+  getSenders: () => fetchApi('/senders'),
 
-  reactToPost: (postId, data) =>
-    fetchApi(`/posts/${postId}/reactions`, {
+  createSender: (data) =>
+    fetchApi('/senders', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  unreactToPost: (postId) =>
-    fetchApi(`/posts/${postId}/reactions`, {
-      method: 'DELETE',
+  updateSenderStatus: (id, status) =>
+    fetchApi(`/senders/${id}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     }),
+
+  deleteSender: (id) =>
+    fetchApi(`/senders/${id}`, { method: 'DELETE' }),
+
+  // ================================================================
+  // ADMIN: OVERVIEW
+  // ================================================================
+
+  getOverviewMetrics: () => fetchApi('/admin/overview'),
 
   // ================================================================
   // NOTIFICATIONS
   // ================================================================
 
-  getNotifications: () =>
-    fetchApi('/notifications'),
+  getNotifications: () => fetchApi('/notifications'),
 
   markAllNotificationsRead: () =>
-    fetchApi('/notifications/read-all', {
-      method: 'PUT',
-    }),
+    fetchApi('/notifications/read-all', { method: 'PUT' }),
 
   markNotificationRead: (notificationId) =>
-    fetchApi(`/notifications/${notificationId}/read`, {
-      method: 'PUT',
+    fetchApi(`/notifications/${notificationId}/read`, { method: 'PUT' }),
+
+  // ================================================================
+  // WAITLIST
+  // ================================================================
+
+  joinWaitlist: (data) =>
+    fetchApi('/waitlist', {
+      method: 'POST',
+      body: JSON.stringify(data),
     }),
-
-  // ================================================================
-  // OLD ENDPOINTS THAT DO NOT EXIST IN THE NEW BACKEND
-  // ================================================================
-
-  getStudentSubscriptions: () => {
-    throw new Error(
-      'Student subscriptions are not available in the current backend API.'
-    )
-  },
-
-  updateSubscriptions: () => {
-    throw new Error(
-      'Student subscriptions are not available in the current backend API.'
-    )
-  },
-
-  deleteAccount: () => {
-    throw new Error(
-      'Account deletion is not available in the current backend API.'
-    )
-  },
-
-  getSenderCourses: () => {
-    throw new Error(
-      'Sender courses are not available in the current backend API.'
-    )
-  },
-
-  getOverviewMetrics: () => {
-    throw new Error(
-      'Admin overview is not available in the current backend API.'
-    )
-  },
-
-  getSenders: () => {
-    throw new Error(
-      'Admin sender management is not available in the current backend API.'
-    )
-  },
-
-  updateSenderStatus: () => {
-    throw new Error(
-      'Admin sender status management is not available in the current backend API.'
-    )
-  },
-
-  deleteSender: () => {
-    throw new Error(
-      'Admin sender deletion is not available in the current backend API.'
-    )
-  },
-
-  createSender: () => {
-    throw new Error(
-      'Admin sender creation is not available in the current backend API.'
-    )
-  },
-
-  deleteCourse: () => {
-    throw new Error(
-      'Admin course deletion is not available in the current backend API.'
-    )
-  },
-
-  createCourse: () => {
-    throw new Error(
-      'Admin course creation is not available in the current backend API.'
-    )
-  },
-
-  getAllUpdates: () => {
-    throw new Error(
-      'Admin update listing is not available in the current backend API.'
-    )
-  },
-
-  joinWaitlist: () => {
-    throw new Error(
-      'Waitlist is not available in the current backend API.'
-    )
-  },
 }
 
-export {
-  BASE_URL,
-  fetchApi,
-}
+export { BASE_URL, fetchApi }
