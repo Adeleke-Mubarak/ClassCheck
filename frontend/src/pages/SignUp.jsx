@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 import Typewriter from '../components/Typewriter'
 
 /* ------------------------------------------------------------------ */
@@ -356,6 +357,7 @@ function DarkInput({ id, name, type = 'text', required, autoComplete, placeholde
 
 export default function SignUp() {
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const [form, setForm] = useState({
     fullName: '',
     matricNo: '',
@@ -380,6 +382,7 @@ export default function SignUp() {
     setLoading(true)
     try {
       await api.signUpStudent(form)
+      await refreshProfile()
       navigate('/onboarding')
     } catch (err) {
       toast.error(err.message || 'Failed to create account')
@@ -437,7 +440,7 @@ export default function SignUp() {
                 required
                 autoComplete="name"
                 placeholder="e.g. Chukwuemeka Obi"
-                value={form.full_name}
+                value={form.fullName}
                 onChange={handleChange}
               />
             </div>

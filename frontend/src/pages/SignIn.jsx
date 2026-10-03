@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 import Typewriter from '../components/Typewriter'
 
 /* ------------------------------------------------------------------ */
@@ -208,6 +209,7 @@ function DarkInput({ id, name, type = 'text', required, autoComplete, placeholde
 
 export default function SignIn() {
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const [form, setForm] = useState({ email: '', matricNo: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [submitHover, setSubmitHover] = useState(false)
@@ -222,6 +224,7 @@ export default function SignIn() {
     setLoading(true)
     try {
       await api.signInStudent(form)
+      await refreshProfile()
       navigate('/feed')
     } catch (err) {
       toast.error(err?.message || 'Sign in failed')
@@ -269,7 +272,7 @@ export default function SignIn() {
           <form onSubmit={handleSubmit}>
             {/* Email */}
             <div style={S.fieldGroup}>
-              <label style={S.label} htmlFor="matricNo">Email</label>
+              <label style={S.label} htmlFor="email">Email</label>
               <DarkInput
                 id="email"
                 name="email"

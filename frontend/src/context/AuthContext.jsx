@@ -31,6 +31,15 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     loadProfile()
+
+    const handleAuthChange = () => {
+      loadProfile()
+    }
+
+    window.addEventListener('classcheck_auth_change', handleAuthChange)
+    return () => {
+      window.removeEventListener('classcheck_auth_change', handleAuthChange)
+    }
   }, [])
 
   const value = { user, profile, role, loading, refreshProfile: loadProfile }

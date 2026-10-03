@@ -2,9 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
+import { useAuth } from '../context/AuthContext'
 
 export default function SenderSignIn() {
   const navigate = useNavigate()
+  const { refreshProfile } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [loading, setLoading] = useState(false)
 
@@ -17,6 +19,7 @@ export default function SenderSignIn() {
     setLoading(true)
     try {
       const { user } = await api.signInSender(form)
+      await refreshProfile()
       // Determine role and redirect appropriately
       const role = user?.role
       if (role === 'admin') {
@@ -25,6 +28,7 @@ export default function SenderSignIn() {
         navigate('/sender/portal')
       } else {
         await api.signOut()
+        await refreshProfile()
         toast.error('Your account is not authorised. Contact your department admin.')
       }
     } catch (err) {

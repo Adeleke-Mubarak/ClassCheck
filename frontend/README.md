@@ -42,17 +42,15 @@ ClassCheck solves a common problem on Nigerian university campuses: students tre
 
 ## API Architecture (Backend Devs)
 
-We have **completely removed Supabase** from the frontend codebase. All database, authentication, and data fetching logic has been centralized into one clean REST API client.
-
 All frontend requests flow through `src/lib/api.js`.
 
-To connect the frontend to your custom backend (Node, Python, PHP, etc.):
+To connect the frontend to the backend:
 1. Create a `.env` file in this `frontend` directory.
-2. Add your backend URL: `VITE_API_URL=http://localhost:3000/api` (Replace with your actual backend port/URL).
-3. The `src/lib/api.js` file will automatically append the endpoint routes (e.g. `/auth/signin/student`, `/courses`) to your `VITE_API_URL` and send standard `fetch()` requests.
+2. Add your backend URL: `VITE_API_URL=http://localhost:3000/api/v1`.
+3. See [NOTES_FOR_BACKEND.md](./NOTES_FOR_BACKEND.md) for the exact payload contract and details on the latest fixes.
 
 **Authentication:** 
-The frontend expects your login routes to return a JSON object containing `{ user, token }`. The `api.js` client automatically stores the `token` in `localStorage` and attaches it as a `Bearer` token to the `Authorization` header of all future requests.
+The frontend expects your login routes to return a JSON object containing `{ data: { session: { access_token } } }` (or standard token). The `api.js` client automatically stores the `token` in `localStorage` and attaches it as a `Bearer` token to the `Authorization` header of all future requests.
 
 ---
 

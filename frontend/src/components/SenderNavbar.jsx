@@ -3,12 +3,13 @@ import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
 
 export default function SenderNavbar() {
-  const { profile } = useAuth()
+  const { profile, refreshProfile } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
   async function handleSignOut() {
     await api.signOut()
+    await refreshProfile()
     navigate('/sender')
   }
 

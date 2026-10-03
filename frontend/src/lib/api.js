@@ -57,6 +57,10 @@ async function completeAuth(authResult) {
 
   if (profile) localStorage.setItem('classcheck_user', JSON.stringify(profile))
 
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('classcheck_auth_change'))
+  }
+
   return { user: profile, session }
 }
 
@@ -65,7 +69,11 @@ export const api = {
   // AUTH
   // ================================================================
 
-  signUpStudent: async ({ fullName, matricNo, email, department, level, password }) => {
+  signUpStudent: async (data) => {
+    const fullName = data.fullName || data.full_name
+    const matricNo = data.matricNo || data.matric_no
+    const { email, department, level, password } = data
+
     const result = await fetchApi('/auth/signup', {
       method: 'POST',
       body: JSON.stringify({
@@ -110,6 +118,9 @@ export const api = {
     } finally {
       localStorage.removeItem('classcheck_token')
       localStorage.removeItem('classcheck_user')
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('classcheck_auth_change'))
+      }
     }
   },
 
