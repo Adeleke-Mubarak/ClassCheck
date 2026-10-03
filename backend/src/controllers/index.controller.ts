@@ -43,17 +43,43 @@ export const AuthController = {
 
     let resolvedEmail = email as string | undefined
 
-    if (!resolvedEmail && matric_no) {
+    if (matric_no) {
       const { data: profile } = await ProfileService.getByMatricNo(matric_no)
-      if (!profile) { fail(res, 'Invalid matric number or password.', 401); return }
+
+      if (!profile) {
+        fail(res, 'Invalid email, matric number, or password.', 401)
+        return
+      }
 
       const { data: userData } = await AuthService.getUserById(profile.id)
       resolvedEmail = userData?.user?.email ?? undefined
-      if (!resolvedEmail) { fail(res, 'Invalid matric number or password.', 401); return }
+
+      if (!resolvedEmail) {
+        fail(res, 'Email required during signin', 401)
+        return
+      }
+
+      if (email && resolvedEmail.toLowerCase() !== email.toLowerCase()) {
+        fail(res, 'Invalid email', 401)
+        return
+      }
     }
 
-    const { data, error } = await AuthService.signIn(resolvedEmail!, password)
-    if (error) { fail(res, 'Invalid credentials.', 401); return }
+    if (!resolvedEmail) {
+      fail(res, 'Email or matric number is required.', 400)
+      return
+    }
+
+    const { data, error } = await AuthService.signIn(
+      resolvedEmail,
+      password
+    )
+
+    if (error) {
+      fail(res, error.message, 401)
+      return
+    }
+
     ok(res, data)
   },
 
@@ -64,9 +90,6 @@ export const AuthController = {
     ok(res, { message: 'Signed out.' })
   },
 
-  // Students only have a matric_no, not a memorised email, so reset is keyed
-  // off matric_no. Always respond the same way whether or not it matched, so
-  // this can't be used to enumerate valid matric numbers.
   forgotPassword: async (req: Request, res: Response) => {
     const { matric_no } = req.body
 

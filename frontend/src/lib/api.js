@@ -80,10 +80,10 @@ export const api = {
     return completeAuth(result)
   },
 
-  signInStudent: async ({ matricNo, password }) => {
+  signInStudent: async ({ email, matricNo, password }) => {
     const result = await fetchApi('/auth/signin', {
       method: 'POST',
-      body: JSON.stringify({ matric_no: matricNo, password }),
+      body: JSON.stringify({ email, matric_no: matricNo, password }),
     })
     return completeAuth(result)
   },

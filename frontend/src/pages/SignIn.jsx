@@ -208,7 +208,7 @@ function DarkInput({ id, name, type = 'text', required, autoComplete, placeholde
 
 export default function SignIn() {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ matricNo: '', password: '' })
+  const [form, setForm] = useState({ email: '', matricNo: '', password: '' })
   const [loading, setLoading] = useState(false)
   const [submitHover, setSubmitHover] = useState(false)
   const [forgotHover, setForgotHover] = useState(false)
@@ -224,7 +224,8 @@ export default function SignIn() {
       await api.signInStudent(form)
       navigate('/feed')
     } catch (err) {
-      toast.error('Invalid matric number or password')
+      toast.error(err?.message || 'Sign in failed')
+      console.error('Sign in error:', err)
     } finally {
       setLoading(false)
     }
@@ -266,6 +267,20 @@ export default function SignIn() {
           <span style={S.sectionLabel}>Sign in to your account</span>
 
           <form onSubmit={handleSubmit}>
+            {/* Email */}
+            <div style={S.fieldGroup}>
+              <label style={S.label} htmlFor="matricNo">Email</label>
+              <DarkInput
+                id="email"
+                name="email"
+                required
+                autoComplete="useremail"
+                placeholder="e.g. johndoe@email.com"
+                value={form.email}
+                onChange={handleChange}
+              />
+            </div>
+
             {/* Matric number */}
             <div style={S.fieldGroup}>
               <label style={S.label} htmlFor="matricNo">Matric number</label>
@@ -273,7 +288,7 @@ export default function SignIn() {
                 id="matricNo"
                 name="matricNo"
                 required
-                autoComplete="username"
+                autoComplete="usermatno"
                 placeholder="e.g. 190404001"
                 value={form.matricNo}
                 onChange={handleChange}

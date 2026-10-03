@@ -17,7 +17,7 @@ import {
 
 const router = Router()
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 10, message: { error: 'Too many requests, try again later.' } })
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 500, message: { error: 'Too many requests, try again later.' } })
 
 // Auth
 router.post  ('/auth/signup',          authLimiter, validate(signUpSchema),          AuthController.signUp)
