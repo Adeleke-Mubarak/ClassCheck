@@ -195,6 +195,22 @@ create table if not exists public.courses (
 create index if not exists idx_courses_department_level
   on public.courses(department, level);
 
+-- Seed Mathematics 400L Courses
+insert into public.courses (course_code, course_name, department, level)
+values
+  ('MAT401', 'Real Analysis III', 'Mathematics', '400'),
+  ('MAT403', 'Complex Analysis II', 'Mathematics', '400'),
+  ('MAT405', 'Abstract Algebra II', 'Mathematics', '400'),
+  ('MAT407', 'Differential Equations III', 'Mathematics', '400'),
+  ('MAT409', 'Topology', 'Mathematics', '400'),
+  ('MAT411', 'Functional Analysis', 'Mathematics', '400'),
+  ('MAT413', 'Numerical Analysis II', 'Mathematics', '400'),
+  ('MAT415', 'Operations Research', 'Mathematics', '400'),
+  ('MAT417', 'Mathematical Methods', 'Mathematics', '400'),
+  ('MAT419', 'Fluid Dynamics', 'Mathematics', '400'),
+  ('MAT497', 'Final Year Project', 'Mathematics', '400')
+on conflict (course_code) do nothing;
+
 
 -- ============================================================================
 -- 5. STUDENT COURSE SUBSCRIPTIONS

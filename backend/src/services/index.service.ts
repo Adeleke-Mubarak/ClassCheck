@@ -59,7 +59,7 @@ export const CourseService = {
   getAll: () =>
     supabase
       .from('courses')
-      .select('*, sender_courses(senders:sender_id(full_name, role)), updates(id)')
+      .select('*, sender_courses(profiles!sender_id(full_name, role)), updates(id)')
       .order('course_code'),
 
   create: (data: { course_code: string; course_name: string; department: string; level: string }) =>
@@ -107,7 +107,7 @@ export const SenderCourseService = {
   },
 }
 
-const UPDATE_SELECT = '*, courses:course_id(course_code, course_name), senders:sender_id(full_name, role)'
+const UPDATE_SELECT = '*, courses:course_id(course_code, course_name), senders:profiles!sender_id(full_name, role)'
 
 type UpdateInput = {
   course_id:  string
@@ -177,7 +177,7 @@ export const AdminService = {
         supabase.from('updates').select('id', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()),
         supabase
           .from('updates')
-          .select('id, type, created_at, courses:course_id(course_code), senders:sender_id(full_name)')
+          .select('id, type, created_at, courses:course_id(course_code), senders:profiles!sender_id(full_name)')
           .order('created_at', { ascending: false })
           .limit(5),
         supabase

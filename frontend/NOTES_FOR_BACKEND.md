@@ -60,3 +60,41 @@ Ensure your `frontend/.env` has:
 ```env
 VITE_API_URL=http://localhost:3000/api/v1
 ```
+
+---
+
+## 📚 4. Course Seeding & Venue Changes Guidance
+
+### A. Course Seeding (`courses` table)
+The 400-level Mathematics pilot requires seed courses so students can pick them on the Onboarding screen (`/onboarding`). We added the seed statements to `backend/db.sql`:
+```sql
+insert into public.courses (course_code, course_name, department, level)
+values
+  ('MAT401', 'Real Analysis III', 'Mathematics', '400'),
+  ('MAT403', 'Complex Analysis II', 'Mathematics', '400'),
+  ('MAT405', 'Abstract Algebra II', 'Mathematics', '400'),
+  ('MAT407', 'Differential Equations III', 'Mathematics', '400'),
+  ('MAT409', 'Topology', 'Mathematics', '400'),
+  ('MAT411', 'Functional Analysis', 'Mathematics', '400'),
+  ('MAT413', 'Numerical Analysis II', 'Mathematics', '400'),
+  ('MAT415', 'Operations Research', 'Mathematics', '400'),
+  ('MAT417', 'Mathematical Methods', 'Mathematics', '400'),
+  ('MAT419', 'Fluid Dynamics', 'Mathematics', '400'),
+  ('MAT497', 'Final Year Project', 'Mathematics', '400')
+on conflict (course_code) do nothing;
+```
+
+### B. Venue Changes Flow
+When a lecturer or class rep posts a venue change on `/sender/portal`:
+- Payload sent:
+  ```json
+  {
+    "course_id": "uuid",
+    "type": "venue_change",
+    "new_venue": "LT 1",
+    "note": "Bring your graphing calculators"
+  }
+  ```
+- Backend validates with `createUpdateSchema`: `new_venue` is required when `type === 'venue_change'`.
+- On the student feed (`/feed`), venue changes render with an amber "Venue change" badge, the new venue prominently highlighted, and can be filtered using the "Venue change" pill.
+
