@@ -14,10 +14,10 @@ export default function ProtectedRoute({ children, allowedRoles, redirectTo = '/
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Loading...</p>
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-wider">Loading...</p>
         </div>
       </div>
     )
