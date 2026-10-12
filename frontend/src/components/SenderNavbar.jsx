@@ -52,6 +52,16 @@ export default function SenderNavbar() {
                 Timetable
               </Link>
               <Link
+                to="/directory"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isActive('/directory')
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                Directory
+              </Link>
+              <Link
                 to="/sender/history"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/sender/history')

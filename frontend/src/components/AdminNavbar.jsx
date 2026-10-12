@@ -38,6 +38,12 @@ export default function AdminNavbar() {
             >
               Timetable
             </Link>
+            <Link
+              to="/directory"
+              className="text-xs px-3 py-1.5 rounded-[6px] text-white/50 hover:text-white hover:bg-white/[0.04] transition-colors"
+            >
+              Directory
+            </Link>
           </div>
         </div>
         <button

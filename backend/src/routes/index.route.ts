@@ -8,7 +8,7 @@ import {
   AuthController, ProfileController, CourseController,
   StudentCourseController, SenderCourseController, UpdateController,
   SenderController, AdminController, NotificationController, WaitlistController,
-  TimetableController,
+  TimetableController, DirectoryController,
 } from '../controllers/index.controller.js'
 import {
   signUpSchema, signInSchema, forgotPasswordSchema, updatePasswordSchema, updateProfileSchema,
@@ -59,6 +59,10 @@ router.get   ('/timetable/me',  requireAuth,                                    
 router.post  ('/timetable',     requireAuth, requireRepOrAdmin, validate(createTimetableEntrySchema), TimetableController.create)
 router.put   ('/timetable/:id', requireAuth, requireRepOrAdmin, validate(updateTimetableEntrySchema), TimetableController.update)
 router.delete('/timetable/:id', requireAuth, requireRepOrAdmin,                                       TimetableController.remove)
+
+// Directory (faculty & course rep directory) — viewable by all authenticated users
+router.get   ('/directory',     requireAuth, DirectoryController.getAll)
+router.get   ('/directory/me',  requireAuth, DirectoryController.getMyFacilitators)
 
 // Admin: sender management
 router.get   ('/senders',            requireAuth, requireAdmin,                                     SenderController.getAll)

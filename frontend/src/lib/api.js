@@ -310,6 +310,21 @@ export const api = {
 
   deleteTimetableEntry: (id) =>
     fetchApi(`/timetable/${id}`, { method: 'DELETE' }),
+
+  // ================================================================
+  // FACULTY & COURSE REP DIRECTORY
+  // ================================================================
+
+  getDirectory: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.role) query.set('role', params.role)
+    if (params.department) query.set('department', params.department)
+    if (params.search) query.set('search', params.search)
+    const qs = query.toString() ? `?${query.toString()}` : ''
+    return fetchApi(`/directory${qs}`)
+  },
+
+  getMyFacilitators: () => fetchApi('/directory/me'),
 }
 
 export { BASE_URL, fetchApi }

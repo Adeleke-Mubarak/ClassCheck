@@ -155,6 +155,9 @@ alter table public.profiles
   add column if not exists updated_at timestamptz
     default now();
 
+alter table public.profiles
+  add column if not exists office_hours text;
+
 
 -- ============================================================================
 -- 3. PROFILE INDEXES

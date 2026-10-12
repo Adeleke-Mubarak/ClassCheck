@@ -264,3 +264,55 @@ export const TimetableService = {
   remove: (id: string) =>
     supabase.from('timetable_entries').delete().eq('id', id),
 }
+
+const DIRECTORY_SELECT = 'id, full_name, email, role, department, level, location, phone, office_hours, status, sender_courses(courses:course_id(id, course_code, course_name, level))'
+
+export const DirectoryService = {
+  getAll: (filters?: { role?: string; department?: string; search?: string }) => {
+    let query = supabase
+      .from('profiles')
+      .select(DIRECTORY_SELECT)
+      .in('role', ['lecturer', 'class_rep', 'hod', 'dept_head'])
+      .eq('status', 'active')
+      .order('full_name')
+
+    if (filters?.role && filters.role !== 'all') {
+      if (filters.role === 'hod') {
+        query = query.in('role', ['hod', 'dept_head'])
+      } else {
+        query = query.eq('role', filters.role)
+      }
+    }
+
+    if (filters?.department) {
+      query = query.eq('department', filters.department)
+    }
+
+    if (filters?.search) {
+      query = query.ilike('full_name', `%${filters.search}%`)
+    }
+
+    return query
+  },
+
+  getFacilitatorsForCourses: async (courseIds: string[]) => {
+    if (courseIds.length === 0) return { data: [], error: null }
+
+    const { data: assignments, error: assignErr } = await supabase
+      .from('sender_courses')
+      .select('sender_id')
+      .in('course_id', courseIds)
+
+    if (assignErr) return { data: null, error: assignErr }
+
+    const senderIds = Array.from(new Set((assignments || []).map((a: any) => a.sender_id)))
+    if (senderIds.length === 0) return { data: [], error: null }
+
+    return supabase
+      .from('profiles')
+      .select(DIRECTORY_SELECT)
+      .in('id', senderIds)
+      .eq('status', 'active')
+      .order('full_name')
+  },
+}

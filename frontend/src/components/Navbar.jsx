@@ -95,6 +95,7 @@ export default function Navbar() {
   const firstName = profile?.full_name?.split(' ')[0] || 'Account'
   const isFeed = location.pathname === '/feed'
   const isSchedule = location.pathname === '/schedule'
+  const isDirectory = location.pathname === '/directory'
   const isCourses = location.pathname === '/my-courses'
   const isAccount = location.pathname === '/account'
 
@@ -133,6 +134,16 @@ export default function Navbar() {
                 }`}
               >
                 Schedule
+              </Link>
+              <Link
+                to="/directory"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isDirectory
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                Directory
               </Link>
               <Link
                 to="/my-courses"

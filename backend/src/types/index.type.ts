@@ -3,16 +3,19 @@ export type SenderStatus  = 'active' | 'inactive'
 export type UpdateType    = 'cancelled' | 'venue_change'
 
 export interface Profile {
-  id:         string
-  full_name:  string
-  email:      string
-  matric_no:  string | null
-  department: string | null
-  level:      string | null
-  role:       ProfileRole
-  status:     SenderStatus
-  created_at: string
-  updated_at: string
+  id:           string
+  full_name:    string
+  email:        string
+  matric_no:    string | null
+  department:   string | null
+  level:        string | null
+  role:         ProfileRole
+  status:       SenderStatus
+  phone?:       string | null
+  location?:    string | null
+  office_hours?: string | null
+  created_at:   string
+  updated_at:   string
 }
 
 export interface Course {

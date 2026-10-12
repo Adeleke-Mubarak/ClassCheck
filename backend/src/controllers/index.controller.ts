@@ -4,7 +4,7 @@ import {
   AuthService, ProfileService, CourseService,
   StudentCourseService, SenderCourseService, UpdatePostService,
   SenderService, NotificationService, WaitlistService, AdminService,
-  TimetableService,
+  TimetableService, DirectoryService,
 } from '../services/index.service.js'
 
 type IdParam = { id: string }
@@ -388,5 +388,33 @@ export const TimetableController = {
     const { error } = await TimetableService.remove(req.params.id)
     if (error) { fail(res, error.message); return }
     res.status(204).send()
+  },
+}
+
+export const DirectoryController = {
+  getAll: async (req: Request, res: Response) => {
+    const role = typeof req.query.role === 'string' ? req.query.role : undefined
+    const department = typeof req.query.department === 'string' ? req.query.department : undefined
+    const search = typeof req.query.search === 'string' ? req.query.search : undefined
+
+    const { data, error } = await DirectoryService.getAll({ role, department, search })
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  getMyFacilitators: async (req: Request, res: Response) => {
+    const user = req.user!
+    const { data: studentRows, error: studentErr } = await StudentCourseService.getForStudent(user.id)
+    if (studentErr) { fail(res, studentErr.message); return }
+
+    const courseIds = (studentRows ?? []).map((r: any) => r.course_id)
+    if (courseIds.length === 0) {
+      ok(res, [])
+      return
+    }
+
+    const { data, error } = await DirectoryService.getFacilitatorsForCourses(courseIds)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
   },
 }
