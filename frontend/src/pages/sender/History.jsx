@@ -38,29 +38,29 @@ export default function History() {
   }
 
   return (
-    <div className="page-container">
+    <div className="min-h-screen bg-[#0A0A0A] text-white pt-20 pb-12 px-4">
       <SenderNavbar />
-      <div className="feed-container">
+      <div className="max-w-[560px] mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">My history</h1>
-          <p className="text-sm text-gray-500 mt-1">All updates you have posted</p>
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">My history</h1>
+          <p className="text-sm text-white/50 mt-1">Broadcasts dispatched from your account</p>
         </div>
 
         {loading ? (
           <div className="space-y-3">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl p-5 animate-pulse">
-                <div className="h-4 bg-gray-100 rounded w-1/4 mb-3" />
-                <div className="h-6 bg-gray-100 rounded w-1/3 mb-2" />
-                <div className="h-3 bg-gray-100 rounded w-3/4" />
+              <div key={i} className="bg-[#111111] border border-white/[0.08] rounded-md p-5 animate-pulse">
+                <div className="h-4 bg-white/5 rounded w-1/4 mb-3" />
+                <div className="h-6 bg-white/5 rounded w-1/3 mb-2" />
+                <div className="h-3 bg-white/5 rounded w-3/4" />
               </div>
             ))}
           </div>
         ) : updates.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-10 text-center">
-            <p className="text-base font-medium text-gray-900">No updates yet</p>
-            <p className="text-sm text-gray-500 mt-1">
-              Updates you post will appear here.
+          <div className="bg-[#111111] border border-white/[0.08] rounded-md p-10 text-center">
+            <p className="text-base font-semibold text-white">No updates yet</p>
+            <p className="text-sm text-white/40 mt-1">
+              Broadcasts you post will be listed here.
             </p>
           </div>
         ) : (
@@ -68,44 +68,44 @@ export default function History() {
             {updates.map((update) => (
               <div
                 key={update.id}
-                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+                className="bg-[#111111] border border-white/[0.08] rounded-md p-5"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-sm text-gray-900">
+                      <span className="font-bold text-sm text-white">
                         {update.courses?.course_code}
                       </span>
-                      <span className="text-gray-300 text-sm">·</span>
-                      <span className="text-sm text-gray-500">{update.courses?.course_name}</span>
+                      <span className="text-white/20 text-sm">·</span>
+                      <span className="text-sm text-white/50">{update.courses?.course_name}</span>
                     </div>
-                    <div className="mt-2">
+                    <div className="mt-2.5">
                       {update.type === 'cancelled' ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/25">
                           Class cancelled
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/25">
                           Venue change
                         </span>
                       )}
                     </div>
                     {update.new_venue && (
-                      <p className="mt-2 text-sm text-gray-700">
-                        New venue: <span className="font-medium">{update.new_venue}</span>
+                      <p className="mt-2 text-sm text-white/80">
+                        New venue: <span className="font-semibold text-white">{update.new_venue}</span>
                       </p>
                     )}
                     {update.note && (
-                      <p className="mt-1.5 text-sm text-gray-600">{update.note}</p>
+                      <p className="mt-1.5 text-sm text-white/60">{update.note}</p>
                     )}
-                    <p className="mt-3 text-xs text-gray-400">
+                    <p className="mt-3 text-xs text-white/35">
                       {formatDistanceToNow(new Date(update.created_at), { addSuffix: true })}
                     </p>
                   </div>
                   <button
                     onClick={() => handleDelete(update.id)}
                     disabled={deleting === update.id}
-                    className="shrink-0 px-3 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="shrink-0 px-2.5 py-1 text-xs font-semibold text-red-400 border border-red-500/25 bg-red-500/5 rounded hover:bg-red-500/15 transition-colors disabled:opacity-50"
                   >
                     {deleting === update.id ? 'Deleting...' : 'Delete'}
                   </button>
