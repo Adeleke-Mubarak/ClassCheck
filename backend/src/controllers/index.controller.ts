@@ -4,6 +4,7 @@ import {
   AuthService, ProfileService, CourseService,
   StudentCourseService, SenderCourseService, UpdatePostService,
   SenderService, NotificationService, WaitlistService, AdminService,
+  TimetableService,
 } from '../services/index.service.js'
 
 type IdParam = { id: string }
@@ -314,5 +315,78 @@ export const WaitlistController = {
       return
     }
     ok(res, data, 201)
+  },
+}
+
+export const TimetableController = {
+  getAll: async (req: Request, res: Response) => {
+    const day = typeof req.query.day === 'string' ? req.query.day : undefined
+    const courseId = typeof req.query.course_id === 'string' ? req.query.course_id : undefined
+    const { data, error } = await TimetableService.getAll({ day_of_week: day, course_id: courseId })
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  getMine: async (req: Request, res: Response) => {
+    const day = typeof req.query.day === 'string' ? req.query.day : undefined
+    const user = req.user!
+
+    if (user.role === 'admin') {
+      const { data, error } = await TimetableService.getAll({ day_of_week: day })
+      if (error) { fail(res, error.message); return }
+      ok(res, data)
+      return
+    }
+
+    if (user.role === 'lecturer' || user.role === 'class_rep') {
+      const { data: senderRows, error: senderErr } = await SenderCourseService.getForSender(user.id)
+      if (senderErr) { fail(res, senderErr.message); return }
+
+      const courseIds = (senderRows ?? []).map((r: any) => r.course_id)
+      if (courseIds.length > 0) {
+        const { data, error } = await TimetableService.getForCourses(courseIds, day)
+        if (error) { fail(res, error.message); return }
+        ok(res, data)
+        return
+      }
+
+      // If sender has no assigned courses yet, fallback to all courses
+      const { data, error } = await TimetableService.getAll({ day_of_week: day })
+      if (error) { fail(res, error.message); return }
+      ok(res, data)
+      return
+    }
+
+    // Default: student
+    const { data: studentRows, error: studentErr } = await StudentCourseService.getForStudent(user.id)
+    if (studentErr) { fail(res, studentErr.message); return }
+
+    const courseIds = (studentRows ?? []).map((r: any) => r.course_id)
+    if (courseIds.length === 0) {
+      ok(res, [])
+      return
+    }
+
+    const { data, error } = await TimetableService.getForCourses(courseIds, day)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  create: async (req: Request, res: Response) => {
+    const { data, error } = await TimetableService.create(req.user!.id, req.body)
+    if (error) { fail(res, error.message); return }
+    ok(res, data, 201)
+  },
+
+  update: async (req: Request<IdParam>, res: Response) => {
+    const { data, error } = await TimetableService.update(req.params.id, req.body)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  remove: async (req: Request<IdParam>, res: Response) => {
+    const { error } = await TimetableService.remove(req.params.id)
+    if (error) { fail(res, error.message); return }
+    res.status(204).send()
   },
 }

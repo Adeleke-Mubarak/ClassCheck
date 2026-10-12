@@ -1,18 +1,20 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
 import {
-  requireAuth, requireAdmin, requireSender, requireSelfOrAdmin,
+  requireAuth, requireAdmin, requireSender, requireRepOrAdmin, requireSelfOrAdmin,
   validate, notFound, errorHandler,
 } from '../middleware/index.middleware.js'
 import {
   AuthController, ProfileController, CourseController,
   StudentCourseController, SenderCourseController, UpdateController,
   SenderController, AdminController, NotificationController, WaitlistController,
+  TimetableController,
 } from '../controllers/index.controller.js'
 import {
   signUpSchema, signInSchema, forgotPasswordSchema, updatePasswordSchema, updateProfileSchema,
   createCourseSchema, updateSubscriptionsSchema, createUpdateSchema,
   createSenderSchema, updateSenderStatusSchema, joinWaitlistSchema,
+  createTimetableEntrySchema, updateTimetableEntrySchema,
 } from '../schemas/index.schema.js'
 
 const router = Router()
@@ -50,6 +52,13 @@ router.get   ('/feed',        requireAuth,                                      
 router.get   ('/updates',     requireAuth, requireAdmin,                               UpdateController.getAll)
 router.post  ('/updates',     requireAuth, requireSender, validate(createUpdateSchema), UpdateController.create)
 router.delete('/updates/:id', requireAuth,                                             UpdateController.remove)
+
+// Timetable (lecture schedules) — viewable by all signed-in users, editable only by class rep & admin
+router.get   ('/timetable',     requireAuth,                                                          TimetableController.getAll)
+router.get   ('/timetable/me',  requireAuth,                                                          TimetableController.getMine)
+router.post  ('/timetable',     requireAuth, requireRepOrAdmin, validate(createTimetableEntrySchema), TimetableController.create)
+router.put   ('/timetable/:id', requireAuth, requireRepOrAdmin, validate(updateTimetableEntrySchema), TimetableController.update)
+router.delete('/timetable/:id', requireAuth, requireRepOrAdmin,                                       TimetableController.remove)
 
 // Admin: sender management
 router.get   ('/senders',            requireAuth, requireAdmin,                                     SenderController.getAll)

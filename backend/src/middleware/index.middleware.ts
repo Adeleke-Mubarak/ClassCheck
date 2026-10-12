@@ -59,6 +59,16 @@ export function requireSender(req: Request, res: Response, next: NextFunction) {
   next()
 }
 
+const REP_OR_ADMIN_ROLES = new Set<ProfileRole>(['class_rep', 'admin'])
+
+export function requireRepOrAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.user || !REP_OR_ADMIN_ROLES.has(req.user.role)) {
+    res.status(403).json({ error: 'Only class reps and admins can modify the timetable.' })
+    return
+  }
+  next()
+}
+
 // For routes like /students/:id/courses — the owner or an admin may access.
 export function requireSelfOrAdmin(paramName = 'id') {
   return (req: Request, res: Response, next: NextFunction) => {

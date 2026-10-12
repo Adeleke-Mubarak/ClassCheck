@@ -77,3 +77,17 @@ export const joinWaitlistSchema = z.object({
   department: z.string().min(2).max(100),
   university: z.string().min(2).max(150),
 })
+
+const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const
+
+export const createTimetableEntrySchema = z.object({
+  course_id:     z.uuid(),
+  day_of_week:   z.enum(DAYS_OF_WEEK),
+  start_time:    z.string().min(3).max(10),
+  end_time:      z.string().min(3).max(10),
+  venue:         z.string().min(1).max(100),
+  lecturer_name: z.string().max(100).optional().nullable(),
+  note:          z.string().max(500).optional().nullable(),
+})
+
+export const updateTimetableEntrySchema = createTimetableEntrySchema.partial()

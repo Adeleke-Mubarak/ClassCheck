@@ -66,6 +66,23 @@ export interface WaitlistEntry {
   created_at: string
 }
 
+export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'
+
+export interface TimetableEntry {
+  id:            string
+  course_id:     string
+  day_of_week:   DayOfWeek
+  start_time:    string
+  end_time:      string
+  venue:         string
+  lecturer_name: string | null
+  note:          string | null
+  created_by:    string | null
+  created_at:    string
+  updated_at:    string
+  courses?:      Course
+}
+
 declare global {
   namespace Express {
     interface Request {

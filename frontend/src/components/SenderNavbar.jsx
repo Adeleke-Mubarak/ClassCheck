@@ -42,6 +42,16 @@ export default function SenderNavbar() {
                 Post update
               </Link>
               <Link
+                to="/schedule"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isActive('/schedule')
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                Timetable
+              </Link>
+              <Link
                 to="/sender/history"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/sender/history')
@@ -81,7 +91,7 @@ export default function SenderNavbar() {
         className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] h-16 md:hidden px-4"
         aria-label="Sender Navigation"
       >
-        <div className="grid grid-cols-2 h-full max-w-xs mx-auto items-center">
+        <div className="grid grid-cols-3 h-full max-w-sm mx-auto items-center">
           <Link
             to="/sender/portal"
             className="relative h-full flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"
@@ -105,6 +115,32 @@ export default function SenderNavbar() {
               }`}
             >
               Post update
+            </span>
+          </Link>
+
+          <Link
+            to="/schedule"
+            className="relative h-full flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"
+          >
+            {isActive('/schedule') && (
+              <span className="absolute top-0 w-8 h-[2px] bg-blue-500 rounded-full" />
+            )}
+            <svg
+              className={`w-5 h-5 transition-transform ${
+                isActive('/schedule') ? 'scale-105 text-blue-400' : 'text-white/40'
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isActive('/schedule') ? 2.2 : 1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span
+              className={`text-[10px] tracking-tight transition-colors ${
+                isActive('/schedule') ? 'text-white font-bold' : 'text-white/45 font-medium'
+              }`}
+            >
+              Timetable
             </span>
           </Link>
 

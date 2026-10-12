@@ -276,6 +276,40 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // ================================================================
+  // TIMETABLE
+  // ================================================================
+
+  getTimetable: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.day) query.set('day', params.day)
+    if (params.course_id) query.set('course_id', params.course_id)
+    const qs = query.toString() ? `?${query.toString()}` : ''
+    return fetchApi(`/timetable${qs}`)
+  },
+
+  getMyTimetable: (params = {}) => {
+    const query = new URLSearchParams()
+    if (params.day) query.set('day', params.day)
+    const qs = query.toString() ? `?${query.toString()}` : ''
+    return fetchApi(`/timetable/me${qs}`)
+  },
+
+  createTimetableEntry: (data) =>
+    fetchApi('/timetable', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateTimetableEntry: (id, data) =>
+    fetchApi(`/timetable/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTimetableEntry: (id) =>
+    fetchApi(`/timetable/${id}`, { method: 'DELETE' }),
 }
 
 export { BASE_URL, fetchApi }

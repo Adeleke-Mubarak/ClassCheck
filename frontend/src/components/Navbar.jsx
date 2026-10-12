@@ -23,6 +23,25 @@ const MOBILE_NAV_ITEMS = [
     ),
   },
   {
+    label: 'Schedule',
+    path: '/schedule',
+    icon: (isActive) => (
+      <svg
+        className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 text-blue-400' : 'text-white/40'}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={isActive ? 2.2 : 1.8}
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        />
+      </svg>
+    ),
+  },
+  {
     label: 'My Courses',
     path: '/my-courses',
     icon: (isActive) => (
@@ -75,6 +94,7 @@ export default function Navbar() {
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Account'
   const isFeed = location.pathname === '/feed'
+  const isSchedule = location.pathname === '/schedule'
   const isCourses = location.pathname === '/my-courses'
   const isAccount = location.pathname === '/account'
 
@@ -103,6 +123,16 @@ export default function Navbar() {
                 }`}
               >
                 Feed
+              </Link>
+              <Link
+                to="/schedule"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isSchedule
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                Schedule
               </Link>
               <Link
                 to="/my-courses"
@@ -162,7 +192,7 @@ export default function Navbar() {
         className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] h-16 md:hidden px-3"
         aria-label="Mobile Navigation"
       >
-        <div className="grid grid-cols-3 h-full max-w-sm mx-auto items-center">
+        <div className="grid grid-cols-4 h-full max-w-sm mx-auto items-center">
           {MOBILE_NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path
             return (

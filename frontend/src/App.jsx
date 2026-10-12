@@ -15,6 +15,7 @@ import NotFound from './pages/NotFound'
 // Student pages
 import Onboarding from './pages/Onboarding'
 import Feed from './pages/Feed'
+import Schedule from './pages/Schedule'
 import MyCourses from './pages/MyCourses'
 import Account from './pages/Account'
 
@@ -64,6 +65,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRoles={['student']}>
                 <Feed />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/schedule"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'class_rep', 'admin', 'lecturer']}>
+                <Schedule />
               </ProtectedRoute>
             }
           />

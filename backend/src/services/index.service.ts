@@ -198,3 +198,69 @@ export const AdminService = {
     }
   },
 }
+
+const TIMETABLE_SELECT = '*, courses:course_id(id, course_code, course_name, department, level)'
+
+export type TimetableCreateInput = {
+  course_id:     string
+  day_of_week:   string
+  start_time:    string
+  end_time:      string
+  venue:         string
+  lecturer_name?: string | null
+  note?:          string | null
+}
+
+export const TimetableService = {
+  getAll: (filters?: { day_of_week?: string; course_id?: string }) => {
+    let query = supabase
+      .from('timetable_entries')
+      .select(TIMETABLE_SELECT)
+      .order('start_time', { ascending: true })
+
+    if (filters?.day_of_week) {
+      query = query.eq('day_of_week', filters.day_of_week.toLowerCase())
+    }
+    if (filters?.course_id) {
+      query = query.eq('course_id', filters.course_id)
+    }
+
+    return query
+  },
+
+  getForCourses: (courseIds: string[], dayOfWeek?: string) => {
+    if (courseIds.length === 0) return Promise.resolve({ data: [], error: null } as const)
+    let query = supabase
+      .from('timetable_entries')
+      .select(TIMETABLE_SELECT)
+      .in('course_id', courseIds)
+      .order('start_time', { ascending: true })
+
+    if (dayOfWeek) {
+      query = query.eq('day_of_week', dayOfWeek.toLowerCase())
+    }
+
+    return query
+  },
+
+  getById: (id: string) =>
+    supabase.from('timetable_entries').select(TIMETABLE_SELECT).eq('id', id).single(),
+
+  create: (userId: string, data: TimetableCreateInput) =>
+    supabase
+      .from('timetable_entries')
+      .insert({ created_by: userId, ...data })
+      .select(TIMETABLE_SELECT)
+      .single(),
+
+  update: (id: string, data: Partial<TimetableCreateInput>) =>
+    supabase
+      .from('timetable_entries')
+      .update({ ...data, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select(TIMETABLE_SELECT)
+      .single(),
+
+  remove: (id: string) =>
+    supabase.from('timetable_entries').delete().eq('id', id),
+}

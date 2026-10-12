@@ -1089,7 +1089,115 @@ using (
 
 
 -- ============================================================================
--- 29. SUPABASE POSTGREST SCHEMA RELOAD
+-- 29. TIMETABLE ENTRIES
+-- ============================================================================
+
+create table if not exists public.timetable_entries (
+  id            uuid primary key default gen_random_uuid(),
+  course_id     uuid not null references public.courses(id) on delete cascade,
+  day_of_week   text not null check (day_of_week in ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday')),
+  start_time    text not null,
+  end_time      text not null,
+  venue         text not null,
+  lecturer_name text,
+  note          text,
+  created_by    uuid references public.profiles(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create index if not exists idx_timetable_day
+  on public.timetable_entries(day_of_week);
+
+create index if not exists idx_timetable_course
+  on public.timetable_entries(course_id);
+
+alter table public.timetable_entries enable row level security;
+
+-- Read policy: Any authenticated user can view timetable entries
+drop policy if exists "timetable_select_authenticated" on public.timetable_entries;
+create policy "timetable_select_authenticated"
+  on public.timetable_entries
+  for select
+  to authenticated
+  using (true);
+
+-- Insert policy: Only class_rep and admin can insert
+drop policy if exists "timetable_insert_rep_or_admin" on public.timetable_entries;
+create policy "timetable_insert_rep_or_admin"
+  on public.timetable_entries
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role in ('class_rep', 'admin')
+    )
+  );
+
+-- Update policy: Only class_rep and admin can update
+drop policy if exists "timetable_update_rep_or_admin" on public.timetable_entries;
+create policy "timetable_update_rep_or_admin"
+  on public.timetable_entries
+  for update
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role in ('class_rep', 'admin')
+    )
+  );
+
+-- Delete policy: Only class_rep and admin can delete
+drop policy if exists "timetable_delete_rep_or_admin" on public.timetable_entries;
+create policy "timetable_delete_rep_or_admin"
+  on public.timetable_entries
+  for delete
+  to authenticated
+  using (
+    exists (
+      select 1 from public.profiles
+      where profiles.id = auth.uid()
+        and profiles.role in ('class_rep', 'admin')
+    )
+  );
+
+-- Seed initial timetable for 400L Mathematics courses
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'monday', '08:00', '10:00', 'LT2', 'Prof. Adeyemi', 'Weekly foundational lecture'
+from public.courses c where c.course_code = 'MAT401'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'monday', '12:00', '14:00', 'Math Lab 1', 'Dr. Okon', 'Practical problem set review'
+from public.courses c where c.course_code = 'MAT403'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'tuesday', '10:00', '12:00', 'NLH 3', 'Dr. Bello', 'Main lecture'
+from public.courses c where c.course_code = 'MAT405'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'wednesday', '08:00', '10:00', 'LT1', 'Prof. Adeleke', 'Tutorial & theorems'
+from public.courses c where c.course_code = 'MAT407'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'thursday', '14:00', '16:00', 'LT2', 'Prof. Adeyemi', 'Advanced problem solving'
+from public.courses c where c.course_code = 'MAT401'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'friday', '10:00', '12:00', 'Math Lab 2', 'Dr. Ibrahim', 'Theory & topological proofs'
+from public.courses c where c.course_code = 'MAT409'
+on conflict do nothing;
+
+
+-- ============================================================================
+-- 30. SUPABASE POSTGREST SCHEMA RELOAD
 -- ============================================================================
 
 notify pgrst, 'reload schema';
