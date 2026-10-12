@@ -1,18 +1,10 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
-const TABS = [
-  { label: 'Overview', path: '/admin' },
-  { label: 'Senders', path: '/admin/senders' },
-  { label: 'Courses', path: '/admin/courses' },
-  { label: 'All updates', path: '/admin/updates' },
-]
-
-export default function AdminNavbar({ activeTab, onTabChange }) {
+export default function AdminNavbar() {
   const { refreshProfile } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
 
   async function handleSignOut() {
     await api.signOut()
@@ -21,15 +13,19 @@ export default function AdminNavbar({ activeTab, onTabChange }) {
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 h-14">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A] border-b border-white/[0.08] h-14">
       <div className="max-w-6xl mx-auto px-6 h-full flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <span className="font-semibold text-lg text-gray-900 tracking-tight">ClassCheck</span>
-          <span className="text-xs bg-gray-900 text-white px-2 py-0.5 rounded font-medium">Admin</span>
+        <div className="flex items-center gap-3">
+          <Link to="/admin" className="font-extrabold text-[17px] text-white tracking-tight">
+            ClassCheck
+          </Link>
+          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/10 border border-red-500/25 text-red-400">
+            Admin
+          </span>
         </div>
         <button
           onClick={handleSignOut}
-          className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="text-xs sm:text-sm text-white/50 hover:text-white transition-colors"
         >
           Sign out
         </button>

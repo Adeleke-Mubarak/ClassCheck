@@ -74,7 +74,7 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
             placeholder="e.g. Dr. Amaka Nwosu"
             value={form.full_name}
             onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md"
           />
         </div>
 
@@ -87,7 +87,7 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
             placeholder="lecturer@university.edu.ng"
             value={form.email}
             onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md"
           />
         </div>
 
@@ -100,7 +100,7 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
             placeholder="At least 6 characters"
             value={form.password}
             onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md"
           />
         </div>
 
@@ -112,10 +112,10 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
                 key={r}
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, role: r }))}
-                className={`flex-1 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
+                className={`flex-1 py-2.5 rounded-md text-sm font-semibold border transition-colors ${
                   form.role === r
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-[#161616] text-white/60 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
                 {r === 'class_rep' ? 'Class rep' : 'Lecturer'}
@@ -126,24 +126,24 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
 
         <div>
           <label className="form-label">Assign courses</label>
-          <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+          <div className="border border-white/[0.08] bg-[#161616] rounded-md max-h-48 overflow-y-auto">
             {courses.length === 0 ? (
-              <p className="text-sm text-gray-400 p-4">No courses found</p>
+              <p className="text-sm text-white/40 p-4">No courses found</p>
             ) : (
               courses.map((course) => (
                 <label
                   key={course.id}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.03] cursor-pointer border-b border-white/[0.06] last:border-b-0"
                 >
                   <input
                     type="checkbox"
                     checked={form.selectedCourses.includes(course.id)}
                     onChange={() => toggleCourse(course.id)}
-                    className="rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                    className="rounded border-white/20 bg-[#111111] text-blue-600 focus:ring-0"
                   />
-                  <span className="text-sm text-gray-900">
-                    <span className="font-medium">{course.course_code}</span>
-                    <span className="text-gray-500"> — {course.course_name}</span>
+                  <span className="text-sm text-white">
+                    <span className="font-semibold">{course.course_code}</span>
+                    <span className="text-white/50"> — {course.course_name}</span>
                   </span>
                 </label>
               ))
@@ -151,18 +151,18 @@ export default function AddSenderModal({ isOpen, onClose, onAdded }) {
           </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-3 border-t border-white/[0.08]">
           <button
             type="button"
             onClick={() => { reset(); onClose() }}
-            className="btn-secondary flex-1"
+            className="btn-secondary flex-1 rounded-md"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+            className="btn-primary flex-1 rounded-md"
           >
             {loading ? 'Adding...' : 'Add sender'}
           </button>

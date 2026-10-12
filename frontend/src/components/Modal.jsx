@@ -27,14 +27,14 @@ export default function Modal({ isOpen, onClose, title, children }) {
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">{title}</h2>
+      <div className="bg-[#111111] border border-white/[0.12] rounded-md shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto text-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
+          <h2 className="font-bold text-white tracking-tight text-base">{title}</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors text-lg leading-none"
+            className="w-7 h-7 flex items-center justify-center rounded hover:bg-white/10 text-white/50 hover:text-white transition-colors text-lg leading-none"
             aria-label="Close modal"
           >
             ×

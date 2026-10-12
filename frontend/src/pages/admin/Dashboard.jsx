@@ -16,11 +16,11 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
       <AdminNavbar />
 
       {/* Tab bar */}
-      <div className="fixed top-14 left-0 right-0 z-40 bg-white border-b border-gray-200">
+      <div className="fixed top-14 left-0 right-0 z-40 bg-[#0A0A0A] border-b border-white/[0.08]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex gap-1 py-2">
             {TABS.map((tab) => (
@@ -37,7 +37,7 @@ export default function Dashboard() {
       </div>
 
       {/* Content */}
-      <div className="pt-[108px] pb-12">
+      <div className="pt-[116px] pb-16">
         <div className="max-w-6xl mx-auto px-6">
           {activeTab === 'overview' && <Overview />}
           {activeTab === 'senders' && <Senders />}

@@ -51,80 +51,87 @@ export default function AllUpdates() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-        <h2 className="text-lg font-semibold text-gray-900">All updates</h2>
-        <div className="flex gap-3">
+        <div>
+          <h2 className="text-lg font-bold text-white tracking-tight">All updates</h2>
+          <p className="text-xs text-white/40 mt-0.5">Audit log of all sent course broadcasts</p>
+        </div>
+        <div className="flex gap-2.5">
           {/* Course filter */}
           <select
             value={courseFilter}
             onChange={(e) => setCourseFilter(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="text-xs sm:text-sm border border-white/[0.08] rounded-md px-3 py-1.5 bg-[#161616] text-white focus:outline-none focus:border-blue-500"
           >
-            <option value="">All courses</option>
+            <option value="" className="bg-[#161616] text-white/50">All courses</option>
             {courses.map((c) => (
-              <option key={c.id} value={c.id}>{c.course_code}</option>
+              <option key={c.id} value={c.id} className="bg-[#161616] text-white">{c.course_code}</option>
             ))}
           </select>
           {/* Type filter */}
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="text-xs sm:text-sm border border-white/[0.08] rounded-md px-3 py-1.5 bg-[#161616] text-white focus:outline-none focus:border-blue-500"
           >
             {TYPE_FILTERS.map((f) => (
-              <option key={f} value={f}>{f}</option>
+              <option key={f} value={f} className="bg-[#161616] text-white">{f}</option>
             ))}
           </select>
         </div>
       </div>
 
       {loading ? (
-        <div className="bg-white border border-gray-200 rounded-xl animate-pulse h-48" />
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md animate-pulse h-48" />
       ) : filtered.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-10 text-center">
-          <p className="text-gray-500 text-sm">No updates found</p>
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md p-10 text-center">
+          <p className="text-white/40 text-sm">No updates found</p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Course</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Type</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Note</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Posted by</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">When</th>
+                <tr className="border-b border-white/[0.08] bg-[#161616]">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Course</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Type</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Note</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Posted by</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">When</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/[0.06]">
                 {filtered.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3.5 font-semibold text-gray-900">{u.courses?.course_code}</td>
+                  <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-5 py-3.5 font-bold text-white">{u.courses?.course_code}</td>
                     <td className="px-5 py-3.5">
                       {u.type === 'cancelled' ? (
-                        <span className="text-xs font-semibold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200">Cancelled</span>
+                        <span className="text-[11px] font-semibold text-red-400 bg-red-500/10 border border-red-500/25 px-2 py-0.5 rounded">
+                          Cancelled
+                        </span>
                       ) : (
-                        <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Venue change</span>
+                        <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded">
+                          Venue change
+                        </span>
                       )}
                     </td>
-                    <td className="px-5 py-3.5 text-gray-500 max-w-[200px] truncate">
+                    <td className="px-5 py-3.5 text-white/70 max-w-[200px] truncate">
                       {u.new_venue ? `Venue: ${u.new_venue}` : (u.note || '—')}
                     </td>
-                    <td className="px-5 py-3.5 text-gray-600">
-                      <div>{u.senders?.full_name}</div>
-                      <div className="text-xs text-gray-400 capitalize">
+                    <td className="px-5 py-3.5 text-white">
+                      <div className="font-semibold text-sm">{u.senders?.full_name}</div>
+                      <div className="text-xs text-white/40 capitalize">
                         {u.senders?.role === 'class_rep' ? 'Class rep' : 'Lecturer'}
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">
+                    <td className="px-5 py-3.5 text-white/35 text-xs whitespace-nowrap">
                       {formatDistanceToNow(new Date(u.created_at), { addSuffix: true })}
                     </td>
-                    <td className="px-5 py-3.5">
+                    <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => handleDelete(u.id)}
                         disabled={deleting === u.id}
-                        className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                        className="text-xs font-semibold text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
                       >
                         Delete
                       </button>

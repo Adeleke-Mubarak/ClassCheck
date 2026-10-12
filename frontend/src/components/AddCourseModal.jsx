@@ -65,7 +65,7 @@ export default function AddCourseModal({ isOpen, onClose, onAdded }) {
             placeholder="e.g. CSC401"
             value={form.courseCode}
             onChange={(e) => setForm((p) => ({ ...p, courseCode: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md uppercase"
           />
         </div>
 
@@ -78,7 +78,7 @@ export default function AddCourseModal({ isOpen, onClose, onAdded }) {
             placeholder="e.g. Artificial Intelligence"
             value={form.courseName}
             onChange={(e) => setForm((p) => ({ ...p, courseName: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md"
           />
         </div>
 
@@ -89,11 +89,11 @@ export default function AddCourseModal({ isOpen, onClose, onAdded }) {
             required
             value={form.department}
             onChange={(e) => setForm((p) => ({ ...p, department: e.target.value }))}
-            className="form-input"
+            className="form-input bg-[#161616] border-[#2A2A2A] text-white rounded-md"
           >
-            <option value="">Select department</option>
+            <option value="" className="bg-[#161616] text-white/50">Select department</option>
             {DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <option key={d} value={d} className="bg-[#161616] text-white">{d}</option>
             ))}
           </select>
         </div>
@@ -106,30 +106,30 @@ export default function AddCourseModal({ isOpen, onClose, onAdded }) {
                 key={l}
                 type="button"
                 onClick={() => setForm((p) => ({ ...p, level: l }))}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                className={`px-4 py-2 rounded-md text-sm font-semibold border transition-colors ${
                   form.level === l
-                    ? 'bg-gray-900 text-white border-gray-900'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-[#161616] text-white/60 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
-                {l}
+                {l}L
               </button>
             ))}
           </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 pt-3 border-t border-white/[0.08]">
           <button
             type="button"
             onClick={() => { reset(); onClose() }}
-            className="btn-secondary flex-1"
+            className="btn-secondary flex-1 rounded-md"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors"
+            className="btn-primary flex-1 rounded-md"
           >
             {loading ? 'Adding...' : 'Add course'}
           </button>

@@ -36,59 +36,62 @@ export default function Courses() {
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-lg font-semibold text-gray-900">Courses</h2>
+        <div>
+          <h2 className="text-lg font-bold text-white tracking-tight">Courses</h2>
+          <p className="text-xs text-white/40 mt-0.5">Directory of tracked academic courses</p>
+        </div>
         <button
           onClick={() => setModalOpen(true)}
-          className="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors"
+          className="btn-primary text-xs sm:text-sm px-4 py-2 rounded-md"
         >
           + Add course
         </button>
       </div>
 
       {loading ? (
-        <div className="bg-white border border-gray-200 rounded-xl animate-pulse h-48" />
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md animate-pulse h-48" />
       ) : courses.length === 0 ? (
-        <div className="bg-white border border-gray-200 rounded-xl p-10 text-center">
-          <p className="text-gray-500 text-sm">No courses yet.</p>
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md p-10 text-center">
+          <p className="text-white/40 text-sm">No courses yet.</p>
         </div>
       ) : (
-        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-md overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Code</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Name</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Dept</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Level</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Senders</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">Updates</th>
+                <tr className="border-b border-white/[0.08] bg-[#161616]">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Code</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Name</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Dept</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Level</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Senders</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-white/40 uppercase tracking-wider">Updates</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-white/[0.06]">
                 {courses.map((course) => {
                   const senderNames = (course.sender_courses || [])
                     .map((sc) => sc.senders?.full_name)
                     .filter(Boolean)
                     .join(', ')
                   return (
-                    <tr key={course.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-5 py-3.5 font-semibold text-gray-900">{course.course_code}</td>
-                      <td className="px-5 py-3.5 text-gray-700">{course.course_name}</td>
-                      <td className="px-5 py-3.5 text-gray-500 text-xs">{course.department}</td>
-                      <td className="px-5 py-3.5 text-gray-500">{course.level}</td>
-                      <td className="px-5 py-3.5 text-gray-500 text-xs max-w-[150px] truncate">
+                    <tr key={course.id} className="hover:bg-white/[0.02] transition-colors">
+                      <td className="px-5 py-3.5 font-bold text-white">{course.course_code}</td>
+                      <td className="px-5 py-3.5 text-white/80">{course.course_name}</td>
+                      <td className="px-5 py-3.5 text-white/45 text-xs">{course.department}</td>
+                      <td className="px-5 py-3.5 text-white/60">{course.level}L</td>
+                      <td className="px-5 py-3.5 text-white/45 text-xs max-w-[150px] truncate">
                         {senderNames || '—'}
                       </td>
-                      <td className="px-5 py-3.5 text-gray-500">
+                      <td className="px-5 py-3.5 text-white/50">
                         {(course.updates || []).length}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-5 py-3.5 text-right">
                         <button
                           onClick={() => remove(course.id)}
                           disabled={removing === course.id}
-                          className="text-xs text-red-600 hover:underline disabled:opacity-50"
+                          className="text-xs font-semibold text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
                         >
                           Remove
                         </button>
