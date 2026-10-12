@@ -190,7 +190,7 @@ export default function AddTimetableModal({
           </label>
           <input
             type="text"
-            placeholder="e.g. Prof. Adeyemi, Dr. Okon"
+            placeholder="e.g. Prof Moses Akanbi, Dr Oyebo"
             value={lecturerName}
             onChange={(e) => setLecturerName(e.target.value)}
             className="w-full bg-[#0A0A0A] border border-white/[0.12] rounded-[6px] px-3.5 py-2.5 text-sm text-white placeholder-white/25 focus:outline-none focus:border-blue-500 transition-colors"

@@ -1169,33 +1169,53 @@ create policy "timetable_delete_rep_or_admin"
 
 -- Seed initial timetable for 400L Mathematics courses
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'monday', '08:00', '10:00', 'LT2', 'Prof. Adeyemi', 'Weekly foundational lecture'
+select c.id, 'monday', '08:00', '10:00', 'LT2', 'Prof Moses Akanbi', 'Weekly foundational lecture & proofs'
 from public.courses c where c.course_code = 'MAT401'
 on conflict do nothing;
 
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'monday', '12:00', '14:00', 'Math Lab 1', 'Dr. Okon', 'Practical problem set review'
+select c.id, 'monday', '12:00', '14:00', 'Math Lab 1', 'Prof Olutiomo', 'Complex integration & contour theorems'
 from public.courses c where c.course_code = 'MAT403'
 on conflict do nothing;
 
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'tuesday', '10:00', '12:00', 'NLH 3', 'Dr. Bello', 'Main lecture'
+select c.id, 'tuesday', '10:00', '12:00', 'NLH 3', 'Dr Oyebo', 'Group theory & Galois structures'
 from public.courses c where c.course_code = 'MAT405'
 on conflict do nothing;
 
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'wednesday', '08:00', '10:00', 'LT1', 'Prof. Adeleke', 'Tutorial & theorems'
+select c.id, 'tuesday', '14:00', '16:00', 'Math Lab 2', 'Dr Akewushola', 'Numerical algorithms & error analysis'
+from public.courses c where c.course_code = 'MAT413'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'wednesday', '08:00', '10:00', 'LT1', 'Dr Ige', 'Boundary value problems & ODE systems'
 from public.courses c where c.course_code = 'MAT407'
 on conflict do nothing;
 
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'thursday', '14:00', '16:00', 'LT2', 'Prof. Adeyemi', 'Advanced problem solving'
+select c.id, 'wednesday', '12:00', '14:00', 'Science LT', 'Mr Shonibare', 'Linear programming & optimization models'
+from public.courses c where c.course_code = 'MAT415'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'thursday', '10:00', '12:00', 'NLH 2', 'Dr Ibitowa', 'Special functions & integral transforms'
+from public.courses c where c.course_code = 'MAT417'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'thursday', '14:00', '16:00', 'LT2', 'Prof Moses Akanbi', 'Tutorial & problem solving review'
 from public.courses c where c.course_code = 'MAT401'
 on conflict do nothing;
 
 insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
-select c.id, 'friday', '10:00', '12:00', 'Math Lab 2', 'Dr. Ibrahim', 'Theory & topological proofs'
+select c.id, 'friday', '09:00', '11:00', 'Math Lab 2', 'Mr Moshood', 'Topological spaces & compactness theorems'
 from public.courses c where c.course_code = 'MAT409'
+on conflict do nothing;
+
+insert into public.timetable_entries (course_id, day_of_week, start_time, end_time, venue, lecturer_name, note)
+select c.id, 'friday', '11:00', '13:00', 'NLH 1', 'Prof Olutiomo', 'Conformal mappings & revision'
+from public.courses c where c.course_code = 'MAT403'
 on conflict do nothing;
 
 
