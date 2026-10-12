@@ -72,66 +72,72 @@ export default function Account() {
     <div className="page-container">
       <Navbar />
       <div className="form-container py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Profile</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Account settings</h1>
+          <p className="text-xs text-white/40 mt-1">Manage your student profile and credentials</p>
+        </div>
 
         {/* Profile info */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+        <div className="bg-[#111111] border border-white/[0.08] rounded-[6px] p-6 space-y-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-2">Student Profile</h2>
           <div>
             <label className="form-label">Full name</label>
-            <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-              {profile?.full_name}
+            <p className="text-sm font-medium text-white bg-[#161616] border border-white/[0.06] rounded-[6px] px-4 py-2.5">
+              {profile?.full_name || '—'}
             </p>
           </div>
           <div>
-            <label className="form-label">Email</label>
-            <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-              {profile?.email}
+            <label className="form-label">Email address</label>
+            <p className="text-sm font-medium text-white bg-[#161616] border border-white/[0.06] rounded-[6px] px-4 py-2.5">
+              {profile?.email || '—'}
             </p>
           </div>
           <div>
-            <label className="form-label">Matric number</label>
-            <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-              {profile?.matric_no}
+            <label className="form-label">Matriculation number</label>
+            <p className="text-sm font-medium text-white bg-[#161616] border border-white/[0.06] rounded-[6px] px-4 py-2.5">
+              {profile?.matric_no || '—'}
             </p>
           </div>
           <div>
             <label className="form-label">Department</label>
-            <p className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5">
-              {profile?.department}
+            <p className="text-sm font-medium text-white bg-[#161616] border border-white/[0.06] rounded-[6px] px-4 py-2.5">
+              {profile?.department || '—'}
             </p>
           </div>
           <div>
-            <label className="form-label">Level</label>
-            <div className="flex gap-2 flex-wrap">
+            <label className="form-label">Academic level</label>
+            <div className="flex gap-2 flex-wrap mt-1">
               {LEVELS.map((l) => (
                 <button
+                  type="button"
                   key={l}
                   onClick={() => setLevel(l)}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                  className={`px-4 py-2 rounded-[6px] text-xs font-bold border transition-colors ${
                     level === l
-                      ? 'bg-gray-900 text-white border-gray-900'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                      ? 'bg-white text-[#0A0A0A] border-white'
+                      : 'bg-[#161616] text-white/60 border-white/[0.08] hover:border-white/20 hover:text-white'
                   }`}
                 >
-                  {l}
+                  {l} Level
                 </button>
               ))}
             </div>
             {level !== profile?.level && (
               <button
+                type="button"
                 onClick={saveLevel}
                 disabled={savingLevel}
-                className="mt-3 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                className="mt-3 px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-[6px] hover:bg-blue-500 transition-colors disabled:opacity-50"
               >
-                {savingLevel ? 'Saving...' : 'Save level'}
+                {savingLevel ? 'Saving...' : 'Save level change'}
               </button>
             )}
           </div>
         </div>
 
         {/* Change password */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6 mt-4">
-          <h2 className="text-base font-semibold text-gray-900 mb-4">Change password</h2>
+        <div className="bg-[#111111] border border-white/[0.08] rounded-[6px] p-6 mt-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-white/60 mb-4">Security · Change password</h2>
           <form onSubmit={changePassword} className="space-y-4">
             <div>
               <label className="form-label" htmlFor="newPassword">New password</label>
@@ -160,7 +166,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={savingPw}
-              className="btn-primary"
+              className="btn-primary mt-2"
             >
               {savingPw ? 'Updating...' : 'Update password'}
             </button>
@@ -168,32 +174,35 @@ export default function Account() {
         </div>
 
         {/* Danger zone */}
-        <div className="bg-white border border-red-200 rounded-2xl p-6 mt-4">
-          <h2 className="text-base font-semibold text-red-700 mb-2">Danger zone</h2>
-          <p className="text-sm text-gray-500 mb-4">
-            Deleting your account is permanent. All your data will be removed.
+        <div className="bg-[#111111] border border-red-500/20 rounded-[6px] p-6 mt-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-red-400 mb-1">Danger zone</h2>
+          <p className="text-xs text-white/40 mb-4 leading-relaxed">
+            Deleting your account is permanent. All your course subscriptions and preferences will be erased.
           </p>
           {!deleteConfirm ? (
             <button
+              type="button"
               onClick={() => setDeleteConfirm(true)}
-              className="px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors"
+              className="px-4 py-2 text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 rounded-[6px] hover:bg-red-500/20 transition-colors"
             >
               Delete account
             </button>
           ) : (
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-gray-900">Are you sure? This cannot be undone.</p>
+            <div className="space-y-3 pt-2">
+              <p className="text-xs font-bold text-white">Are you sure? This cannot be undone.</p>
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={deleteAccount}
                   disabled={deleting}
-                  className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-bold bg-red-600 text-white rounded-[6px] hover:bg-red-500 transition-colors disabled:opacity-50"
                 >
                   {deleting ? 'Deleting...' : 'Yes, delete my account'}
                 </button>
                 <button
+                  type="button"
                   onClick={() => setDeleteConfirm(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-xs font-bold text-white/70 bg-[#161616] border border-white/[0.08] rounded-[6px] hover:bg-white/[0.08] transition-colors"
                 >
                   Cancel
                 </button>

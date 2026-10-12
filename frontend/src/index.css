@@ -15,14 +15,16 @@
 
   body {
     margin: 0;
-    background-color: #f9fafb;
-    color: #111827;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
     line-height: 1.5;
+    font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
     line-height: 1.25;
+    color: #FFFFFF;
   }
 
   a {
@@ -41,39 +43,73 @@
 }
 
 @layer components {
-  /* Form input base */
+  /* Form input base - dark, sharp */
   .form-input {
-    @apply w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-shadow;
+    @apply w-full px-4 py-2.5 text-sm transition-all;
+    background-color: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #FFFFFF;
+    outline: none;
+  }
+  .form-input:focus {
+    border-color: #2563EB;
+    box-shadow: 0 0 0 1px #2563EB;
+  }
+  .form-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
   }
 
-  /* Primary button */
+  /* Primary button - high-contrast white */
   .btn-primary {
-    @apply w-full py-2.5 px-6 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 active:bg-gray-950 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply w-full py-2.5 px-6 text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed;
+    background-color: #FFFFFF;
+    color: #0A0A0A;
+    border-radius: 6px;
+    border: none;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: #E5E7EB;
+  }
+  .btn-primary:active:not(:disabled) {
+    background-color: #D1D5DB;
   }
 
   /* Secondary button */
   .btn-secondary {
-    @apply w-full py-2.5 px-6 bg-white text-gray-700 text-sm font-medium rounded-lg border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors;
+    @apply w-full py-2.5 px-6 text-sm font-medium transition-all;
+    background-color: #161616;
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+  }
+  .btn-secondary:hover {
+    background-color: #1F1F1F;
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   /* Toggle switch */
   .toggle {
-    @apply relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2;
+    @apply relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none;
   }
 
   .toggle-thumb {
     @apply inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform;
   }
 
-  /* Card */
+  /* Dark card */
   .card {
-    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
+    background-color: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 20px;
   }
 
   /* Page container */
   .page-container {
     @apply pt-14 min-h-screen;
-    background: #0A0A0A;
+    background-color: #0A0A0A;
+    color: #FFFFFF;
   }
 
   /* Content max-width for feeds */
@@ -88,25 +124,36 @@
 
   /* Label */
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1.5;
+    @apply block text-xs font-semibold uppercase tracking-wider mb-2;
+    color: rgba(255, 255, 255, 0.5);
   }
 
   /* Stat card */
   .stat-card {
-    @apply bg-white border border-gray-200 rounded-xl p-5 shadow-sm;
+    background-color: #111111;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    padding: 20px;
   }
 
   /* Tab button */
   .tab-btn {
-    @apply px-4 py-2 text-sm font-medium rounded-lg transition-colors;
+    @apply px-4 py-2 text-sm font-medium transition-colors;
+    border-radius: 6px;
   }
 
   .tab-btn-active {
-    @apply bg-gray-900 text-white;
+    background-color: #FFFFFF;
+    color: #0A0A0A;
+    font-weight: 700;
   }
 
   .tab-btn-inactive {
-    @apply text-gray-600 hover:text-gray-900 hover:bg-gray-100;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .tab-btn-inactive:hover {
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.05);
   }
 }
 

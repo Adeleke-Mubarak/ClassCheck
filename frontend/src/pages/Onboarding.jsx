@@ -58,43 +58,47 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="h-14 border-b border-gray-200 bg-white flex items-center px-6">
-        <span className="font-semibold text-gray-900">ClassCheck</span>
+    <div className="min-h-screen bg-[#0A0A0A] text-white">
+      <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center justify-between px-6">
+        <span className="font-extrabold text-base tracking-tight text-white">ClassCheck</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Step 2 of 2 · Setup</span>
       </header>
 
-      <div className="max-w-[680px] mx-auto px-4 sm:px-6 py-10">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Pick your courses</h1>
-          <p className="mt-1.5 text-sm text-gray-500">
-            Select the courses you are enrolled in this semester. You can change these anytime.
+      <div className="max-w-[640px] mx-auto px-4 sm:px-6 py-10">
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold text-white tracking-tight">Pick your courses</h1>
+          <p className="mt-2 text-sm text-white/50 leading-relaxed">
+            Select the courses you are enrolled in this semester. Your feed will only show updates for these courses.
           </p>
         </div>
 
         {/* Stats bar */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-gray-500">
-            {profile?.department} — {profile?.level} Level
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/[0.06]">
+          <span className="text-xs font-semibold uppercase tracking-wider text-white/40">
+            {profile?.department || 'Department'} · {profile?.level ? `${profile.level} Level` : '400 Level'}
           </span>
-          <span className="text-sm font-medium text-gray-900">
-            {selected.size} course{selected.size !== 1 ? 's' : ''} selected
+          <span className="text-xs font-bold text-white bg-white/[0.08] px-2.5 py-1 rounded-[4px] border border-white/10">
+            {selected.size} selected
           </span>
         </div>
 
         {/* Course list */}
         {loading ? (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-xl p-4 animate-pulse">
-                <div className="h-4 bg-gray-100 rounded w-1/3 mb-2" />
-                <div className="h-3 bg-gray-100 rounded w-2/3" />
+              <div key={i} className="bg-[#111111] border border-white/[0.08] rounded-[6px] p-4 animate-pulse">
+                <div className="h-4 bg-white/10 rounded-[4px] w-1/4 mb-2" />
+                <div className="h-3 bg-white/5 rounded-[4px] w-3/5" />
               </div>
             ))}
           </div>
         ) : courses.length === 0 ? (
-          <div className="text-center py-16 bg-white border border-gray-200 rounded-xl">
-            <p className="text-gray-500 text-sm">
-              No courses found for your department and level. Contact your admin.
+          <div className="text-center py-14 bg-[#111111] border border-white/[0.08] rounded-[6px] p-6">
+            <p className="text-white/60 text-sm font-medium">
+              No courses found for your department and level yet.
+            </p>
+            <p className="text-white/40 text-xs mt-1">
+              Your department admin will add courses shortly. You can still continue to your feed.
             </p>
           </div>
         ) : (
@@ -103,27 +107,36 @@ export default function Onboarding() {
               const isSelected = selected.has(course.id)
               return (
                 <button
+                  type="button"
                   key={course.id}
                   onClick={() => toggle(course.id)}
-                  className={`w-full text-left bg-white border rounded-xl p-4 flex items-center justify-between transition-all ${
+                  className={`w-full text-left bg-[#111111] border rounded-[6px] p-4 flex items-center justify-between transition-all ${
                     isSelected
-                      ? 'border-gray-900 shadow-sm'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-white/40 bg-[#161616] ring-1 ring-white/20'
+                      : 'border-white/[0.08] hover:border-white/20'
                   }`}
                 >
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{course.course_code}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{course.course_name}</p>
+                  <div className="min-w-0 pr-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-white">{course.course_code}</span>
+                      {isSelected && (
+                        <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-[3px] bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                          Enrolled
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-white/50 mt-1 truncate">{course.course_name}</p>
                   </div>
-                  {/* Toggle */}
+
+                  {/* Toggle Indicator */}
                   <div
-                    className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-                      isSelected ? 'bg-gray-900' : 'bg-gray-200'
+                    className={`relative w-10 h-5.5 rounded-full transition-colors shrink-0 ${
+                      isSelected ? 'bg-blue-600' : 'bg-white/10'
                     }`}
                   >
                     <span
-                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-sm transition-transform ${
-                        isSelected ? 'translate-x-5' : 'translate-x-0'
+                      className={`absolute top-0.5 left-0.5 w-4.5 h-4.5 bg-white rounded-full shadow-sm transition-transform ${
+                        isSelected ? 'translate-x-4.5' : 'translate-x-0'
                       }`}
                     />
                   </div>
@@ -135,15 +148,16 @@ export default function Onboarding() {
 
         <div className="mt-8">
           <button
+            type="button"
             onClick={handleContinue}
             disabled={saving}
             className="btn-primary"
           >
-            {saving ? 'Saving...' : 'Continue to my feed'}
+            {saving ? 'Saving courses...' : 'Continue to my feed'}
           </button>
           {selected.size === 0 && (
-            <p className="mt-2 text-center text-xs text-gray-400">
-              You can skip for now and add courses later
+            <p className="mt-3 text-center text-xs text-white/40">
+              You can skip for now and manage courses later under My Courses
             </p>
           )}
         </div>
