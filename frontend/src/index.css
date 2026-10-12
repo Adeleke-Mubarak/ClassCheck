@@ -107,7 +107,7 @@
 
   /* Page container */
   .page-container {
-    @apply pt-14 min-h-screen;
+    @apply pt-14 pb-24 md:pb-8 min-h-screen;
     background-color: #0A0A0A;
     color: #FFFFFF;
   }

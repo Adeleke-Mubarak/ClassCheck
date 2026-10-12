@@ -21,13 +21,13 @@ export default function Dashboard() {
 
       {/* Tab bar */}
       <div className="fixed top-14 left-0 right-0 z-40 bg-[#0A0A0A] border-b border-white/[0.08]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex gap-1 py-2">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex gap-1 py-2 overflow-x-auto no-scrollbar whitespace-nowrap">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`tab-btn ${activeTab === tab.id ? 'tab-btn-active' : 'tab-btn-inactive'}`}
+                className={`tab-btn shrink-0 ${activeTab === tab.id ? 'tab-btn-active' : 'tab-btn-inactive'}`}
               >
                 {tab.label}
               </button>

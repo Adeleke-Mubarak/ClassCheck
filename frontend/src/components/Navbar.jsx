@@ -2,11 +2,64 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
 
-const font = "'Plus Jakarta Sans', 'Inter', ui-sans-serif, sans-serif"
-
-const NAV_LINKS = [
-  { label: 'Feed', path: '/feed' },
-  { label: 'My Courses', path: '/my-courses' },
+const MOBILE_NAV_ITEMS = [
+  {
+    label: 'Feed',
+    path: '/feed',
+    icon: (isActive) => (
+      <svg
+        className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 text-blue-400' : 'text-white/40'}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={isActive ? 2.2 : 1.8}
+          d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'My Courses',
+    path: '/my-courses',
+    icon: (isActive) => (
+      <svg
+        className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 text-blue-400' : 'text-white/40'}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={isActive ? 2.2 : 1.8}
+          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'Account',
+    path: '/account',
+    icon: (isActive) => (
+      <svg
+        className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 text-blue-400' : 'text-white/40'}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={isActive ? 2.2 : 1.8}
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+        />
+      </svg>
+    ),
+  },
 ]
 
 export default function Navbar() {
@@ -21,160 +74,126 @@ export default function Navbar() {
   }
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Account'
+  const isFeed = location.pathname === '/feed'
+  const isCourses = location.pathname === '/my-courses'
+  const isAccount = location.pathname === '/account'
 
   return (
-    <nav style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 50,
-      background: '#0A0A0A',
-      borderBottom: '1px solid rgba(255,255,255,0.08)',
-      height: '56px',
-      fontFamily: font,
-      WebkitFontSmoothing: 'antialiased',
-    }}>
-      <div style={{
-        maxWidth: '1100px',
-        margin: '0 auto',
-        padding: '0 24px',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-      }}>
-        {/* Left — Logo + nav links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <Link
-            to="/feed"
-            style={{
-              fontWeight: 800,
-              fontSize: '17px',
-              letterSpacing: '-0.04em',
-              color: '#FFFFFF',
-              textDecoration: 'none',
-            }}
-          >
-            ClassCheck
-          </Link>
+    <>
+      {/* ── Top Header (Fixed) ─────────────────────────────────────────── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08] h-14">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+          {/* Left: Brand + Desktop Navigation */}
+          <div className="flex items-center gap-6">
+            <Link
+              to="/feed"
+              className="font-extrabold text-[17px] text-white tracking-tight hover:opacity-90 transition-opacity"
+            >
+              ClassCheck
+            </Link>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            {NAV_LINKS.map(({ label, path }) => {
-              const isActive = location.pathname === path
-              return (
-                <Link
-                  key={path}
-                  to={path}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: isActive ? 600 : 500,
-                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.45)',
-                    background: isActive ? 'rgba(255,255,255,0.08)' : 'transparent',
-                    textDecoration: 'none',
-                    transition: 'color 0.15s, background 0.15s',
-                    letterSpacing: '-0.01em',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.75)'
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.04)'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.color = 'rgba(255,255,255,0.45)'
-                      e.currentTarget.style.background = 'transparent'
-                    }
-                  }}
-                >
-                  {label}
-                </Link>
-              )
-            })}
+            {/* Desktop Navigation Links */}
+            <div className="hidden md:flex items-center gap-1">
+              <Link
+                to="/feed"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isFeed
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                Feed
+              </Link>
+              <Link
+                to="/my-courses"
+                className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
+                  isCourses
+                    ? 'text-white bg-white/[0.08] font-semibold'
+                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                }`}
+              >
+                My Courses
+              </Link>
+            </div>
+          </div>
+
+          {/* Right: Profile & Actions */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Desktop Profile Pill */}
+            <Link
+              to="/account"
+              className={`hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] transition-colors ${
+                isAccount ? 'bg-white/[0.08]' : 'hover:bg-white/[0.04]'
+              }`}
+            >
+              <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+                {firstName.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-xs font-semibold text-white tracking-tight">
+                {firstName}
+              </span>
+            </Link>
+
+            {/* Desktop Divider */}
+            <div className="hidden md:block w-px h-4 bg-white/10" />
+
+            {/* Sign Out (Desktop & Mobile) */}
+            <button
+              onClick={handleSignOut}
+              className="text-xs font-medium text-white/40 hover:text-white transition-colors flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] hover:bg-white/[0.04]"
+              aria-label="Sign out"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+              <span className="hidden sm:inline">Sign out</span>
+            </button>
           </div>
         </div>
+      </nav>
 
-        {/* Right — Account + Sign out */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link
-            to="/account"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              textDecoration: 'none',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-            }}
-          >
-            {/* Profile icon */}
-            <div style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '50%',
-              background: '#2563EB',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 700,
-              color: '#FFFFFF',
-              letterSpacing: '0',
-              flexShrink: 0,
-            }}>
-              {firstName.charAt(0).toUpperCase()}
-            </div>
-            <span style={{
-              fontSize: '13px',
-              fontWeight: 600,
-              color: '#FFFFFF',
-              letterSpacing: '-0.01em',
-            }}>
-              {firstName}
-            </span>
-          </Link>
+      {/* ── Bottom Mobile Navigation Bar ───────────────────────────────── */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] h-16 md:hidden px-3"
+        aria-label="Mobile Navigation"
+      >
+        <div className="grid grid-cols-3 h-full max-w-sm mx-auto items-center">
+          {MOBILE_NAV_ITEMS.map((item) => {
+            const isActive = location.pathname === item.path
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className="relative h-full flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"
+              >
+                {/* Active indicator bar */}
+                {isActive && (
+                  <span className="absolute top-0 w-8 h-[2px] bg-blue-500 rounded-full" />
+                )}
 
-          <div style={{
-            width: '1px',
-            height: '20px',
-            background: 'rgba(255,255,255,0.1)',
-          }} />
+                {/* Icon */}
+                <div className="mt-0.5">
+                  {item.icon(isActive)}
+                </div>
 
-          <button
-            onClick={handleSignOut}
-            style={{
-              fontSize: '13px',
-              fontWeight: 500,
-              color: 'rgba(255,255,255,0.35)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '6px 8px',
-              borderRadius: '6px',
-              fontFamily: font,
-              transition: 'color 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.75)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'rgba(255,255,255,0.35)'
-            }}
-          >
-            Sign out
-          </button>
+                {/* Label */}
+                <span
+                  className={`text-[10px] tracking-tight transition-colors ${
+                    isActive ? 'text-white font-bold' : 'text-white/45 font-medium'
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </Link>
+            )
+          })}
         </div>
-      </div>
-    </nav>
+      </nav>
+    </>
   )
 }
