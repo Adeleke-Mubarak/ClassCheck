@@ -586,6 +586,64 @@ function handleDevFallback(endpoint, options = {}) {
     return { data: { success: true } }
   }
 
+  // 15. Hall Pulse (Crowdsourced Lecture Status)
+  if (endpoint.startsWith('/hall-pulse')) {
+    const parts = endpoint.split('/')
+    const courseId = parts[2] || body.course_id || 'default'
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const storageKey = `classcheck_hall_pulse_${courseId}_${todayStr}`
+
+    let pulseData = {
+      course_id: courseId,
+      status: null,
+      consensus: null,
+      reports: [],
+      counts: { lecturer_present: 0, hall_empty: 0, class_holding: 0 },
+    }
+    try {
+      const stored = localStorage.getItem(storageKey)
+      if (stored) pulseData = JSON.parse(stored)
+    } catch {}
+
+    if (method === 'POST') {
+      const { status, user_id, user_name } = body
+      const existingIdx = pulseData.reports.findIndex((r) => r.user_id === user_id)
+      const report = {
+        user_id: user_id || `anon_${Date.now()}`,
+        user_name: user_name || 'Coursemate',
+        status,
+        timestamp: new Date().toISOString(),
+      }
+      if (existingIdx !== -1) {
+        pulseData.reports[existingIdx] = report
+      } else {
+        pulseData.reports.push(report)
+      }
+
+      pulseData.counts = { lecturer_present: 0, hall_empty: 0, class_holding: 0 }
+      for (const r of pulseData.reports) {
+        if (pulseData.counts[r.status] !== undefined) {
+          pulseData.counts[r.status]++
+        }
+      }
+
+      let consensus = null
+      for (const [st, count] of Object.entries(pulseData.counts)) {
+        if (count >= 3) {
+          consensus = st
+          break
+        }
+      }
+      pulseData.consensus = consensus
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(pulseData))
+      } catch {}
+      return { data: pulseData }
+    }
+
+    return { data: pulseData }
+  }
+
   return { data: [] }
 }
 
@@ -932,6 +990,18 @@ export const api = {
   },
 
   getMyFacilitators: () => fetchApi('/directory/me'),
+
+  // ================================================================
+  // HALL PULSE (CROWDSOURCED LECTURE STATUS)
+  // ================================================================
+
+  getHallPulse: (courseId) => fetchApi(`/hall-pulse/${courseId}`),
+
+  submitHallPulse: (data) =>
+    fetchApi('/hall-pulse', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }
 
 export { BASE_URL, fetchApi }

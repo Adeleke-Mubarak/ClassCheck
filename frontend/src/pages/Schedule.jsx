@@ -8,6 +8,7 @@ import AdminNavbar from '../components/AdminNavbar'
 import AddTimetableModal from '../components/AddTimetableModal'
 import NextLectureCard from '../components/NextLectureCard'
 import OfflineStatusBanner from '../components/OfflineStatusBanner'
+import HallPulseWidget from '../components/HallPulseWidget'
 import toast from 'react-hot-toast'
 
 const DAYS = [
@@ -500,6 +501,15 @@ export default function Schedule() {
                           </div>
                         )}
                       </div>
+
+                      {/* Hall Pulse for Today's Classes */}
+                      {isEntryForToday && !isCancelled && (
+                        <HallPulseWidget
+                          courseId={entry.course_id}
+                          courseCode={course.course_code}
+                          venue={isRelocated ? liveAlert.new_venue : entry.venue}
+                        />
+                      )}
                     </div>
                   )
                 })}

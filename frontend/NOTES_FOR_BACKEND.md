@@ -127,8 +127,14 @@ All frontend requests in `src/lib/api.js` adhere to this contract:
 | `/admin/overview` | GET | Bearer (Admin) | — | Dashboard metrics & recent activity |
 | `/notifications` | GET | Bearer | — | In-app notification alerts |
 | `/notifications/read-all`| PUT | Bearer | — | Mark all user notifications as read |
-| `/notifications/:id/read`| PUT | Bearer | — | Mark specific notification as read |
 | `/waitlist` | POST | Public | `{ name, email, department, university }` | Waitlist sign-up |
+| `/hall-pulse/:courseId` | GET | Bearer | — | Get today's crowdsourced pulse reports and consensus |
+| `/hall-pulse` | POST | Bearer | `{ course_id, status: 'lecturer_present' \| 'hall_empty' \| 'class_holding' }` | Submit/update student's physical hall status report |
+
+### Hall Pulse Consensus Logic:
+- Students can submit 1 status per course per lecture time slot.
+- When $\ge 3$ distinct students submit the same status (`lecturer_present`, `hall_empty`, or `class_holding`), `consensus` is stamped to that status.
+- Resets automatically when the lecture slot finishes or at the end of the day.
 
 ---
 

@@ -123,6 +123,7 @@ export function calculateNextLecture(timetable = [], todayUpdates = []) {
     return {
       state: 'in_progress',
       entry: inProgress,
+      courseId: inProgress.course_id || inProgress.courses?.id,
       courseCode: inProgress.courses?.course_code || inProgress.course_code || 'Course',
       courseName: inProgress.courses?.course_name || inProgress.course_name || '',
       venue: inProgress.venue || 'TBA',
@@ -150,9 +151,10 @@ export function calculateNextLecture(timetable = [], todayUpdates = []) {
     return {
       state: 'upcoming_today',
       entry: upcomingToday,
+      courseId: upcomingToday.course_id || upcomingToday.courses?.id,
       courseCode: upcomingToday.courses?.course_code || upcomingToday.course_code || 'Course',
       courseName: upcomingToday.courses?.course_name || upcomingToday.course_name || '',
-      venue: inProgress?.venue || upcomingToday.venue || 'TBA',
+      venue: upcomingToday.venue || 'TBA',
       start12: formatTime12(upcomingToday.start_time),
       end12: formatTime12(upcomingToday.end_time),
       lecturer: upcomingToday.lecturer_name || 'Department Lecturer',

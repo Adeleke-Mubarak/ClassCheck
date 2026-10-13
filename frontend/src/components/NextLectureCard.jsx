@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { calculateNextLecture } from '../lib/scheduleUtils'
+import HallPulseWidget from './HallPulseWidget'
 
 export default function NextLectureCard({ timetable = [], todayUpdates = [], isOffline = false, syncAge = '' }) {
   const [, setTick] = useState(0)
@@ -320,6 +321,15 @@ export default function NextLectureCard({ timetable = [], todayUpdates = [], isO
             </p>
           </div>
         </div>
+      )}
+
+      {/* Hall Pulse (Crowdsourced Status Check) */}
+      {!isCancelled && (isInProgress || (nextInfo.state === 'upcoming_today' && (nextInfo.diffMinutes === undefined || nextInfo.diffMinutes <= 25))) && (
+        <HallPulseWidget
+          courseId={nextInfo.courseId || nextInfo.entry?.course_id || nextInfo.entry?.courses?.id}
+          courseCode={nextInfo.courseCode}
+          venue={isVenueChanged ? (nextInfo.update?.new_venue || nextInfo.venue) : nextInfo.venue}
+        />
       )}
     </div>
   )
