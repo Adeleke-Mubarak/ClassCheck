@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import { api } from '../lib/api'
@@ -11,28 +11,54 @@ export default function MyCourses() {
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState(null)
 
+  const load = useCallback(async () => {
+    if (!profile || !user?.id) return
+
+    try {
+      const [{ data: allCourses }, { data: subs }] = await Promise.all([
+        api.getCourses(),
+        api.getStudentSubscriptions(user.id),
+      ])
+
+      setCourses(allCourses || [])
+      setSubscribed(new Set((subs || []).map((s) => s.course_id || s.id)))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
+  }, [profile, user?.id])
+
   useEffect(() => {
-    async function load() {
-      if (!profile) return
+    load()
 
-      try {
-        const [{ data: allCourses }, { data: subs }] = await Promise.all([
-          api.getCourses(),
-          api.getStudentSubscriptions(user.id),
-        ])
+    let bc = null
+    try {
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        bc = new BroadcastChannel('classcheck_realtime')
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'COURSES_UPDATE' || event.data?.type === 'SUBSCRIPTIONS_UPDATED') {
+            load()
+          }
+        }
+      }
+    } catch {}
 
-        setCourses(allCourses || [])
-        // api.getStudentSubscriptions returns either full course objects or objects with course_id depending on backend.
-        // Assuming it matches the old shape (objects with course_id)
-        setSubscribed(new Set((subs || []).map((s) => s.course_id || s.id)))
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
+    const handleStorage = (e) => {
+      if (e.key === 'classcheck_dev_subscribed_ids' || e.key === 'classcheck_courses') {
+        load()
       }
     }
-    load()
-  }, [profile, user])
+    window.addEventListener('storage', handleStorage)
+
+    const interval = setInterval(load, 3500)
+
+    return () => {
+      if (bc) bc.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
+  }, [load])
 
   async function handleToggle(courseId) {
     if (toggling) return

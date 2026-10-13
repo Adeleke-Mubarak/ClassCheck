@@ -6,164 +6,6 @@ import SenderNavbar from '../components/SenderNavbar'
 import AdminNavbar from '../components/AdminNavbar'
 import toast from 'react-hot-toast'
 
-// Default fallback directory data if database has not yet been seeded with faculty profiles
-const SAMPLE_DIRECTORY = [
-  {
-    id: 'sample-1',
-    full_name: 'Prof Moses Akanbi',
-    email: 'm.akanbi@university.edu.ng',
-    role: 'hod',
-    department: 'Mathematics',
-    level: null,
-    location: 'Faculty of Science, Math Block A, Office 10',
-    office_hours: 'Mondays & Thursdays: 10:00 AM – 12:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c1', course_code: 'MAT401', course_name: 'Real Analysis III' },
-    ],
-  },
-  {
-    id: 'sample-2',
-    full_name: 'Prof Olutiomo',
-    email: 'olutiomo@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Science Complex, Office 304',
-    office_hours: 'Mondays & Fridays: 1:00 PM – 3:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c2', course_code: 'MAT403', course_name: 'Complex Analysis II' },
-    ],
-  },
-  {
-    id: 'sample-3',
-    full_name: 'Dr Oyebo',
-    email: 'oyebo@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Faculty of Science, Office 208',
-    office_hours: 'Tuesdays: 11:00 AM – 1:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c3', course_code: 'MAT405', course_name: 'Abstract Algebra II' },
-    ],
-  },
-  {
-    id: 'sample-4',
-    full_name: 'Dr Ige',
-    email: 'ige@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Math Block B, Office 12',
-    office_hours: 'Wednesdays: 10:00 AM – 12:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c4', course_code: 'MAT407', course_name: 'Differential Equations III' },
-    ],
-  },
-  {
-    id: 'sample-5',
-    full_name: 'Mr Moshood',
-    email: 'moshood@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Science Quad, Office 105',
-    office_hours: 'Fridays: 10:00 AM – 12:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c5', course_code: 'MAT409', course_name: 'Topology' },
-    ],
-  },
-  {
-    id: 'sample-6',
-    full_name: 'Dr Akewushola',
-    email: 'akewushola@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Senate Building, Suite 305',
-    office_hours: 'Tuesdays & Thursdays: 2:00 PM – 4:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c7', course_code: 'MAT413', course_name: 'Numerical Analysis II' },
-    ],
-  },
-  {
-    id: 'sample-7',
-    full_name: 'Mr Shonibare',
-    email: 'shonibare@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Math Block A, Office 16',
-    office_hours: 'Wednesdays & Thursdays: 1:00 PM – 3:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c8', course_code: 'MAT415', course_name: 'Operations Research' },
-    ],
-  },
-  {
-    id: 'sample-8',
-    full_name: 'Dr Ibitowa',
-    email: 'ibitowa@university.edu.ng',
-    role: 'lecturer',
-    department: 'Mathematics',
-    level: null,
-    location: 'Science Complex, Office 215',
-    office_hours: 'Thursdays: 10:00 AM – 12:00 PM',
-    phone: null,
-    courses: [
-      { id: 'c9', course_code: 'MAT417', course_name: 'Mathematical Methods' },
-    ],
-  },
-  {
-    id: 'sample-9',
-    full_name: 'Taiwo Daniel',
-    email: 'taiwo.daniel@student.edu.ng',
-    role: 'class_rep',
-    department: 'Mathematics',
-    level: '400',
-    location: 'Departmental Rep Desk / Science Quad',
-    office_hours: 'Monday – Friday: 12:00 PM – 2:00 PM',
-    phone: '+234 802 345 6789',
-    courses: [
-      { id: 'c1', course_code: 'MAT401', course_name: 'Real Analysis III' },
-      { id: 'c2', course_code: 'MAT403', course_name: 'Complex Analysis II' },
-      { id: 'c3', course_code: 'MAT405', course_name: 'Abstract Algebra II' },
-      { id: 'c4', course_code: 'MAT407', course_name: 'Differential Equations III' },
-      { id: 'c5', course_code: 'MAT409', course_name: 'Topology' },
-      { id: 'c7', course_code: 'MAT413', course_name: 'Numerical Analysis II' },
-      { id: 'c8', course_code: 'MAT415', course_name: 'Operations Research' },
-      { id: 'c9', course_code: 'MAT417', course_name: 'Mathematical Methods' },
-    ],
-  },
-  {
-    id: 'sample-10',
-    full_name: 'Obasi Obinna',
-    email: 'obasi.obinna@student.edu.ng',
-    role: 'class_rep',
-    department: 'Mathematics',
-    level: '400',
-    location: 'Science Quad / Math Study Room',
-    office_hours: 'Monday – Friday: 1:00 PM – 3:00 PM',
-    phone: '+234 809 987 6543',
-    courses: [
-      { id: 'c1', course_code: 'MAT401', course_name: 'Real Analysis III' },
-      { id: 'c2', course_code: 'MAT403', course_name: 'Complex Analysis II' },
-      { id: 'c3', course_code: 'MAT405', course_name: 'Abstract Algebra II' },
-      { id: 'c4', course_code: 'MAT407', course_name: 'Differential Equations III' },
-      { id: 'c5', course_code: 'MAT409', course_name: 'Topology' },
-      { id: 'c7', course_code: 'MAT413', course_name: 'Numerical Analysis II' },
-      { id: 'c8', course_code: 'MAT415', course_name: 'Operations Research' },
-      { id: 'c9', course_code: 'MAT417', course_name: 'Mathematical Methods' },
-    ],
-  },
-]
-
 const ROLE_TABS = [
   { key: 'all', label: 'All Faculty & Reps' },
   { key: 'class_rep', label: 'Course Reps' },
@@ -173,7 +15,7 @@ const ROLE_TABS = [
 ]
 
 export default function Directory() {
-  const { profile } = useAuth()
+  const { user, profile } = useAuth()
 
   const [activeTab, setActiveTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -181,44 +23,90 @@ export default function Directory() {
   const [myFacilitatorIds, setMyFacilitatorIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
 
-  const fetchDirectory = useCallback(async () => {
-    setLoading(true)
+  const fetchDirectory = useCallback(async (isSilent = false) => {
+    if (!isSilent) setLoading(true)
     try {
-      const [dirRes, myRes] = await Promise.all([
+      const [dirRes, subsRes] = await Promise.all([
         api.getDirectory().catch(() => ({ data: [] })),
-        api.getMyFacilitators().catch(() => ({ data: [] })),
+        user?.id
+          ? api.getStudentSubscriptions(user.id).catch(() => ({ data: [] }))
+          : Promise.resolve({ data: [] }),
       ])
 
       const fetchedData = dirRes?.data || []
-      const fetchedMy = myRes?.data || []
+      const subs = subsRes?.data || []
+      const subscribedCourseIds = new Set(
+        subs.map((s) => s.course_id || s.courses?.id || s.id)
+      )
 
-      // If database has faculty records, transform sender_courses; otherwise use sample directory
-      if (fetchedData.length > 0) {
-        const mapped = fetchedData.map((item) => ({
+      const mapped = fetchedData.map((item) => {
+        const itemCourses =
+          item.courses ||
+          (item.sender_courses || []).map((sc) => sc.courses).filter(Boolean)
+        return {
           ...item,
-          courses: (item.sender_courses || [])
-            .map((sc) => sc.courses)
-            .filter(Boolean),
-        }))
-        setDirectoryList(mapped)
-        setMyFacilitatorIds(new Set(fetchedMy.map((f) => f.id)))
-      } else {
-        // Fallback to sample directory so user immediately has rich experience
-        setDirectoryList(SAMPLE_DIRECTORY)
-        // Mark first 3 as student's facilitators in sample mode
-        setMyFacilitatorIds(new Set(['sample-1', 'sample-2', 'sample-5']))
-      }
+          courses: itemCourses,
+        }
+      })
+      setDirectoryList(mapped)
+
+      // Dynamically calculate which facilitators teach courses the student is subscribed to
+      const myIds = new Set(
+        mapped
+          .filter((fac) =>
+            (fac.courses || []).some((c) => subscribedCourseIds.has(c.id))
+          )
+          .map((fac) => fac.id)
+      )
+      setMyFacilitatorIds(myIds)
     } catch (err) {
-      toast.error(err.message || 'Failed to load directory.')
-      setDirectoryList(SAMPLE_DIRECTORY)
-      setMyFacilitatorIds(new Set(['sample-1', 'sample-2', 'sample-5']))
+      if (!isSilent) toast.error(err.message || 'Failed to load directory.')
     } finally {
-      setLoading(false)
+      if (!isSilent) setLoading(false)
     }
-  }, [])
+  }, [user?.id])
 
   useEffect(() => {
-    fetchDirectory()
+    fetchDirectory(false)
+
+    // 1. BroadcastChannel: Instant real-time updates for senders & subscriptions
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (
+            event.data?.type === 'SENDER_UPDATE' ||
+            event.data?.type === 'SUBSCRIPTIONS_UPDATED' ||
+            event.data?.type === 'COURSES_UPDATE'
+          ) {
+            fetchDirectory(true)
+          }
+        }
+      } catch {}
+    }
+
+    // 2. Storage event listener
+    const handleStorage = (e) => {
+      if (
+        e.key === 'classcheck_dev_senders' ||
+        e.key === 'classcheck_dev_subscribed_ids'
+      ) {
+        fetchDirectory(true)
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    // 3. Heartbeat polling
+    const intervalId = setInterval(() => {
+      fetchDirectory(true)
+    }, 3500)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(intervalId)
+    }
   }, [fetchDirectory])
 
   function handleCopyEmail(email) {

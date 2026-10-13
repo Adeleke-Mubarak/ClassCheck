@@ -112,6 +112,43 @@ export default function Schedule() {
 
   useEffect(() => {
     fetchScheduleData()
+
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (
+            event.data?.type === 'TIMETABLE_UPDATE' ||
+            event.data?.type === 'NEW_UPDATE' ||
+            event.data?.type === 'DELETE_UPDATE' ||
+            event.data?.type === 'SUBSCRIPTIONS_UPDATED' ||
+            event.data?.type === 'COURSES_UPDATE'
+          ) {
+            fetchScheduleData()
+          }
+        }
+      } catch {}
+    }
+
+    const handleStorage = (e) => {
+      if (
+        e.key === 'classcheck_dev_timetable' ||
+        e.key === 'classcheck_dev_updates' ||
+        e.key === 'classcheck_dev_subscribed_ids'
+      ) {
+        fetchScheduleData()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    const intervalId = setInterval(fetchScheduleData, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(intervalId)
+    }
   }, [fetchScheduleData])
 
   // Map updates by course_id for fast lookup

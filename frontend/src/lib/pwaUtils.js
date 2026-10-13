@@ -100,6 +100,44 @@ export const pwaUtils = {
     }
   },
 
+  async sendBroadcastNotification(update) {
+    if (!update || typeof window === 'undefined' || !('Notification' in window)) return false
+    if (Notification.permission !== 'granted') return false
+
+    const code = update.courses?.course_code || 'Lecture'
+    const typeLabel = update.type === 'cancelled' ? 'CANCELLED' : 'VENUE CHANGED'
+    const title = `ClassCheck: ${code} ${typeLabel}`
+    const body = update.type === 'cancelled'
+      ? (update.note || 'Class is cancelled today.')
+      : `Relocated to: ${update.new_venue || 'New venue'}${update.note ? ` — ${update.note}` : ''}`
+
+    const options = {
+      body,
+      icon: '/pwa-192x192.png',
+      badge: '/favicon.svg',
+      tag: `update-${update.id}`,
+      vibrate: [300, 100, 300],
+      requireInteraction: true,
+      data: { url: '/feed' },
+    }
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready
+        if (registration && registration.showNotification) {
+          await registration.showNotification(title, options)
+          return true
+        }
+      }
+    } catch {}
+
+    try {
+      new Notification(title, options)
+      return true
+    } catch {}
+    return false
+  },
+
   async triggerInstallPrompt() {
     if (!deferredInstallPrompt) return false
     deferredInstallPrompt.prompt()

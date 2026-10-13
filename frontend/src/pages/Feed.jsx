@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import FilterPills from '../components/FilterPills'
 import UpdateCard from '../components/UpdateCard'
@@ -9,6 +10,7 @@ import PwaInstallBanner from '../components/PwaInstallBanner'
 import { api } from '../lib/api'
 import { offlineStorage, useOnlineStatus } from '../lib/offlineStorage'
 import { useAuth } from '../context/AuthContext'
+import { pwaUtils } from '../lib/pwaUtils'
 
 export default function Feed() {
   const { user, profile } = useAuth()
@@ -22,7 +24,7 @@ export default function Feed() {
   })
   const [hasSubscriptions, setHasSubscriptions] = useState(true)
 
-  const fetchUpdates = useCallback(async () => {
+  const fetchUpdates = useCallback(async (isSilent = false) => {
     if (!user) return
 
     try {
@@ -31,7 +33,7 @@ export default function Feed() {
 
       if (!subs || subs.length === 0) {
         setHasSubscriptions(false)
-        setLoading(false)
+        if (!isSilent) setLoading(false)
         return
       }
 
@@ -54,27 +56,71 @@ export default function Feed() {
       offlineStorage.save('timetable', timetableData)
     } catch (err) {
       console.warn('Network issue fetching feed, loading offline cache:', err)
-      // Read from offline cache
       const cachedFeed = offlineStorage.get('feed', [])
       const cachedTimetable = offlineStorage.get('timetable', [])
       if (cachedFeed.length > 0) setUpdates(cachedFeed)
       if (cachedTimetable.length > 0) setTimetable(cachedTimetable)
     } finally {
-      setLoading(false)
+      if (!isSilent) setLoading(false)
     }
   }, [user])
 
   useEffect(() => {
-    fetchUpdates()
+    fetchUpdates(false)
   }, [fetchUpdates])
 
-  // Polling every 10s
+  // Real-time synchronization
   useEffect(() => {
     if (!user) return
+
+    // 1. Instant cross-tab real-time push via BroadcastChannel
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_UPDATE') {
+            const upd = event.data.payload
+            toast.success(
+              `⚡ Live update: ${upd.courses?.course_code || 'Lecture'} ${
+                upd.type === 'cancelled' ? 'Cancelled' : 'Venue Relocated'
+              }`,
+              { duration: 5000, icon: '📢' }
+            )
+            pwaUtils.sendBroadcastNotification(upd)
+            fetchUpdates(true)
+          } else if (
+            event.data?.type === 'DELETE_UPDATE' ||
+            event.data?.type === 'SUBSCRIPTIONS_UPDATED' ||
+            event.data?.type === 'TIMETABLE_UPDATE'
+          ) {
+            fetchUpdates(true)
+          }
+        }
+      } catch {}
+    }
+
+    // 2. Storage event listener for cross-tab updates
+    const handleStorage = (e) => {
+      if (
+        e.key === 'classcheck_dev_updates' ||
+        e.key === 'classcheck_dev_subscribed_ids'
+      ) {
+        fetchUpdates(true)
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    // 3. Heartbeat polling every 3 seconds for continuous real-time sync
     const intervalId = setInterval(() => {
-      fetchUpdates()
-    }, 10000)
-    return () => clearInterval(intervalId)
+      fetchUpdates(true)
+    }, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(intervalId)
+    }
   }, [user, fetchUpdates])
 
   const filtered = updates.filter((u) => {

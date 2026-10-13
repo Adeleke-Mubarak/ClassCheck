@@ -62,9 +62,45 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
 
   useEffect(() => {
     fetchPulse()
-    const timer = setInterval(fetchPulse, 20000)
-    return () => clearInterval(timer)
-  }, [fetchPulse])
+
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (
+            event.data?.type === 'HALL_PULSE_UPDATE' &&
+            (!event.data?.courseId || event.data?.courseId === courseId)
+          ) {
+            if (event.data?.payload) {
+              setPulse(event.data.payload)
+              const userReport = (event.data.payload.reports || []).find(
+                (r) => r.user_id === user?.id
+              )
+              if (userReport) setMyVote(userReport.status)
+            } else {
+              fetchPulse()
+            }
+          }
+        }
+      } catch {}
+    }
+
+    const handleStorage = (e) => {
+      if (e.key && e.key.includes(`hall_pulse_${courseId}`)) {
+        fetchPulse()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    const timer = setInterval(fetchPulse, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(timer)
+    }
+  }, [courseId, user?.id, fetchPulse])
 
   async function handleVote(status) {
     if (loading) return

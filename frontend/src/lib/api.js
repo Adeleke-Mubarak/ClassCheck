@@ -349,19 +349,7 @@ function getRegisteredStudents() {
           if (u.role === 'student') initialUser = u
         } catch {}
       }
-      list = initialUser ? [initialUser] : [
-        {
-          id: 'student_pilot_1',
-          full_name: 'Adeleke Mubarak',
-          email: 'adeleke.mubarak@student.edu.ng',
-          matric_no: 'MAT/2021/042',
-          department: 'Mathematics',
-          level: '400',
-          role: 'student',
-          status: 'active',
-          created_at: new Date().toISOString(),
-        },
-      ]
+      list = initialUser ? [initialUser] : []
       localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
     } else {
       const userRaw = localStorage.getItem('classcheck_user')
@@ -467,6 +455,11 @@ function handleDevFallback(endpoint, options = {}) {
         list.push(user)
       }
       localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'NEW_STUDENT_REGISTERED', payload: user })
+        ch.close()
+      }
     } catch {}
 
     return {
@@ -546,16 +539,7 @@ function handleDevFallback(endpoint, options = {}) {
       if (raw) user = JSON.parse(raw)
     } catch {}
     if (!user) {
-      user = {
-        id: 'dev_student',
-        full_name: 'Student User',
-        email: 'student@classcheck.app',
-        matric_no: 'MAT/2026/001',
-        department: 'Mathematics',
-        level: '400',
-        role: 'student',
-        status: 'active',
-      }
+      return { data: null }
     }
     return { data: user }
   }
@@ -581,6 +565,11 @@ function handleDevFallback(endpoint, options = {}) {
       }
       courses.push(newCourse)
       saveLocalCourses(courses)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'COURSES_UPDATE' })
+        ch.close()
+      }
       return { data: newCourse }
     }
     return { data: courses }
@@ -589,6 +578,11 @@ function handleDevFallback(endpoint, options = {}) {
     const id = endpoint.split('/').pop()
     const courses = getLocalCourses().filter((c) => c.id !== id)
     saveLocalCourses(courses)
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      const ch = new BroadcastChannel('classcheck_realtime')
+      ch.postMessage({ type: 'COURSES_UPDATE' })
+      ch.close()
+    }
     return { data: { success: true } }
   }
 
@@ -598,9 +592,14 @@ function handleDevFallback(endpoint, options = {}) {
     if (method === 'PUT') {
       const ids = body.course_ids || []
       localStorage.setItem('classcheck_dev_subscribed_ids', JSON.stringify(ids))
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'SUBSCRIPTIONS_UPDATED', payload: ids })
+        ch.close()
+      }
       return { data: ids }
     }
-    let subs = ['c1', 'c2', 'c3', 'c4']
+    let subs = []
     try {
       const raw = localStorage.getItem('classcheck_dev_subscribed_ids')
       if (raw) subs = JSON.parse(raw)
@@ -609,7 +608,7 @@ function handleDevFallback(endpoint, options = {}) {
     return {
       data: matchingCourses.map((c) => ({
         id: `sc_${c.id}`,
-        student_id: 'student_pilot_1',
+        student_id: 'current_user',
         course_id: c.id,
         courses: c,
       })),
@@ -691,6 +690,11 @@ function handleDevFallback(endpoint, options = {}) {
       }
       timetable.push(newEntry)
       saveLocalTimetable(timetable)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'TIMETABLE_UPDATE' })
+        ch.close()
+      }
       return { data: newEntry }
     }
     if (method === 'PUT') {
@@ -699,6 +703,11 @@ function handleDevFallback(endpoint, options = {}) {
       if (index !== -1) {
         timetable[index] = { ...timetable[index], ...body }
         saveLocalTimetable(timetable)
+        if (typeof window !== 'undefined' && window.BroadcastChannel) {
+          const ch = new BroadcastChannel('classcheck_realtime')
+          ch.postMessage({ type: 'TIMETABLE_UPDATE' })
+          ch.close()
+        }
         return { data: timetable[index] }
       }
     }
@@ -706,6 +715,11 @@ function handleDevFallback(endpoint, options = {}) {
       const id = endpoint.split('/').pop()
       const filtered = timetable.filter((t) => t.id !== id)
       saveLocalTimetable(filtered)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'TIMETABLE_UPDATE' })
+        ch.close()
+      }
       return null
     }
     return { data: timetable }
@@ -762,6 +776,11 @@ function handleDevFallback(endpoint, options = {}) {
       }
       senders.push(newSender)
       saveLocalSenders(senders)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'SENDER_UPDATE' })
+        ch.close()
+      }
       return { data: newSender }
     }
     if (endpoint.includes('/status') && (method === 'PUT' || method === 'PATCH')) {
@@ -771,12 +790,22 @@ function handleDevFallback(endpoint, options = {}) {
         s.id === sId ? { ...s, status: body.status || (s.status === 'active' ? 'inactive' : 'active') } : s
       )
       saveLocalSenders(nextSenders)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'SENDER_UPDATE' })
+        ch.close()
+      }
       return { data: nextSenders.find((s) => s.id === sId) }
     }
     if (method === 'DELETE') {
       const sId = endpoint.split('/').pop()
       const nextSenders = senders.filter((s) => s.id !== sId)
       saveLocalSenders(nextSenders)
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        const ch = new BroadcastChannel('classcheck_realtime')
+        ch.postMessage({ type: 'SENDER_UPDATE' })
+        ch.close()
+      }
       return { data: { success: true } }
     }
     return { data: senders }
@@ -897,6 +926,11 @@ function handleDevFallback(endpoint, options = {}) {
       pulseData.consensus = consensus
       try {
         localStorage.setItem(storageKey, JSON.stringify(pulseData))
+        if (typeof window !== 'undefined' && window.BroadcastChannel) {
+          const ch = new BroadcastChannel('classcheck_realtime')
+          ch.postMessage({ type: 'HALL_PULSE_UPDATE', courseId, payload: pulseData })
+          ch.close()
+        }
       } catch {}
       return { data: pulseData }
     }

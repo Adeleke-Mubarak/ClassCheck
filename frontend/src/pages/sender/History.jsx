@@ -24,6 +24,34 @@ export default function History() {
 
   useEffect(() => {
     if (user?.id) loadUpdates()
+
+    let bc = null
+    try {
+      if (typeof window !== 'undefined' && window.BroadcastChannel) {
+        bc = new BroadcastChannel('classcheck_realtime')
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'NEW_UPDATE' || event.data?.type === 'DELETE_UPDATE') {
+            loadUpdates()
+          }
+        }
+      }
+    } catch {}
+
+    const handleStorage = (e) => {
+      if (e.key === 'classcheck_dev_updates') {
+        loadUpdates()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    // 3.5s real-time heartbeat
+    const interval = setInterval(loadUpdates, 3500)
+
+    return () => {
+      if (bc) bc.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
   }, [user?.id, loadUpdates])
 
   async function handleDelete(id) {
