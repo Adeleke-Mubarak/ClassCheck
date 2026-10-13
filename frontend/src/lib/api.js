@@ -325,6 +325,108 @@ function saveLocalTimetable(list) {
   } catch {}
 }
 
+function isDateToday(dateString) {
+  if (!dateString) return false
+  const d = new Date(dateString)
+  const today = new Date()
+  return (
+    d.getFullYear() === today.getFullYear() &&
+    d.getMonth() === today.getMonth() &&
+    d.getDate() === today.getDate()
+  )
+}
+
+function getRegisteredStudents() {
+  try {
+    const raw = localStorage.getItem('classcheck_registered_students')
+    let list = raw ? JSON.parse(raw) : null
+    if (!list) {
+      const userRaw = localStorage.getItem('classcheck_user')
+      let initialUser = null
+      if (userRaw) {
+        try {
+          const u = JSON.parse(userRaw)
+          if (u.role === 'student') initialUser = u
+        } catch {}
+      }
+      list = initialUser ? [initialUser] : [
+        {
+          id: 'student_pilot_1',
+          full_name: 'Adeleke Mubarak',
+          email: 'adeleke.mubarak@student.edu.ng',
+          matric_no: 'MAT/2021/042',
+          department: 'Mathematics',
+          level: '400',
+          role: 'student',
+          status: 'active',
+          created_at: new Date().toISOString(),
+        },
+      ]
+      localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
+    } else {
+      const userRaw = localStorage.getItem('classcheck_user')
+      if (userRaw) {
+        try {
+          const u = JSON.parse(userRaw)
+          if (u.role === 'student' && !list.some((s) => s.email === u.email || s.matric_no === u.matric_no || s.id === u.id)) {
+            list.push(u)
+            localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
+          }
+        } catch {}
+      }
+    }
+    return list
+  } catch {
+    return []
+  }
+}
+
+function getLocalUpdates() {
+  try {
+    const raw = localStorage.getItem('classcheck_dev_updates')
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function getLocalSenders() {
+  try {
+    const raw = localStorage.getItem('classcheck_dev_senders')
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return MOCK_DIRECTORY
+}
+
+function saveLocalSenders(list) {
+  try {
+    localStorage.setItem('classcheck_dev_senders', JSON.stringify(list))
+  } catch {}
+}
+
+function getLocalCourses() {
+  try {
+    const raw = localStorage.getItem('classcheck_dev_courses')
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return MOCK_COURSES
+}
+
+function saveLocalCourses(list) {
+  try {
+    localStorage.setItem('classcheck_dev_courses', JSON.stringify(list))
+  } catch {}
+}
+
+function getLocalWaitlist() {
+  try {
+    const raw = localStorage.getItem('classcheck_dev_waitlist')
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
 function handleDevFallback(endpoint, options = {}) {
   const method = (options.method || 'GET').toUpperCase()
   let body = {}
@@ -350,6 +452,16 @@ function handleDevFallback(endpoint, options = {}) {
     const token = `dev_token_${Date.now()}`
     localStorage.setItem('classcheck_token', token)
     localStorage.setItem('classcheck_user', JSON.stringify(user))
+
+    try {
+      const raw = localStorage.getItem('classcheck_registered_students')
+      const list = raw ? JSON.parse(raw) : []
+      if (!list.some((s) => s.email === user.email || s.matric_no === user.matric_no)) {
+        list.push(user)
+      }
+      localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
+    } catch {}
+
     return {
       data: {
         session: { access_token: token },
@@ -389,6 +501,18 @@ function handleDevFallback(endpoint, options = {}) {
     const token = `dev_token_${Date.now()}`
     localStorage.setItem('classcheck_token', token)
     localStorage.setItem('classcheck_user', JSON.stringify(user))
+
+    if (role === 'student') {
+      try {
+        const raw = localStorage.getItem('classcheck_registered_students')
+        const list = raw ? JSON.parse(raw) : []
+        if (!list.some((s) => s.email === user.email || s.matric_no === user.matric_no)) {
+          list.push(user)
+        }
+        localStorage.setItem('classcheck_registered_students', JSON.stringify(list))
+      } catch {}
+    }
+
     return {
       data: {
         session: { access_token: token },
@@ -438,11 +562,32 @@ function handleDevFallback(endpoint, options = {}) {
 
   // 5. Courses
   if (endpoint === '/courses' || endpoint.startsWith('/courses?')) {
-    return { data: MOCK_COURSES }
+    const courses = getLocalCourses()
+    if (method === 'POST') {
+      const newCourse = {
+        id: `c_${Date.now()}`,
+        course_code: body.course_code || 'MAT499',
+        course_name: body.course_name || 'Mathematics Elective',
+        department: body.department || 'Mathematics',
+        level: body.level || '400',
+        created_at: new Date().toISOString(),
+      }
+      courses.push(newCourse)
+      saveLocalCourses(courses)
+      return { data: newCourse }
+    }
+    return { data: courses }
+  }
+  if (endpoint.startsWith('/courses/') && method === 'DELETE') {
+    const id = endpoint.split('/').pop()
+    const courses = getLocalCourses().filter((c) => c.id !== id)
+    saveLocalCourses(courses)
+    return { data: { success: true } }
   }
 
   // 6. Student courses / subscriptions
   if (endpoint.includes('/students/') && endpoint.includes('/courses')) {
+    const allCourses = getLocalCourses()
     if (method === 'PUT') {
       const ids = body.course_ids || []
       localStorage.setItem('classcheck_dev_subscribed_ids', JSON.stringify(ids))
@@ -453,11 +598,11 @@ function handleDevFallback(endpoint, options = {}) {
       const raw = localStorage.getItem('classcheck_dev_subscribed_ids')
       if (raw) subs = JSON.parse(raw)
     } catch {}
-    const matchingCourses = MOCK_COURSES.filter((c) => subs.includes(c.id))
+    const matchingCourses = allCourses.filter((c) => subs.includes(c.id))
     return {
       data: matchingCourses.map((c) => ({
         id: `sc_${c.id}`,
-        student_id: 'dev_student',
+        student_id: 'student_pilot_1',
         course_id: c.id,
         courses: c,
       })),
@@ -466,64 +611,61 @@ function handleDevFallback(endpoint, options = {}) {
 
   // 7. Feed
   if (endpoint.startsWith('/feed')) {
-    let extraUpdates = []
-    try {
-      const raw = localStorage.getItem('classcheck_dev_updates')
-      if (raw) extraUpdates = JSON.parse(raw)
-    } catch {}
-    const defaultFeed = [
-      {
-        id: 'u-1',
-        type: 'cancelled',
-        new_venue: null,
-        note: 'Prof Moses Akanbi is attending the faculty board meeting this morning.',
-        created_at: new Date().toISOString(),
-        courses: { course_code: 'MAT401', course_name: 'Real Analysis III' },
-        senders: { full_name: 'Prof Moses Akanbi', role: 'lecturer' },
-      },
-      {
-        id: 'u-2',
-        type: 'venue_change',
-        new_venue: 'Large Lecture Theatre 2 (LT2)',
-        note: 'Relocated from Lab 1 due to departmental presentation.',
-        created_at: new Date().toISOString(),
-        courses: { course_code: 'MAT403', course_name: 'Complex Analysis II' },
-        senders: { full_name: 'Taiwo Daniel', role: 'class_rep' },
-      },
-    ]
-    return { data: [...extraUpdates, ...defaultFeed] }
+    const allUpdates = getLocalUpdates()
+    return { data: allUpdates }
   }
 
-  // 8. Updates (Post update)
-  if (endpoint === '/updates' && method === 'POST') {
-    const courseObj = MOCK_COURSES.find((c) => c.id === body.course_id) || {
-      course_code: 'MAT401',
-      course_name: 'Real Analysis III',
+  // 8. Updates (Post update, List all updates, Delete update)
+  if (endpoint === '/updates' || endpoint.startsWith('/updates/')) {
+    const allUpdates = getLocalUpdates()
+    if (method === 'POST') {
+      const courses = getLocalCourses()
+      const courseObj = courses.find((c) => c.id === body.course_id) || {
+        id: body.course_id,
+        course_code: 'MAT401',
+        course_name: 'Real Analysis III',
+      }
+      let senderInfo = { full_name: 'Class Rep', role: 'class_rep' }
+      try {
+        const uRaw = localStorage.getItem('classcheck_user')
+        if (uRaw) {
+          const u = JSON.parse(uRaw)
+          senderInfo = { full_name: u.full_name || 'Class Rep', role: u.role || 'class_rep' }
+        }
+      } catch {}
+
+      const newUpdate = {
+        id: `u_${Date.now()}`,
+        course_id: body.course_id,
+        type: body.type,
+        new_venue: body.new_venue || null,
+        note: body.note || null,
+        created_at: new Date().toISOString(),
+        courses: courseObj,
+        senders: senderInfo,
+      }
+      allUpdates.unshift(newUpdate)
+      try {
+        localStorage.setItem('classcheck_dev_updates', JSON.stringify(allUpdates))
+      } catch {}
+      return { data: newUpdate }
     }
-    const newUpdate = {
-      id: `u_${Date.now()}`,
-      course_id: body.course_id,
-      type: body.type,
-      new_venue: body.new_venue || null,
-      note: body.note || null,
-      created_at: new Date().toISOString(),
-      courses: courseObj,
-      senders: { full_name: 'Course Rep', role: 'class_rep' },
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop()
+      const filtered = allUpdates.filter((u) => u.id !== id)
+      try {
+        localStorage.setItem('classcheck_dev_updates', JSON.stringify(filtered))
+      } catch {}
+      return { data: { success: true } }
     }
-    try {
-      const raw = localStorage.getItem('classcheck_dev_updates')
-      const list = raw ? JSON.parse(raw) : []
-      list.unshift(newUpdate)
-      localStorage.setItem('classcheck_dev_updates', JSON.stringify(list))
-    } catch {}
-    return { data: newUpdate }
+    return { data: allUpdates }
   }
 
   // 9. Timetable
   if (endpoint.startsWith('/timetable')) {
     const timetable = getLocalTimetable()
     if (endpoint === '/timetable' && method === 'POST') {
-      const courseObj = MOCK_COURSES.find((c) => c.id === body.course_id) || {}
+      const courseObj = getLocalCourses().find((c) => c.id === body.course_id) || {}
       const newEntry = {
         id: `tt_${Date.now()}`,
         ...body,
@@ -554,36 +696,105 @@ function handleDevFallback(endpoint, options = {}) {
 
   // 10. Directory
   if (endpoint.startsWith('/directory')) {
-    return { data: MOCK_DIRECTORY }
+    const senders = getLocalSenders().filter((s) => s.status === 'active')
+    return { data: senders }
   }
 
   // 11. Admin Overview
   if (endpoint.startsWith('/admin/overview')) {
+    const students = getRegisteredStudents()
+    const senders = getLocalSenders().filter((s) => s.status === 'active')
+    const courses = getLocalCourses()
+    const allUpdates = getLocalUpdates()
+    const todayUpdates = allUpdates.filter((u) => isDateToday(u.created_at))
     return {
       data: {
-        students: 42,
-        senders: 8,
-        courses: 11,
-        todayUpdates: 2,
-        recentUpdates: [],
-        recentSenders: [],
+        students: students.length,
+        senders: senders.length,
+        courses: courses.length,
+        todayUpdates: todayUpdates.length,
+        recentUpdates: allUpdates.slice(0, 5),
+        recentSenders: senders.slice(0, 5),
       },
     }
   }
 
   // 12. Senders
   if (endpoint.startsWith('/senders')) {
-    return { data: MOCK_DIRECTORY }
+    if (endpoint.includes('/courses')) {
+      const courses = getLocalCourses()
+      return { data: courses.map((c) => ({ courses: c })) }
+    }
+    if (endpoint.includes('/updates')) {
+      const allUpdates = getLocalUpdates()
+      return { data: allUpdates }
+    }
+    const senders = getLocalSenders()
+    if (endpoint === '/senders' && method === 'POST') {
+      const newSender = {
+        id: `dir-${Date.now()}`,
+        full_name: body.full_name || 'New Facilitator',
+        email: body.email || '',
+        role: body.role || 'lecturer',
+        department: body.department || 'Mathematics',
+        location: body.location || '',
+        office_hours: body.office_hours || '',
+        phone: body.phone || null,
+        status: 'active',
+        created_at: new Date().toISOString(),
+      }
+      senders.push(newSender)
+      saveLocalSenders(senders)
+      return { data: newSender }
+    }
+    if (endpoint.includes('/status') && (method === 'PUT' || method === 'PATCH')) {
+      const parts = endpoint.split('/')
+      const sId = parts[2]
+      const nextSenders = senders.map((s) =>
+        s.id === sId ? { ...s, status: body.status || (s.status === 'active' ? 'inactive' : 'active') } : s
+      )
+      saveLocalSenders(nextSenders)
+      return { data: nextSenders.find((s) => s.id === sId) }
+    }
+    if (method === 'DELETE') {
+      const sId = endpoint.split('/').pop()
+      const nextSenders = senders.filter((s) => s.id !== sId)
+      saveLocalSenders(nextSenders)
+      return { data: { success: true } }
+    }
+    return { data: senders }
   }
 
-  // 13. Notifications
+  // 13. Students (for Admin listing)
+  if (endpoint.startsWith('/students') && !endpoint.includes('/courses')) {
+    return { data: getRegisteredStudents() }
+  }
+
+  // 14. Notifications
   if (endpoint.startsWith('/notifications')) {
     return { data: [] }
   }
 
-  // 14. Waitlist
+  // 15. Waitlist
   if (endpoint.startsWith('/waitlist')) {
-    return { data: { success: true } }
+    const waitlist = getLocalWaitlist()
+    if (method === 'POST') {
+      const newEntry = {
+        id: `wait_${Date.now()}`,
+        full_name: body.full_name || body.fullName || 'Prospective Student',
+        email: body.email || '',
+        university: body.university || 'University of Lagos',
+        department: body.department || 'Computer Science',
+        level: body.level || '300',
+        created_at: new Date().toISOString(),
+      }
+      waitlist.unshift(newEntry)
+      try {
+        localStorage.setItem('classcheck_dev_waitlist', JSON.stringify(waitlist))
+      } catch {}
+      return { data: newEntry }
+    }
+    return { data: waitlist }
   }
 
   // 15. Hall Pulse (Crowdsourced Lecture Status)
@@ -933,7 +1144,7 @@ export const api = {
     fetchApi(`/notifications/${notificationId}/read`, { method: 'PUT' }),
 
   // ================================================================
-  // WAITLIST
+  // WAITLIST & STUDENTS (ADMIN / ANALYTICS)
   // ================================================================
 
   joinWaitlist: (data) =>
@@ -941,6 +1152,10 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  getWaitlistEntries: () => fetchApi('/waitlist'),
+
+  getRegisteredStudents: () => fetchApi('/students'),
 
   // ================================================================
   // TIMETABLE
