@@ -198,27 +198,53 @@ export default function Landing() {
       }}>
         <div style={{ ...S.container, paddingTop: '80px', paddingBottom: '70px' }}>
 
-          {/* Eyebrow */}
+          {/* Eyebrow badge + Waitlist link */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '6px 14px',
-            borderRadius: '100px',
-            background: 'rgba(37,99,235,0.08)',
-            border: '1px solid rgba(37,99,235,0.2)',
+            flexWrap: 'wrap',
+            gap: '12px',
             marginBottom: '28px',
           }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563EB' }} />
-            <span style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: '#3B82F6',
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 14px',
+              borderRadius: '100px',
+              background: 'rgba(37,99,235,0.08)',
+              border: '1px solid rgba(37,99,235,0.2)',
             }}>
-              Department of Mathematics Pilot · 400 Level
-            </span>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563EB' }} />
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: '#3B82F6',
+              }}>
+                Department of Mathematics Pilot · 400 Level
+              </span>
+            </div>
+
+            <Link
+              to="/waitlist"
+              style={{
+                fontSize: '12px',
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.6)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                transition: 'color 0.15s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#3B82F6' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.6)' }}
+            >
+              <span>Not in 400L Maths? Request your department</span>
+              <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
           {/* Main headline */}
@@ -593,6 +619,13 @@ export default function Landing() {
             <span>Sign in as student</span>
           </Link>
         </div>
+
+        <p style={{ marginTop: '28px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+          Studying in another department or university?{' '}
+          <Link to="/waitlist" style={{ color: '#3B82F6', textDecoration: 'none', fontWeight: 600 }}>
+            Vote to bring ClassCheck to your campus →
+          </Link>
+        </p>
       </section>
 
       {/* ── Footer ────────────────────────────────────────────────── */}
@@ -614,6 +647,7 @@ export default function Landing() {
             </p>
           </div>
           <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link to="/waitlist" className="land-link">Request department</Link>
             <Link to="/signin" className="land-link">Student sign in</Link>
             <Link to="/sender" className="land-link">Sender portal</Link>
             <Link to="/signup" className="land-link">Create account</Link>

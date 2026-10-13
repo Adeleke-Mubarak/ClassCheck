@@ -474,13 +474,32 @@ export default function SignUp() {
 
             {/* Department dropdown */}
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Department</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <label style={{ ...styles.label, marginBottom: 0 }}>Department</label>
+                <Link
+                  to="/waitlist"
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#3B82F6',
+                    textDecoration: 'none',
+                  }}
+                >
+                  Not listed? Vote here →
+                </Link>
+              </div>
               <DarkDropdown
                 value={form.department}
                 onChange={(val) => setForm((prev) => ({ ...prev, department: val }))}
                 options={DEPARTMENTS}
                 placeholder="Select your department"
               />
+              <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', margin: '6px 0 0' }}>
+                Currently piloting in Mathematics. Studying another major?{' '}
+                <Link to="/waitlist" style={{ color: '#3B82F6', textDecoration: 'none', fontWeight: 600 }}>
+                  Join the department waitlist
+                </Link>
+              </p>
             </div>
 
             {/* Level pills */}
