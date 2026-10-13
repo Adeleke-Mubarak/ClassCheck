@@ -221,9 +221,21 @@ export default function SignIn() {
 
   async function handleSubmit(e) {
     e.preventDefault()
+    if (!form.email?.trim() && !form.matricNo?.trim()) {
+      toast.error('Please enter your email or matric number')
+      return
+    }
+    if (!form.password) {
+      toast.error('Please enter your password')
+      return
+    }
     setLoading(true)
     try {
-      await api.signInStudent(form)
+      await api.signInStudent({
+        email: form.email.trim() || undefined,
+        matricNo: form.matricNo.trim() || undefined,
+        password: form.password,
+      })
       await refreshProfile()
       navigate('/feed')
     } catch (err) {
@@ -276,9 +288,8 @@ export default function SignIn() {
               <DarkInput
                 id="email"
                 name="email"
-                required
                 autoComplete="useremail"
-                placeholder="e.g. johndoe@email.com"
+                placeholder="e.g. johndoe@email.com (or enter matric number below)"
                 value={form.email}
                 onChange={handleChange}
               />
@@ -290,7 +301,6 @@ export default function SignIn() {
               <DarkInput
                 id="matricNo"
                 name="matricNo"
-                required
                 autoComplete="usermatno"
                 placeholder="e.g. 190404001"
                 value={form.matricNo}

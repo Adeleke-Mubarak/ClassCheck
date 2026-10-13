@@ -45,6 +45,9 @@ export const AuthController = {
     let resolvedEmail = email as string | undefined
 
     if (matric_no) {
+      // NOTE (Backend Dev):
+      // If ProfileService.getByMatricNo is updated to select 'id, email', you can read profile.email directly here
+      // and skip calling AuthService.getUserById(profile.id), saving an entire Supabase Auth Admin API roundtrip.
       const { data: profile } = await ProfileService.getByMatricNo(matric_no)
 
       if (!profile) {
@@ -373,6 +376,12 @@ export const TimetableController = {
   },
 
   create: async (req: Request, res: Response) => {
+    // NOTE (Backend Dev): Consider adding course assignment verification for class reps here
+    // (similar to UpdateController.create):
+    // if (req.user!.role !== 'admin') {
+    //   const assigned = await SenderCourseService.isAssigned(req.user!.id, req.body.course_id)
+    //   if (!assigned) { fail(res, 'You are not assigned to manage timetable for this course.', 403); return }
+    // }
     const { data, error } = await TimetableService.create(req.user!.id, req.body)
     if (error) { fail(res, error.message); return }
     ok(res, data, 201)

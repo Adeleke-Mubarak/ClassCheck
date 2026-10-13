@@ -5,7 +5,7 @@ import { api } from '../../lib/api'
 import { useAuth } from '../../context/AuthContext'
 
 export default function Portal() {
-  const { user, profile } = useAuth()
+  const { user } = useAuth()
   const [courses, setCourses] = useState([])
   const [form, setForm] = useState({
     courseId: '',

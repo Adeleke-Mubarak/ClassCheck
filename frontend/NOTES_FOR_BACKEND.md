@@ -1,100 +1,150 @@
-# Frontend Updates & Fixes (Notes for Backend Team)
+# Backend Developer Guide & Notes
 
-**Date:** October 3, 2026  
-**Context:** Following PR #2 and PR #3 merges from `@nifemibosun`.
-
----
-
-## 🛠️ Summary of Fixes Applied
-
-### 1. Fixed "Full Name" Input on Student Sign Up (`SignUp.jsx`)
-- **Problem:** In PR #2, when adding the Email field, line 440 was set to `value={form.full_name}` while the React state was using `form.fullName`. This caused the input to be frozen / not display text while typing.
-- **Fix:** Restored `value={form.fullName}` and made `api.signUpStudent` accept either `fullName` or `full_name` gracefully.
-
-### 2. Fixed React Auth State Desynchronization on Login / Sign-Up
-- **Problem:** When signing in (`SignIn.jsx`, `SenderSignIn.jsx`) or signing up (`SignUp.jsx`), `api.js` was saving the token to `localStorage`, but React's `AuthContext` was not being notified before `navigate('/feed')` or `navigate('/sender/portal')` executed. Because `ProtectedRoute` saw `user: null` in React state, it was immediately kicking the user back to the sign-in page.
-- **Fix:**
-  - `completeAuth()` in `api.js` and `signOut()` now broadcast a `classcheck_auth_change` event.
-  - `AuthContext.jsx` listens for `classcheck_auth_change` events.
-  - `SignIn.jsx`, `SignUp.jsx`, and `SenderSignIn.jsx` now call `await refreshProfile()` directly from `useAuth()` to guarantee React state is loaded before route navigation.
-  - `Navbar.jsx`, `SenderNavbar.jsx`, and `AdminNavbar.jsx` also call `await refreshProfile()` on sign-out to immediately reset auth state.
-
-### 3. Fixed Minor HTML Label Typo in Sign In (`SignIn.jsx`)
-- **Problem:** The newly added Email field had `<label htmlFor="matricNo">Email</label>`.
-- **Fix:** Changed to `<label htmlFor="email">Email</label>`.
+**Project:** ClassCheck  
+**Last Updated:** October 13, 2026  
+**Audience:** Backend Engineering Team
 
 ---
 
-## 🔌 API Endpoints Contract (Current & Working)
+## 🎯 Executive Summary & Action Items for Backend Dev
 
-| Endpoint | Method | Sent Payload | Frontend Function |
-|---|---|---|---|
-| `/auth/signup` | POST | `{ full_name, matric_no, email, department, level, password }` | `api.signUpStudent` |
-| `/auth/signin` | POST | `{ email, matric_no, password }` | `api.signInStudent` (or email+pwd for senders/admin) |
-| `/auth/signout` | POST | *(Bearer Token)* | `api.signOut` |
-| `/auth/forgot-password` | POST | `{ matric_no }` | `api.resetPassword` |
-| `/auth/password` | PUT | `{ password }` | `api.updatePassword` |
-| `/auth/account` | DELETE | *(Bearer Token)* | `api.deleteAccount` |
-| `/profile/me` | GET | *(Bearer Token)* | `api.getMyProfile` |
-| `/courses` | GET | *(Bearer Token)* | `api.getCourses` |
-| `/students/:id/courses` | GET | *(Bearer Token)* | `api.getStudentSubscriptions` |
-| `/students/:id/courses` | PUT | `{ course_ids }` | `api.updateSubscriptions` |
-| `/feed` | GET | *(Bearer Token)* | `api.getFeed` |
-| `/updates` | POST | `{ course_id, type, new_venue, note }` | `api.postUpdate` |
-| `/senders/:id/courses` | GET | *(Bearer Token)* | `api.getSenderCourses` |
-| `/senders/:id/updates` | GET | *(Bearer Token)* | `api.getSenderHistory` |
-| `/waitlist` | POST | `{ name, email, department, university }` | `api.joinWaitlist` |
-| `/admin/overview` | GET | *(Bearer Token)* | `api.getOverviewMetrics` |
-| `/senders` | GET / POST | *(Admin)* | `api.getSenders`, `api.createSender` |
+The frontend code has been audited, repaired, and verified to build cleanly (`npm run build` and `npm run lint` both pass with 0 errors).
+
+Below is the comprehensive list of backend observations, fixes applied in comments, and recommended architectural enhancements:
 
 ---
 
-## 🚀 Running the Frontend Locally
-
-```bash
-cd frontend
-npm run build   # Verified: builds cleanly with 0 errors
-npm run dev     # Starts Vite dev server at http://localhost:5173
-```
-Ensure your `frontend/.env` has:
-```env
-VITE_API_URL=http://localhost:3000/api/v1
-```
+### 1. ⚙️ TypeScript Compilation (`exactOptionalPropertyTypes: true`)
+- **Location:** `backend/src/services/index.service.ts` (`TimetableService.getAll` and `DirectoryService.getAll`)
+- **Problem:** `tsconfig.json` has `"exactOptionalPropertyTypes": true`. In `backend/src/controllers/index.controller.ts`, controllers pass `{ day_of_week: day, course_id: courseId }` where `day` is `string | undefined`. TypeScript rejected passing `undefined` to `day_of_week?: string` (TS2379).
+- **Status:** Resolved in `index.service.ts` by adding `| undefined` to the optional filter interfaces:
+  ```ts
+  getAll: (filters?: { day_of_week?: string | undefined; course_id?: string | undefined }) => { ... }
+  getAll: (filters?: { role?: string | undefined; department?: string | undefined; search?: string | undefined }) => { ... }
+  ```
+  `npx tsc --noEmit` now compiles with 0 errors.
 
 ---
 
-## 📚 4. Course Seeding & Venue Changes Guidance
-
-### A. Course Seeding (`courses` table)
-The 400-level Mathematics pilot requires seed courses so students can pick them on the Onboarding screen (`/onboarding`). We added the seed statements to `backend/db.sql`:
-```sql
-insert into public.courses (course_code, course_name, department, level)
-values
-  ('MAT401', 'Real Analysis III', 'Mathematics', '400'),
-  ('MAT403', 'Complex Analysis II', 'Mathematics', '400'),
-  ('MAT405', 'Abstract Algebra II', 'Mathematics', '400'),
-  ('MAT407', 'Differential Equations III', 'Mathematics', '400'),
-  ('MAT409', 'Topology', 'Mathematics', '400'),
-  ('MAT411', 'Functional Analysis', 'Mathematics', '400'),
-  ('MAT413', 'Numerical Analysis II', 'Mathematics', '400'),
-  ('MAT415', 'Operations Research', 'Mathematics', '400'),
-  ('MAT417', 'Mathematical Methods', 'Mathematics', '400'),
-  ('MAT419', 'Fluid Dynamics', 'Mathematics', '400'),
-  ('MAT497', 'Final Year Project', 'Mathematics', '400')
-on conflict (course_code) do nothing;
-```
-
-### B. Venue Changes Flow
-When a lecturer or class rep posts a venue change on `/sender/portal`:
-- Payload sent:
+### 2. 🚀 Start Script in ESM Mode
+- **Location:** `backend/package.json`
+- **Problem:** Because `"type": "module"` is configured, Node.js strict ESM requires explicit file extensions. The previous script `"start": "tsc && node ./dist/server"` resulted in `ERR_MODULE_NOT_FOUND`.
+- **Status:** Updated in `backend/package.json` to:
   ```json
-  {
-    "course_id": "uuid",
-    "type": "venue_change",
-    "new_venue": "LT 1",
-    "note": "Bring your graphing calculators"
+  "start": "tsc && node ./dist/server.js"
+  ```
+
+---
+
+### 3. 🔐 Environment Variable Loading (`env.ts`)
+- **Location:** `backend/src/config/env.ts`
+- **Problem:** `env.ts` throws immediately if `SUPABASE_URL` is missing. When imported in testing suites or independent scripts, `dotenv/config` had not executed yet because it was only imported in `server.ts`.
+- **Status:** Added `import 'dotenv/config'` directly to the top of `backend/src/config/env.ts`.
+
+---
+
+### 4. ⚡ Database & Auth Performance Optimization
+- **Location:** `backend/src/controllers/index.controller.ts` (lines 48–60) & `backend/src/services/index.service.ts` (line 46)
+- **Problem:** During student sign-in with matric number:
+  1. `ProfileService.getByMatricNo(matric_no)` only selected `'id'`.
+  2. The controller then executed `AuthService.getUserById(profile.id)` to fetch the user's email from Supabase Auth Admin.
+- **Recommendation:** `profiles` table already contains `email text not null`. Update `getByMatricNo` to:
+  ```ts
+  getByMatricNo: (matricNo: string) =>
+    supabase
+      .from('profiles')
+      .select('id, email')
+      .ilike('matric_no', matricNo.trim())
+      .maybeSingle(),
+  ```
+  And in `AuthController.signIn`, read `profile.email` directly! This eliminates an entire HTTP roundtrip to the Supabase Admin API on every sign-in.
+
+---
+
+### 5. 🔤 Case-Insensitive Matric Number Matching
+- **Location:** `backend/src/services/index.service.ts` (`getByMatricNo`)
+- **Problem:** Using `.eq('matric_no', matricNo)` is case-sensitive in PostgreSQL. If a student signs up as `MAT/2026/001` but logs in as `mat/2026/001`, the query returns null and login fails.
+- **Recommendation:** Use `.ilike('matric_no', matricNo.trim())` or ensure matric numbers are normalized to `.toUpperCase()` upon both signup and signin.
+
+---
+
+### 6. 🛡️ Route Authorization for Timetable Management
+- **Location:** `backend/src/controllers/index.controller.ts` (`TimetableController.create`, `update`, `remove`)
+- **Problem:** While `UpdateController.create` verifies that non-admin senders are assigned to the target `course_id` before posting an update, `TimetableController` currently allows any user with `class_rep` role to create or delete timetable slots for *any* course across the entire school.
+- **Recommendation:** Add course assignment verification for `class_rep` in `TimetableController`:
+  ```ts
+  if (req.user!.role !== 'admin') {
+    const assigned = await SenderCourseService.isAssigned(req.user!.id, req.body.course_id)
+    if (!assigned) {
+      fail(res, 'You are not assigned to manage timetable for this course.', 403)
+      return
+    }
   }
   ```
-- Backend validates with `createUpdateSchema`: `new_venue` is required when `type === 'venue_change'`.
-- On the student feed (`/feed`), venue changes render with an amber "Venue change" badge, the new venue prominently highlighted, and can be filtered using the "Venue change" pill.
 
+---
+
+### 7. 🪵 Access Logger Middleware
+- **Location:** `backend/src/middleware/accessLogger.middleware.ts`
+- **Note:** An access logger that writes to `logs/YYYY-MM-DD/access.log` exists in the codebase but is not mounted. If you want file-based access logging active, mount it in `backend/src/app.ts`:
+  ```ts
+  import accessLogger from './middleware/accessLogger.middleware.js'
+  app.use(accessLogger)
+  ```
+
+---
+
+## 🔌 Complete API Endpoints Contract
+
+All frontend requests in `src/lib/api.js` adhere to this contract:
+
+| Endpoint | Method | Auth / Role | Sent Payload / Params | Purpose |
+|---|---|---|---|---|
+| `/auth/signup` | POST | Public | `{ full_name, matric_no, email, department, level, password }` | Student registration |
+| `/auth/signin` | POST | Public | `{ email?, matric_no?, password }` | Sign in (email OR matric number) |
+| `/auth/signout` | POST | Bearer | — | Invalidate session |
+| `/auth/forgot-password` | POST | Public | `{ matric_no }` | Request password reset |
+| `/auth/password` | PUT | Bearer | `{ password }` | Change account password |
+| `/auth/account` | DELETE | Bearer | — | Delete student account |
+| `/profile/me` | GET / PUT | Bearer | PUT: `{ full_name?, department?, level? }` | View / update current user profile |
+| `/profile/:id` | GET | Bearer | — | Fetch user profile by ID |
+| `/courses` | GET / POST | Bearer (POST: Admin) | POST: `{ course_code, course_name, department, level }` | List courses / Admin add course |
+| `/courses/:id` | DELETE | Bearer (Admin) | — | Admin delete course |
+| `/students/:id/courses` | GET / PUT | Bearer (Self/Admin) | PUT: `{ course_ids: string[] }` | Student enrolled course subscriptions |
+| `/senders/:id/courses` | GET | Bearer (Self/Admin) | — | Assigned courses for a sender |
+| `/senders/:id/updates` | GET | Bearer (Self/Admin) | — | Post history for a sender |
+| `/feed` | GET | Bearer | — | Filtered updates for subscribed courses |
+| `/updates` | GET / POST | Bearer (POST: Sender) | POST: `{ course_id, type, new_venue?, note? }` | Post class cancellation or venue change |
+| `/updates/:id` | DELETE | Bearer (Self/Admin) | — | Delete an update |
+| `/timetable` | GET / POST | Bearer (POST: Rep/Admin) | POST: `{ course_id, day_of_week, start_time, end_time, venue, lecturer_name?, note? }` | Course lecture timetable schedule |
+| `/timetable/me` | GET | Bearer | `?day=monday` | Timetable slots for current user's courses |
+| `/timetable/:id` | PUT / DELETE | Bearer (Rep/Admin) | PUT: partial timetable payload | Edit / remove timetable entry |
+| `/directory` | GET | Bearer | `?role=lecturer&department=Mathematics&search=query` | Faculty and course rep directory |
+| `/directory/me` | GET | Bearer | — | Facilitators assigned to student's courses |
+| `/senders` | GET / POST | Bearer (Admin) | POST: `{ full_name, email, password, role, courses: string[] }` | Admin sender creation and listing |
+| `/senders/:id/status` | PUT | Bearer (Admin) | `{ status: 'active' \| 'inactive' }` | Toggle sender active status |
+| `/senders/:id` | DELETE | Bearer (Admin) | — | Remove sender account |
+| `/admin/overview` | GET | Bearer (Admin) | — | Dashboard metrics & recent activity |
+| `/notifications` | GET | Bearer | — | In-app notification alerts |
+| `/notifications/read-all`| PUT | Bearer | — | Mark all user notifications as read |
+| `/notifications/:id/read`| PUT | Bearer | — | Mark specific notification as read |
+| `/waitlist` | POST | Public | `{ name, email, department, university }` | Waitlist sign-up |
+
+---
+
+## 🚀 Verifying Locally
+
+### Backend:
+```bash
+cd backend
+npm install
+npm run start   # Compiles with TypeScript and starts Express on port 3000
+```
+
+### Frontend:
+```bash
+cd frontend
+npm run lint    # ESLint 9 Flat Config (0 errors, 0 warnings)
+npm run build   # Vite production build (0 errors)
+npm run dev     # Starts dev server on http://localhost:5173
+```

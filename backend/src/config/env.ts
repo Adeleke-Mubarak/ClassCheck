@@ -1,3 +1,7 @@
+// NOTE (Backend Dev): 'dotenv/config' is imported directly here to guarantee that
+// environment variables are loaded regardless of whether env.ts is imported via server.ts, tests, or scripts.
+import 'dotenv/config'
+
 const required = ['SUPABASE_URL', 'SUPABASE_SECRET_KEY'] as const
 
 for (const key of required) {

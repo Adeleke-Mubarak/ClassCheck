@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import SenderNavbar from '../../components/SenderNavbar'
@@ -11,19 +11,20 @@ export default function History() {
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState(null)
 
-  async function loadUpdates() {
+  const loadUpdates = useCallback(async () => {
     try {
       const { data } = await api.getSenderHistory(user.id)
       setUpdates(data || [])
-    } catch (error) {
+    } catch {
       toast.error('Failed to load history')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
-  }
+  }, [user?.id])
 
   useEffect(() => {
     if (user?.id) loadUpdates()
-  }, [user])
+  }, [user?.id, loadUpdates])
 
   async function handleDelete(id) {
     setDeleting(id)

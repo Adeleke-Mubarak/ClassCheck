@@ -43,6 +43,9 @@ export const ProfileService = {
   getById: (id: string) =>
     supabase.from('profiles').select('*').eq('id', id).single(),
 
+  // NOTE (Backend Dev):
+  // 1. Consider using .ilike('matric_no', matricNo.trim()) instead of .eq to prevent case-sensitivity login issues (e.g. 'mat/...' vs 'MAT/...').
+  // 2. Select 'id, email' here directly so AuthController.signIn doesn't need to make an extra Supabase Auth Admin getUserById API roundtrip.
   getByMatricNo: (matricNo: string) =>
     supabase.from('profiles').select('id').eq('matric_no', matricNo).maybeSingle(),
 
@@ -212,7 +215,9 @@ export type TimetableCreateInput = {
 }
 
 export const TimetableService = {
-  getAll: (filters?: { day_of_week?: string; course_id?: string }) => {
+  // NOTE (Backend Dev): Added '| undefined' to optional properties below so callers in
+  // index.controller.ts (lines 325, 335, 354) pass type checking under exactOptionalPropertyTypes: true.
+  getAll: (filters?: { day_of_week?: string | undefined; course_id?: string | undefined }) => {
     let query = supabase
       .from('timetable_entries')
       .select(TIMETABLE_SELECT)
@@ -268,7 +273,9 @@ export const TimetableService = {
 const DIRECTORY_SELECT = 'id, full_name, email, role, department, level, location, phone, office_hours, status, sender_courses(courses:course_id(id, course_code, course_name, level))'
 
 export const DirectoryService = {
-  getAll: (filters?: { role?: string; department?: string; search?: string }) => {
+  // NOTE (Backend Dev): Added '| undefined' to optional properties below so callers in
+  // index.controller.ts (line 400) pass type checking under exactOptionalPropertyTypes: true.
+  getAll: (filters?: { role?: string | undefined; department?: string | undefined; search?: string | undefined }) => {
     let query = supabase
       .from('profiles')
       .select(DIRECTORY_SELECT)

@@ -11,6 +11,10 @@ app.use(cors({ origin: env.clientUrl }))
 
 app.use(express.json())
 
+// NOTE (Backend Dev): If you wish to enable access logging to files, import and mount accessLogger here:
+// import accessLogger from './middleware/accessLogger.middleware.js'
+// app.use(accessLogger)
+
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 app.use('/api/v1', routes)
 

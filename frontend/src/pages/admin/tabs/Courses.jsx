@@ -72,7 +72,7 @@ export default function Courses() {
               <tbody className="divide-y divide-white/[0.06]">
                 {courses.map((course) => {
                   const senderNames = (course.sender_courses || [])
-                    .map((sc) => sc.senders?.full_name)
+                    .map((sc) => sc.profiles?.full_name || sc.senders?.full_name)
                     .filter(Boolean)
                     .join(', ')
                   return (
