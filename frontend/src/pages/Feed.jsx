@@ -5,6 +5,7 @@ import FilterPills from '../components/FilterPills'
 import UpdateCard from '../components/UpdateCard'
 import NextLectureCard from '../components/NextLectureCard'
 import OfflineStatusBanner from '../components/OfflineStatusBanner'
+import PwaInstallBanner from '../components/PwaInstallBanner'
 import { api } from '../lib/api'
 import { offlineStorage, useOnlineStatus } from '../lib/offlineStorage'
 import { useAuth } from '../context/AuthContext'
@@ -89,6 +90,9 @@ export default function Feed() {
       <div className="feed-container">
         {/* Offline status banner */}
         <OfflineStatusBanner />
+
+        {/* PWA Install & iOS Helper Banner */}
+        <PwaInstallBanner />
 
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
+import NotificationTestCard from '../components/NotificationTestCard'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 
@@ -134,6 +135,9 @@ export default function Account() {
             )}
           </div>
         </div>
+
+        {/* Device Alert Readiness & Test */}
+        <NotificationTestCard />
 
         {/* Change password */}
         <div className="bg-[#111111] border border-white/[0.08] rounded-[6px] p-6 mt-4">
