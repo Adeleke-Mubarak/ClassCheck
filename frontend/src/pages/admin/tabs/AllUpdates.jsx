@@ -27,7 +27,36 @@ export default function AllUpdates() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_UPDATE' || event.data?.type === 'DELETE_UPDATE') {
+            load()
+          }
+        }
+      } catch {}
+    }
+
+    const handleStorage = (e) => {
+      if (e.key === 'classcheck_dev_updates') {
+        load()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    const interval = setInterval(load, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
+  }, [])
 
   async function handleDelete(id) {
     setDeleting(id)

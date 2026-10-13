@@ -20,6 +20,33 @@ export default function Students() {
 
   useEffect(() => {
     loadStudents()
+
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (event.data?.type === 'NEW_STUDENT_REGISTERED') {
+            loadStudents()
+          }
+        }
+      } catch {}
+    }
+
+    const handleStorage = (e) => {
+      if (e.key === 'classcheck_registered_students' || e.key === 'classcheck_user') {
+        loadStudents()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    const interval = setInterval(loadStudents, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
   }, [])
 
   function copyToClipboard(text, label = 'Copied') {

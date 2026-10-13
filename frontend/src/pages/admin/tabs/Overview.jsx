@@ -26,7 +26,32 @@ export default function Overview() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load()
+
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = () => { load() }
+      } catch {}
+    }
+
+    const handleStorage = (e) => {
+      if (e.key && e.key.startsWith('classcheck_')) {
+        load()
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    const interval = setInterval(load, 3000)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
+  }, [])
 
   async function toggleSenderStatus(sender) {
     const newStatus = sender.status === 'active' ? 'inactive' : 'active'

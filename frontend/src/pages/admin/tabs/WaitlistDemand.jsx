@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import toast from 'react-hot-toast'
 import { api } from '../../../lib/api'
@@ -9,6 +9,7 @@ export default function WaitlistDemand() {
   const [search, setSearch] = useState('')
   const [selectedDept, setSelectedDept] = useState('All')
   const [showAddModal, setShowAddModal] = useState(false)
+  const [lastSyncTime, setLastSyncTime] = useState(new Date())
   const [newEntry, setNewEntry] = useState({
     full_name: '',
     email: '',
@@ -17,18 +18,73 @@ export default function WaitlistDemand() {
     level: '300',
   })
 
-  async function loadData() {
+  const previousCountRef = useRef(null)
+
+  async function loadData(isBackground = false) {
     try {
       const { data } = await api.getWaitlistEntries()
-      setWaitlist(data || [])
+      const list = data || []
+      
+      // If new entries arrived in background, notify admin
+      if (
+        isBackground &&
+        previousCountRef.current !== null &&
+        list.length > previousCountRef.current
+      ) {
+        const newest = list[0]
+        toast.success(`⚡ Real-time demand: ${newest.full_name} (${newest.department})`, {
+          duration: 5000,
+          id: `wl_live_${newest.id}`,
+        })
+      }
+      
+      previousCountRef.current = list.length
+      setWaitlist(list)
+      setLastSyncTime(new Date())
     } catch {
-      toast.error('Failed to load waitlist entries')
+      if (!isBackground) toast.error('Failed to load waitlist entries')
     }
-    setLoading(false)
+    if (!isBackground) setLoading(false)
   }
 
   useEffect(() => {
-    loadData()
+    loadData(false)
+
+    // 1. BroadcastChannel: Instant cross-tab real-time push
+    let channel = null
+    if (typeof window !== 'undefined' && window.BroadcastChannel) {
+      try {
+        channel = new BroadcastChannel('classcheck_realtime')
+        channel.onmessage = (event) => {
+          if (
+            event.data?.type === 'NEW_WAITLIST_ENTRY' ||
+            event.data?.type === 'UPDATE_WAITLIST' ||
+            event.data?.type === 'DELETE_WAITLIST'
+          ) {
+            loadData(true)
+          }
+        }
+      } catch {}
+    }
+
+    // 2. Storage event: Cross-tab localStorage listener
+    const handleStorage = (e) => {
+      if (e.key === 'classcheck_dev_waitlist') {
+        loadData(true)
+      }
+    }
+    window.addEventListener('storage', handleStorage)
+
+    // 3. Heartbeat polling (every 2.5 seconds) for real-time live sync
+    const interval = setInterval(() => {
+      loadData(true)
+    }, 2500)
+
+    return () => {
+      if (channel) channel.close()
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
   }, [])
 
   // Aggregate department counts
@@ -64,6 +120,18 @@ export default function WaitlistDemand() {
     }
   }
 
+  async function handleDelete(id) {
+    try {
+      if (api.deleteWaitlistEntry) {
+        await api.deleteWaitlistEntry(id)
+      }
+      setWaitlist((prev) => prev.filter((w) => w.id !== id))
+      toast.success('Waitlist request deleted')
+    } catch {
+      toast.error('Failed to delete request')
+    }
+  }
+
   async function handleAddEntry(e) {
     e.preventDefault()
     if (!newEntry.full_name || !newEntry.email || !newEntry.department) {
@@ -75,7 +143,7 @@ export default function WaitlistDemand() {
         ...newEntry,
         status: 'pending',
       })
-      setWaitlist((prev) => [data, ...prev])
+      setWaitlist((prev) => [data, ...prev.filter((w) => w.id !== data.id)])
       setShowAddModal(false)
       setNewEntry({
         full_name: '',
@@ -84,7 +152,7 @@ export default function WaitlistDemand() {
         department: 'Computer Science',
         level: '300',
       })
-      toast.success('Waitlist request recorded')
+      toast.success('Live waitlist request recorded!')
     } catch {
       toast.error('Failed to record entry')
     }
@@ -113,7 +181,7 @@ export default function WaitlistDemand() {
     const encodedUri = encodeURI(csvContent)
     const link = document.createElement('a')
     link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `classcheck_waitlist_demand_${new Date().toISOString().slice(0, 10)}.csv`)
+    link.setAttribute('download', `classcheck_waitlist_realtime_${new Date().toISOString().slice(0, 10)}.csv`)
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
@@ -143,19 +211,37 @@ export default function WaitlistDemand() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header and Live Telemetry Status */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white tracking-tight">Waitlist & Campus Demand</h2>
-          <p className="text-xs text-white/40 mt-0.5">
-            Monitor real-time student demand votes and prioritize next department rollouts.
+          <div className="flex items-center gap-2.5">
+            <h2 className="text-lg font-bold text-white tracking-tight">Waitlist & Campus Demand</h2>
+            <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[11px] font-semibold text-emerald-400 tracking-wide uppercase">
+                Real-Time Live
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-white/40 mt-1">
+            Listening for live student demand votes across campus. No page refresh needed.
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
+          <a
+            href="/waitlist"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-1.5 text-xs font-semibold rounded bg-[#161616] border border-white/[0.1] text-white hover:bg-white/[0.06] transition-colors flex items-center gap-1.5"
+            title="Open the student-facing waitlist form in a new tab to submit a live request"
+          >
+            <span>Open /waitlist</span>
+            <span className="text-[10px] text-white/40">↗</span>
+          </a>
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-3.5 py-1.5 text-xs font-semibold rounded bg-white text-black hover:bg-white/90 transition-colors"
+            className="px-3.5 py-1.5 text-xs font-semibold rounded bg-white text-black font-bold hover:bg-white/90 transition-colors"
           >
             + Add Manual Request
           </button>
@@ -186,10 +272,10 @@ export default function WaitlistDemand() {
         </div>
         <div className="stat-card">
           <p className="text-xl font-extrabold text-blue-400 tracking-tight truncate">
-            {topDepartment ? topDepartment[0] : 'None'}
+            {topDepartment ? topDepartment[0] : 'None yet'}
           </p>
           <p className="text-xs font-semibold text-white/45 uppercase tracking-wider mt-1">
-            Top Requested ({topDepartment ? topDepartment[1] : 0} votes)
+            Top Requested {topDepartment ? `(${topDepartment[1]} votes)` : ''}
           </p>
         </div>
         <div className="stat-card">
@@ -210,16 +296,39 @@ export default function WaitlistDemand() {
               Department Rollout Pipeline
             </h3>
             <p className="text-xs text-white/40 mt-0.5">
-              Ranked by total student votes. Target: {TARGET_THRESHOLD} votes to unlock department timetable and broadcast permissions.
+              Live ranking of student expansion votes. Target: {TARGET_THRESHOLD} votes to unlock department timetable and broadcast permissions.
             </p>
           </div>
-          <span className="text-[11px] font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2.5 py-1 rounded">
-            Live Community Voting
+          <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Live Sync ({formatDistanceToNow(lastSyncTime, { addSuffix: true })})
           </span>
         </div>
 
         {sortedDepartments.length === 0 ? (
-          <p className="text-xs text-white/40 py-3">No department votes recorded yet.</p>
+          <div className="py-8 text-center border border-dashed border-white/[0.08] rounded-md bg-[#161616]/50">
+            <p className="text-sm font-semibold text-white/60">No department votes submitted yet</p>
+            <p className="text-xs text-white/35 mt-1 max-w-md mx-auto">
+              When students from other faculties submit requests on <code className="text-blue-400 font-mono">/waitlist</code>, their departments will automatically rank here in real time.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <a
+                href="/waitlist"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white text-black rounded hover:bg-white/90"
+              >
+                <span>Submit Live Test Vote</span>
+                <span>↗</span>
+              </a>
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="px-3 py-1.5 text-xs font-semibold bg-[#222222] border border-white/[0.1] text-white rounded hover:bg-[#2A2A2A]"
+              >
+                + Add Manual Request
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="space-y-3.5">
             {sortedDepartments.map(([dept, count], idx) => {
@@ -306,7 +415,10 @@ export default function WaitlistDemand() {
 
         {filtered.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-sm font-medium text-white/50">No waitlist submissions match your filter.</p>
+            <p className="text-sm font-medium text-white/50">No waitlist applicants yet.</p>
+            <p className="text-xs text-white/30 mt-1">
+              Submissions from <code className="text-blue-400">/waitlist</code> will stream here immediately in real time.
+            </p>
           </div>
         ) : (
           <div className="divide-y divide-white/[0.06]">
@@ -346,7 +458,7 @@ export default function WaitlistDemand() {
                     <span className="text-xs text-white/35">
                       {w.created_at
                         ? formatDistanceToNow(new Date(w.created_at), { addSuffix: true })
-                        : 'Recent'}
+                        : 'Just now'}
                     </span>
                     <button
                       onClick={() => toggleStatus(w)}
@@ -357,6 +469,13 @@ export default function WaitlistDemand() {
                       }`}
                     >
                       {isNotified ? 'Notified' : 'Pending'}
+                    </button>
+                    <button
+                      onClick={() => handleDelete(w.id)}
+                      className="text-white/30 hover:text-red-400 text-xs px-1.5 py-1 transition-colors"
+                      title="Delete entry"
+                    >
+                      ✕
                     </button>
                   </div>
                 </div>
