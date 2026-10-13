@@ -4,14 +4,16 @@ import Overview from './tabs/Overview'
 import Senders from './tabs/Senders'
 import Courses from './tabs/Courses'
 import AllUpdates from './tabs/AllUpdates'
-import WaitlistRequests from './tabs/WaitlistRequests'
+import Students from './tabs/Students'
+import WaitlistDemand from './tabs/WaitlistDemand'
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
   { id: 'senders', label: 'Senders' },
   { id: 'courses', label: 'Courses' },
   { id: 'updates', label: 'All updates' },
-  { id: 'waitlist', label: 'Students & Waitlist' },
+  { id: 'students', label: 'Students' },
+  { id: 'waitlist', label: 'Waitlist & Demand' },
 ]
 
 export default function Dashboard() {
@@ -45,7 +47,8 @@ export default function Dashboard() {
           {activeTab === 'senders' && <Senders />}
           {activeTab === 'courses' && <Courses />}
           {activeTab === 'updates' && <AllUpdates />}
-          {activeTab === 'waitlist' && <WaitlistRequests />}
+          {activeTab === 'students' && <Students />}
+          {activeTab === 'waitlist' && <WaitlistDemand />}
         </div>
       </div>
     </div>

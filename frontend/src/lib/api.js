@@ -418,12 +418,97 @@ function saveLocalCourses(list) {
   } catch {}
 }
 
+const INITIAL_WAITLIST = [
+  {
+    id: 'wl_1',
+    full_name: 'Chinedu Eze',
+    email: 'chinedu.eze@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Computer Science',
+    level: '300',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+  },
+  {
+    id: 'wl_2',
+    full_name: 'Fatima Bello',
+    email: 'f.bello@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Computer Science',
+    level: '400',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
+  },
+  {
+    id: 'wl_3',
+    full_name: 'Oluwaseun Adeleke',
+    email: 'seun.adeleke@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Economics',
+    level: '300',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 14).toISOString(),
+  },
+  {
+    id: 'wl_4',
+    full_name: 'Amina Yusuf',
+    email: 'amina.yusuf@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Computer Science',
+    level: '200',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 22).toISOString(),
+  },
+  {
+    id: 'wl_5',
+    full_name: 'Emeka Nwosu',
+    email: 'emeka.nwosu@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Mechanical Engineering',
+    level: '400',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 30).toISOString(),
+  },
+  {
+    id: 'wl_6',
+    full_name: 'Blessing Okon',
+    email: 'blessing.okon@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Economics',
+    level: '400',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 40).toISOString(),
+  },
+  {
+    id: 'wl_7',
+    full_name: 'Tunde Bakare',
+    email: 'tunde.bakare@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Computer Science',
+    level: '300',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 50).toISOString(),
+  },
+  {
+    id: 'wl_8',
+    full_name: 'Zainab Danjuma',
+    email: 'zainab.d@student.edu.ng',
+    university: 'University of Lagos',
+    department: 'Mass Communication',
+    level: '300',
+    status: 'pending',
+    created_at: new Date(Date.now() - 3600000 * 65).toISOString(),
+  },
+]
+
 function getLocalWaitlist() {
   try {
     const raw = localStorage.getItem('classcheck_dev_waitlist')
-    return raw ? JSON.parse(raw) : []
+    if (raw) return JSON.parse(raw)
+    localStorage.setItem('classcheck_dev_waitlist', JSON.stringify(INITIAL_WAITLIST))
+    return INITIAL_WAITLIST
   } catch {
-    return []
+    return INITIAL_WAITLIST
   }
 }
 
@@ -781,11 +866,12 @@ function handleDevFallback(endpoint, options = {}) {
     if (method === 'POST') {
       const newEntry = {
         id: `wait_${Date.now()}`,
-        full_name: body.full_name || body.fullName || 'Prospective Student',
+        full_name: body.full_name || body.name || body.fullName || 'Prospective Student',
         email: body.email || '',
         university: body.university || 'University of Lagos',
         department: body.department || 'Computer Science',
         level: body.level || '300',
+        status: body.status || 'pending',
         created_at: new Date().toISOString(),
       }
       waitlist.unshift(newEntry)
@@ -793,6 +879,22 @@ function handleDevFallback(endpoint, options = {}) {
         localStorage.setItem('classcheck_dev_waitlist', JSON.stringify(waitlist))
       } catch {}
       return { data: newEntry }
+    }
+    if (method === 'PUT' || method === 'PATCH') {
+      const id = endpoint.split('/').pop()
+      const nextList = waitlist.map((w) => (w.id === id ? { ...w, ...body } : w))
+      try {
+        localStorage.setItem('classcheck_dev_waitlist', JSON.stringify(nextList))
+      } catch {}
+      return { data: nextList.find((w) => w.id === id) }
+    }
+    if (method === 'DELETE') {
+      const id = endpoint.split('/').pop()
+      const nextList = waitlist.filter((w) => w.id !== id)
+      try {
+        localStorage.setItem('classcheck_dev_waitlist', JSON.stringify(nextList))
+      } catch {}
+      return { data: { success: true } }
     }
     return { data: waitlist }
   }
@@ -1154,6 +1256,15 @@ export const api = {
     }),
 
   getWaitlistEntries: () => fetchApi('/waitlist'),
+
+  updateWaitlistStatus: (id, status) =>
+    fetchApi(`/waitlist/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    }),
+
+  deleteWaitlistEntry: (id) =>
+    fetchApi(`/waitlist/${id}`, { method: 'DELETE' }),
 
   getRegisteredStudents: () => fetchApi('/students'),
 
