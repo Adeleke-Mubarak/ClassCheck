@@ -3,21 +3,29 @@ import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import FilterPills from '../components/FilterPills'
 import UpdateCard from '../components/UpdateCard'
+import NextLectureCard from '../components/NextLectureCard'
+import OfflineStatusBanner from '../components/OfflineStatusBanner'
 import { api } from '../lib/api'
+import { offlineStorage, useOnlineStatus } from '../lib/offlineStorage'
 import { useAuth } from '../context/AuthContext'
 
 export default function Feed() {
   const { user, profile } = useAuth()
-  const [updates, setUpdates] = useState([])
+  const { isOnline, formattedSyncAge } = useOnlineStatus()
+  const [updates, setUpdates] = useState(() => offlineStorage.get('feed', []))
+  const [timetable, setTimetable] = useState(() => offlineStorage.get('timetable', []))
   const [filter, setFilter] = useState('All')
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => {
+    const cached = offlineStorage.get('feed', null)
+    return cached === null
+  })
   const [hasSubscriptions, setHasSubscriptions] = useState(true)
 
   const fetchUpdates = useCallback(async () => {
     if (!user) return
 
     try {
-      // Get subscribed course IDs
+      // 1. Get subscriptions
       const { data: subs } = await api.getStudentSubscriptions(user.id)
 
       if (!subs || subs.length === 0) {
@@ -27,10 +35,29 @@ export default function Feed() {
       }
 
       setHasSubscriptions(true)
-      const { data } = await api.getFeed()
-      setUpdates(data || [])
+      offlineStorage.save('subscriptions', subs)
+
+      // 2. Fetch Feed updates & Student Timetable in parallel
+      const [feedRes, timetableRes] = await Promise.all([
+        api.getFeed().catch(() => ({ data: offlineStorage.get('feed', []) })),
+        api.getMyTimetable().catch(() => ({ data: offlineStorage.get('timetable', []) })),
+      ])
+
+      const feedData = feedRes?.data || []
+      const timetableData = timetableRes?.data || []
+
+      setUpdates(feedData)
+      setTimetable(timetableData)
+
+      offlineStorage.save('feed', feedData)
+      offlineStorage.save('timetable', timetableData)
     } catch (err) {
-      console.error('Failed to fetch updates:', err)
+      console.warn('Network issue fetching feed, loading offline cache:', err)
+      // Read from offline cache
+      const cachedFeed = offlineStorage.get('feed', [])
+      const cachedTimetable = offlineStorage.get('timetable', [])
+      if (cachedFeed.length > 0) setUpdates(cachedFeed)
+      if (cachedTimetable.length > 0) setTimetable(cachedTimetable)
     } finally {
       setLoading(false)
     }
@@ -60,15 +87,46 @@ export default function Feed() {
     <div className="page-container">
       <Navbar />
       <div className="feed-container">
+        {/* Offline status banner */}
+        <OfflineStatusBanner />
+
         {/* Page header */}
-        <div className="mb-6">
-          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em' }}>Class updates</h1>
-          {profile && (
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
-              {profile.department} — {profile.level} Level
-            </p>
-          )}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
+          <div>
+            <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>Class updates</h1>
+            {profile && (
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', margin: '4px 0 0' }}>
+                {profile.department} — {profile.level} Level
+              </p>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '4px' }}>
+            <span style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              background: isOnline ? '#10B981' : '#F59E0B',
+            }} />
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: isOnline ? 'rgba(16, 185, 129, 0.9)' : '#F59E0B',
+              letterSpacing: '0.04em',
+            }}>
+              {isOnline ? 'Live sync' : 'Offline mode'}
+            </span>
+          </div>
         </div>
+
+        {/* Next Lecture Live Glance Widget */}
+        {hasSubscriptions && (
+          <NextLectureCard
+            timetable={timetable}
+            todayUpdates={updates}
+            isOffline={!isOnline}
+            syncAge={formattedSyncAge}
+          />
+        )}
 
         {!hasSubscriptions ? (
           /* No subscriptions state */

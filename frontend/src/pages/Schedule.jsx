@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
+import { offlineStorage, useOnlineStatus } from '../lib/offlineStorage'
 import Navbar from '../components/Navbar'
 import SenderNavbar from '../components/SenderNavbar'
 import AdminNavbar from '../components/AdminNavbar'
 import AddTimetableModal from '../components/AddTimetableModal'
+import NextLectureCard from '../components/NextLectureCard'
+import OfflineStatusBanner from '../components/OfflineStatusBanner'
 import toast from 'react-hot-toast'
 
 const DAYS = [
@@ -49,13 +52,17 @@ function calculateDuration(start, end) {
 export default function Schedule() {
   const { profile } = useAuth()
 
+  const { isOnline, formattedSyncAge } = useOnlineStatus()
   const [activeDay, setActiveDay] = useState(getInitialDay)
   const [viewMode, setViewMode] = useState('daily') // 'daily' | 'weekly'
   const [scope, setScope] = useState('mine') // 'mine' | 'all'
-  const [timetable, setTimetable] = useState([])
-  const [allCourses, setAllCourses] = useState([])
-  const [todayUpdates, setTodayUpdates] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [timetable, setTimetable] = useState(() => offlineStorage.get('timetable', []))
+  const [allCourses, setAllCourses] = useState(() => offlineStorage.get('courses', []))
+  const [todayUpdates, setTodayUpdates] = useState(() => offlineStorage.get('feed', []))
+  const [loading, setLoading] = useState(() => {
+    const cached = offlineStorage.get('timetable', null)
+    return cached === null
+  })
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false)
@@ -71,20 +78,32 @@ export default function Schedule() {
     try {
       const [scheduleRes, coursesRes, feedRes] = await Promise.all([
         scope === 'mine' ? api.getMyTimetable() : api.getTimetable(),
-        api.getCourses(),
-        api.getFeed().catch(() => ({ data: [] })),
+        api.getCourses().catch(() => ({ data: offlineStorage.get('courses', []) })),
+        api.getFeed().catch(() => ({ data: offlineStorage.get('feed', []) })),
       ])
 
-      setTimetable(scheduleRes?.data || [])
-      setAllCourses(coursesRes?.data || [])
+      const ttData = scheduleRes?.data || []
+      const coursesData = coursesRes?.data || []
+      const feedData = feedRes?.data || []
+
+      setTimetable(ttData)
+      setAllCourses(coursesData)
+
+      if (ttData.length > 0) offlineStorage.save('timetable', ttData)
+      if (coursesData.length > 0) offlineStorage.save('courses', coursesData)
+      if (feedData.length > 0) offlineStorage.save('feed', feedData)
 
       // Filter feed updates posted today
-      const todayPosts = (feedRes?.data || []).filter((u) =>
+      const todayPosts = feedData.filter((u) =>
         isDateToday(u.created_at)
       )
       setTodayUpdates(todayPosts)
     } catch (err) {
-      toast.error(err.message || 'Failed to load schedule.')
+      console.warn('Network issue fetching schedule, loading cached timetable:', err)
+      const cachedTt = offlineStorage.get('timetable', [])
+      const cachedCourses = offlineStorage.get('courses', [])
+      if (cachedTt.length > 0) setTimetable(cachedTt)
+      if (cachedCourses.length > 0) setAllCourses(cachedCourses)
     } finally {
       setLoading(false)
     }
@@ -163,6 +182,9 @@ export default function Schedule() {
       {renderNavbar()}
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-20 pb-24 md:pb-12">
+        {/* Offline status banner */}
+        <OfflineStatusBanner />
+
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
@@ -248,6 +270,14 @@ export default function Schedule() {
         {/* ── DAILY VIEW ──────────────────────────────────────────────── */}
         {viewMode === 'daily' && (
           <>
+            {/* Live Glance Widget */}
+            <NextLectureCard
+              timetable={timetable}
+              todayUpdates={todayUpdates}
+              isOffline={!isOnline}
+              syncAge={formattedSyncAge}
+            />
+
             {/* Day Selector Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar">
               {DAYS.map((day) => {
