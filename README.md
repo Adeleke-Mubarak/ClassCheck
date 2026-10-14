@@ -1,4 +1,4 @@
-# 🎓 ClassCheck
+#  ClassCheck
 
 > **Real-time, verified university lecture alerting, timetable sync, and crowd-verified campus status.**  
 > Built for Nigerian universities and higher-education institutions where lecture venues shift rapidly, WhatsApp groups become noisy, and students need instant, reliable schedule updates.
@@ -11,7 +11,7 @@
 
 ---
 
-## 📌 The Problem
+##  The Problem
 
 On many tertiary campuses across Nigeria and Africa:
 * **Lecturers shift lecture halls or cancel classes at the eleventh hour**, often while students are already commuting or arriving under the scorching sun.
@@ -21,7 +21,7 @@ On many tertiary campuses across Nigeria and Africa:
 
 ---
 
-## 💡 The Solution
+##  The Solution
 
 **ClassCheck** is an ultra-fast, lightweight, offline-first Progressive Web Application (PWA) that acts as the single source of truth for departmental lectures:
 
@@ -34,7 +34,7 @@ On many tertiary campuses across Nigeria and Africa:
 
 ---
 
-## 🏗️ Architecture & Data Flow
+##  Architecture & Data Flow
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -79,9 +79,9 @@ On many tertiary campuses across Nigeria and Africa:
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
-### 🎓 For Students
+###  For Students
 * **Clean Alert Feed:** Instant cards for class cancellations, hall re-allocations, and tutorial reminders.
 * **Next Lecture Widget:** Dynamic countdown card displaying the next upcoming class, lecturer name, hall name, and status badge.
 * **Interactive Weekly Timetable:** Day-by-day view with course filtering, time slots, and lecturer contact badges.
@@ -89,12 +89,12 @@ On many tertiary campuses across Nigeria and Africa:
 * **Hall Pulse Voting:** Confirm live class status in 1 tap to save peers from commuting unnecessarily.
 * **Faculty Directory:** Search lecturers and course reps with office locations and consultation hours.
 
-### 📢 For Senders (Lecturers & Course Reps)
+###  For Senders (Lecturers & Course Reps)
 * **Dedicated Sender Portal:** Clean 1-minute broadcast interface with standardized tags (*Class Cancelled*, *Venue Change*).
 * **Broadcast History:** Track, review, and delete dispatched announcements with real-time sync across devices.
 * **Role-Protected Access:** Accounts provisioned and governed by departmental administrators.
 
-### 🛡️ For Faculty Administrators
+###  For Faculty Administrators
 * **Admin Overview:** Live telemetry showing total registered students, active facilitators, course counts, and today's broadcasts.
 * **Sender Management:** Create new lecturers or course reps, assign course ownership, or deactivate credentials instantly.
 * **Waitlist & Campus Demand:** Track expansion interest from other departments and universities with conversion tracking (*pending*, *contacted*, *launched*).
@@ -102,7 +102,7 @@ On many tertiary campuses across Nigeria and Africa:
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technologies |
 | :--- | :--- |
@@ -115,7 +115,7 @@ On many tertiary campuses across Nigeria and Africa:
 
 ---
 
-## 🚀 Quickstart & Local Setup
+##  Quickstart & Local Setup
 
 ### 1. Clone the Repository
 ```bash
@@ -170,7 +170,7 @@ SUPABASE_SECRET_KEY=eyJhbGci... # service_role key
 
 ---
 
-## 📂 Repository Structure
+##  Repository Structure
 
 ```
 ClassCheck/
@@ -208,7 +208,7 @@ ClassCheck/
 
 ---
 
-## 📖 Backend Developer Handoff Plan
+##  Backend Developer Handoff Plan
 
 For backend engineers joining the project or wiring the production database, please consult:  
 👉 **[`backend/BACKEND_HANDOFF_PLAN.md`](./backend/BACKEND_HANDOFF_PLAN.md)**
@@ -221,7 +221,7 @@ It includes:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions, bug reports, and feature suggestions are welcome!
 1. Fork the repository.
@@ -232,6 +232,6 @@ Contributions, bug reports, and feature suggestions are welcome!
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the [Apache-2.0 License](LICENSE).
