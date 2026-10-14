@@ -74,8 +74,10 @@ export default function Schedule() {
     profile?.role === 'class_rep' || profile?.role === 'admin'
   const todayDayIndex = new Date().getDay()
 
-  const fetchScheduleData = useCallback(async () => {
-    setLoading(true)
+  const fetchScheduleData = useCallback(async (isSilent = false) => {
+    if (!isSilent && timetable.length === 0) {
+      setLoading(true)
+    }
     try {
       const [scheduleRes, coursesRes, feedRes] = await Promise.all([
         scope === 'mine' ? api.getMyTimetable() : api.getTimetable(),
@@ -108,10 +110,10 @@ export default function Schedule() {
     } finally {
       setLoading(false)
     }
-  }, [scope])
+  }, [scope, timetable.length])
 
   useEffect(() => {
-    fetchScheduleData()
+    fetchScheduleData(timetable.length > 0)
 
     let channel = null
     if (typeof window !== 'undefined' && window.BroadcastChannel) {
@@ -125,7 +127,7 @@ export default function Schedule() {
             event.data?.type === 'SUBSCRIPTIONS_UPDATED' ||
             event.data?.type === 'COURSES_UPDATE'
           ) {
-            fetchScheduleData()
+            fetchScheduleData(true)
           }
         }
       } catch {}
@@ -137,19 +139,19 @@ export default function Schedule() {
         e.key === 'classcheck_dev_updates' ||
         e.key === 'classcheck_dev_subscribed_ids'
       ) {
-        fetchScheduleData()
+        fetchScheduleData(true)
       }
     }
     window.addEventListener('storage', handleStorage)
 
-    const intervalId = setInterval(fetchScheduleData, 3000)
+    const intervalId = setInterval(() => fetchScheduleData(true), 6000)
 
     return () => {
       if (channel) channel.close()
       window.removeEventListener('storage', handleStorage)
       clearInterval(intervalId)
     }
-  }, [fetchScheduleData])
+  }, [fetchScheduleData, timetable.length])
 
   // Map updates by course_id for fast lookup
   const todayUpdatesByCourse = useMemo(() => {
