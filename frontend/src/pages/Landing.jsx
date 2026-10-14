@@ -171,15 +171,28 @@ export default function Landing() {
           </Link>
 
           {/* Nav links */}
-          <nav className="flex items-center gap-1.5 sm:gap-2">
-            <Link to="/sender" className="land-nav-link hidden sm:inline-flex text-xs sm:text-sm">
-              Sender login
+          <nav className="flex items-center gap-1 sm:gap-2.5">
+            <Link
+              to="/sender"
+              className="text-xs sm:text-[13px] font-medium text-white/50 hover:text-white px-2 sm:px-2.5 py-1.5 rounded transition-colors whitespace-nowrap flex items-center"
+            >
+              <span>Sender</span>
+              <span className="hidden sm:inline">&nbsp;login</span>
             </Link>
-            <Link to="/signin" className="land-nav-link text-xs sm:text-sm px-2.5 py-1.5">
+
+            <Link
+              to="/signin"
+              className="text-xs sm:text-[13px] font-semibold text-white/80 hover:text-white px-2.5 sm:px-3 py-1.5 rounded bg-white/[0.05] hover:bg-white/[0.08] border border-white/[0.08] transition-colors whitespace-nowrap flex items-center"
+            >
               Sign in
             </Link>
-            <Link to="/signup" className="land-nav-btn text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2">
-              <span>Create account</span>
+
+            <Link
+              to="/signup"
+              className="text-xs sm:text-[13px] font-bold text-[#0A0A0A] bg-white hover:bg-white/90 active:scale-95 px-3 sm:px-4 py-1.5 rounded-[5px] transition-all whitespace-nowrap shadow-sm flex items-center"
+            >
+              <span className="sm:hidden">Sign up</span>
+              <span className="hidden sm:inline">Create account</span>
             </Link>
           </nav>
         </div>
