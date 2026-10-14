@@ -42,7 +42,26 @@ const MOBILE_NAV_ITEMS = [
     ),
   },
   {
-    label: 'My Courses',
+    label: 'Directory',
+    path: '/directory',
+    icon: (isActive) => (
+      <svg
+        className={`w-5 h-5 transition-transform ${isActive ? 'scale-105 text-blue-400' : 'text-white/40'}`}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={isActive ? 2.2 : 1.8}
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+        />
+      </svg>
+    ),
+  },
+  {
+    label: 'Courses',
     path: '/my-courses',
     icon: (isActive) => (
       <svg
@@ -101,16 +120,22 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Top Header (Fixed) ─────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08] h-14">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+      {/* ── Top Header (Fixed with Safe Area Support) ────────────────── */}
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08]"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          height: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           {/* Left: Brand + Desktop Navigation */}
           <div className="flex items-center gap-6">
             <Link
               to="/feed"
-              className="font-extrabold text-[17px] text-white tracking-tight hover:opacity-90 transition-opacity"
+              className="font-extrabold text-[17px] text-white tracking-tight hover:opacity-90 transition-opacity flex items-center gap-2"
             >
-              ClassCheck
+              <span>ClassCheck</span>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -160,29 +185,30 @@ export default function Navbar() {
 
           {/* Right: Profile & Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Desktop Profile Pill */}
+            {/* Profile Pill (Desktop & Mobile) */}
             <Link
               to="/account"
-              className={`hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-[6px] transition-colors ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[6px] transition-colors ${
                 isAccount ? 'bg-white/[0.08]' : 'hover:bg-white/[0.04]'
               }`}
             >
               <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
                 {firstName.charAt(0).toUpperCase()}
               </div>
-              <span className="text-xs font-semibold text-white tracking-tight">
+              <span className="text-xs font-semibold text-white tracking-tight max-w-[80px] sm:max-w-none truncate">
                 {firstName}
               </span>
             </Link>
 
             {/* Desktop Divider */}
-            <div className="hidden md:block w-px h-4 bg-white/10" />
+            <div className="hidden sm:block w-px h-4 bg-white/10" />
 
             {/* Sign Out (Desktop & Mobile) */}
             <button
               onClick={handleSignOut}
-              className="text-xs font-medium text-white/40 hover:text-white transition-colors flex items-center gap-1.5 px-2.5 py-1.5 rounded-[6px] hover:bg-white/[0.04]"
+              className="text-xs font-medium text-white/40 hover:text-white transition-colors flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-[6px] hover:bg-white/[0.04]"
               aria-label="Sign out"
+              title="Sign out"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -198,23 +224,27 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Bottom Mobile Navigation Bar ───────────────────────────────── */}
+      {/* ── Bottom Mobile Navigation Bar (Fixed with Safe Area Support) ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] h-16 md:hidden px-3"
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] md:hidden px-1"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          height: 'calc(3.75rem + env(safe-area-inset-bottom, 0px))',
+        }}
         aria-label="Mobile Navigation"
       >
-        <div className="grid grid-cols-4 h-full max-w-sm mx-auto items-center">
+        <div className="grid grid-cols-5 h-14 max-w-md mx-auto items-center">
           {MOBILE_NAV_ITEMS.map((item) => {
             const isActive = location.pathname === item.path
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className="relative h-full flex flex-col items-center justify-center gap-1 active:scale-95 transition-all"
+                className="relative h-full flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-all"
               >
                 {/* Active indicator bar */}
                 {isActive && (
-                  <span className="absolute top-0 w-8 h-[2px] bg-blue-500 rounded-full" />
+                  <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
                 )}
 
                 {/* Icon */}
@@ -224,7 +254,7 @@ export default function Navbar() {
 
                 {/* Label */}
                 <span
-                  className={`text-[10px] tracking-tight transition-colors ${
+                  className={`text-[9.5px] tracking-tight transition-colors truncate max-w-full px-0.5 ${
                     isActive ? 'text-white font-bold' : 'text-white/45 font-medium'
                   }`}
                 >

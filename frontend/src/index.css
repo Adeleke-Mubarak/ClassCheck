@@ -105,21 +105,57 @@
     padding: 20px;
   }
 
-  /* Page container */
+  /* Page container with dynamic viewport height & safe area support */
   .page-container {
-    @apply pt-14 pb-24 md:pb-8 min-h-screen;
+    padding-top: calc(3.5rem + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    min-height: 100vh;
+    min-height: 100dvh;
     background-color: #0A0A0A;
     color: #FFFFFF;
+  }
+  @media (min-width: 768px) {
+    .page-container {
+      padding-bottom: 2.5rem;
+    }
   }
 
   /* Content max-width for feeds */
   .feed-container {
-    @apply max-w-[680px] mx-auto px-4 sm:px-6 py-8;
+    width: 100%;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+  }
+  @media (min-width: 640px) {
+    .feed-container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      padding-top: 2rem;
+    }
   }
 
   /* Content max-width for forms */
   .form-container {
-    @apply max-w-[520px] mx-auto px-4 sm:px-6 py-8;
+    width: 100%;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+  }
+  @media (min-width: 640px) {
+    .form-container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+      padding-top: 2rem;
+    }
   }
 
   /* Label */
@@ -410,3 +446,20 @@
 input::placeholder {
   color: rgba(255,255,255,0.22);
 }
+
+/* ---- Landing responsive container ---- */
+.land-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .land-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+

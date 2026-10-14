@@ -169,7 +169,7 @@ export default function Directory() {
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans">
       {renderNavbar()}
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-20 pb-24 md:pb-12">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-12">
         {/* Header section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>

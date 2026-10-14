@@ -24,7 +24,10 @@ export default function Dashboard() {
       <AdminNavbar />
 
       {/* Tab bar */}
-      <div className="fixed top-14 left-0 right-0 z-40 bg-[#0A0A0A] border-b border-white/[0.08]">
+      <div
+        className="fixed left-0 right-0 z-40 bg-[#0A0A0A] border-b border-white/[0.08]"
+        style={{ top: 'calc(3.5rem + env(safe-area-inset-top, 0px))' }}
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="flex gap-1 py-2 overflow-x-auto no-scrollbar whitespace-nowrap">
             {TABS.map((tab) => (
@@ -41,8 +44,13 @@ export default function Dashboard() {
       </div>
 
       {/* Content */}
-      <div className="pt-[116px] pb-16">
-        <div className="max-w-6xl mx-auto px-6">
+      <div
+        style={{
+          paddingTop: 'calc(7.25rem + env(safe-area-inset-top, 0px))',
+          paddingBottom: 'calc(4rem + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
           {activeTab === 'overview' && <Overview />}
           {activeTab === 'senders' && <Senders />}
           {activeTab === 'courses' && <Courses />}

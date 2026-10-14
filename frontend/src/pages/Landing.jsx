@@ -130,7 +130,7 @@ const S = {
   container: {
     maxWidth: '1200px',
     margin: '0 auto',
-    padding: '0 32px',
+    padding: '0 16px',
   },
   sectionLabel: {
     fontSize: '11px',
@@ -157,30 +157,28 @@ export default function Landing() {
     <div style={S.root}>
 
       {/* ── Navbar ────────────────────────────────────────────────── */}
-      <header style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
-        height: '60px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        background: 'rgba(10,10,10,0.88)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        display: 'flex', alignItems: 'center',
-      }}>
-        <div style={{ ...S.container, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header
+        className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.06] bg-[#0A0A0A]/90 backdrop-blur-md flex items-center"
+        style={{
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+          height: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
+        }}
+      >
+        <div className="land-container flex items-center justify-between">
           {/* Wordmark */}
-          <Link to="/" style={{ fontWeight: 800, fontSize: '17px', letterSpacing: '-0.04em', color: '#FFFFFF', textDecoration: 'none' }}>
+          <Link to="/" className="font-extrabold text-base sm:text-[17px] tracking-tight text-white hover:opacity-90 transition-opacity">
             ClassCheck
           </Link>
 
           {/* Nav links */}
-          <nav style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link to="/sender" className="land-nav-link">
+          <nav className="flex items-center gap-1.5 sm:gap-2">
+            <Link to="/sender" className="land-nav-link hidden sm:inline-flex text-xs sm:text-sm">
               Sender login
             </Link>
-            <Link to="/signin" className="land-nav-link">
+            <Link to="/signin" className="land-nav-link text-xs sm:text-sm px-2.5 py-1.5">
               Sign in
             </Link>
-            <Link to="/signup" className="land-nav-btn">
+            <Link to="/signup" className="land-nav-btn text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2">
               <span>Create account</span>
             </Link>
           </nav>
@@ -189,14 +187,14 @@ export default function Landing() {
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
       <section style={{
-        minHeight: '92vh',
+        minHeight: '90vh',
         paddingTop: '60px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
         position: 'relative',
       }}>
-        <div style={{ ...S.container, paddingTop: '80px', paddingBottom: '70px' }}>
+        <div style={{ ...S.container, paddingTop: '40px', paddingBottom: '60px' }}>
 
           {/* Eyebrow badge + Waitlist link */}
           <div style={{
@@ -249,12 +247,12 @@ export default function Landing() {
 
           {/* Main headline */}
           <h1 style={{
-            fontSize: 'clamp(48px, 7vw, 92px)',
+            fontSize: 'clamp(32px, 7.5vw, 84px)',
             fontWeight: 900,
             lineHeight: 1.05,
             letterSpacing: '-0.035em',
             color: '#FFFFFF',
-            margin: '0 0 28px',
+            margin: '0 0 24px',
             maxWidth: '900px',
           }}>
             Your entire lecture day,<br />
@@ -264,12 +262,12 @@ export default function Landing() {
 
           {/* Sub-headline */}
           <p style={{
-            fontSize: '18px',
+            fontSize: 'clamp(15px, 3.5vw, 18px)',
             fontWeight: 400,
             lineHeight: 1.6,
             color: 'rgba(255,255,255,0.5)',
             maxWidth: '540px',
-            margin: '0 0 44px',
+            margin: '0 0 36px',
           }}>
             Real-time class cancellations, interactive lecture timetable, and faculty contact directory — delivered instantly from verified lecturers and course reps.
           </p>
