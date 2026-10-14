@@ -1,4 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
-  <rect width="32" height="32" rx="8" fill="#111"/>
-  <text x="16" y="22" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="14" fill="white">CC</text>
+  <defs>
+    <linearGradient id="favBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="#0A0C10"/>
+  <rect width="32" height="32" rx="7" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  
+  <g transform="translate(0.5, 0)">
+    <!-- C1 (White) -->
+    <path d="M 14.5 10.5 A 6 6 0 1 0 14.5 21.5" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/>
+    
+    <!-- C2 (Blue) -->
+    <path d="M 20.5 10.5 A 6 6 0 1 0 20.5 21.5" fill="none" stroke="url(#favBlue)" stroke-width="2.8" stroke-linecap="round"/>
+    
+    <!-- Pulse dot -->
+    <circle cx="21.5" cy="9.2" r="1.3" fill="#60A5FA"/>
+    <circle cx="21.5" cy="9.2" r="0.7" fill="#FFFFFF"/>
+  </g>
 </svg>
