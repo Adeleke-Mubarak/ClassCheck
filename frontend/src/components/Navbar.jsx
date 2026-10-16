@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
+import ThemeToggle from './ThemeToggle'
 
 const MOBILE_NAV_ITEMS = [
   {
@@ -185,6 +186,9 @@ export default function Navbar() {
 
           {/* Right: Profile & Actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Theme Toggle Button */}
+            <ThemeToggle />
+
             {/* Profile Pill (Desktop & Mobile) */}
             <Link
               to="/account"

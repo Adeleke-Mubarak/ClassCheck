@@ -10,10 +10,13 @@ import PwaInstallBanner from '../components/PwaInstallBanner'
 import { api } from '../lib/api'
 import { offlineStorage, useOnlineStatus } from '../lib/offlineStorage'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import { pwaUtils } from '../lib/pwaUtils'
 
 export default function Feed() {
   const { user, profile } = useAuth()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
   const { isOnline, formattedSyncAge } = useOnlineStatus()
   const [updates, setUpdates] = useState(() => offlineStorage.get('feed', []))
   const [timetable, setTimetable] = useState(() => offlineStorage.get('timetable', []))
@@ -143,9 +146,11 @@ export default function Feed() {
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>Class updates</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: isDark ? '#FFFFFF' : '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
+              Class updates
+            </h1>
             {profile && (
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', margin: '4px 0 0' }}>
+              <p style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B', marginTop: '4px', margin: '4px 0 0', fontWeight: 500 }}>
                 {profile.department} — {profile.level} Level
               </p>
             )}
@@ -159,8 +164,8 @@ export default function Feed() {
             }} />
             <span style={{
               fontSize: '11px',
-              fontWeight: 600,
-              color: isOnline ? 'rgba(16, 185, 129, 0.9)' : '#F59E0B',
+              fontWeight: 700,
+              color: isOnline ? (isDark ? 'rgba(16, 185, 129, 0.9)' : '#059669') : '#D97706',
               letterSpacing: '0.04em',
             }}>
               {isOnline ? 'Live sync' : 'Offline mode'}
@@ -181,14 +186,17 @@ export default function Feed() {
         {!hasSubscriptions ? (
           /* No subscriptions state */
           <div style={{
-            background: '#111111',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: isDark ? '#111111' : '#FFFFFF',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
             borderRadius: '12px',
             padding: '48px 24px',
             textAlign: 'center',
+            boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
           }}>
-            <p style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF' }}>You have no courses selected</p>
-            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
+            <p style={{ fontSize: '16px', fontWeight: 700, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+              You have no courses selected
+            </p>
+            <p style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B', marginTop: '8px' }}>
               Go to My Courses to subscribe to your courses for this semester.
             </p>
             <Link
@@ -197,13 +205,13 @@ export default function Feed() {
                 display: 'inline-block',
                 marginTop: '20px',
                 padding: '10px 20px',
-                background: '#FFFFFF',
-                color: '#0A0A0A',
+                background: isDark ? '#FFFFFF' : '#0F172A',
+                color: isDark ? '#0A0A0A' : '#FFFFFF',
                 fontSize: '14px',
                 fontWeight: 700,
                 borderRadius: '6px',
                 textDecoration: 'none',
-                transition: 'background 0.15s',
+                transition: 'opacity 0.15s',
               }}
             >
               Go to My Courses
@@ -221,31 +229,33 @@ export default function Feed() {
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} style={{
-                    background: '#111111',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: isDark ? '#111111' : '#FFFFFF',
+                    border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
                     borderRadius: '12px',
                     padding: '20px',
+                    boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
                   }}>
-                    <div style={{ height: '16px', background: '#1A1A1A', borderRadius: '4px', width: '25%', marginBottom: '12px' }} />
-                    <div style={{ height: '20px', background: '#1A1A1A', borderRadius: '4px', width: '33%', marginBottom: '12px' }} />
-                    <div style={{ height: '12px', background: '#1A1A1A', borderRadius: '4px', width: '75%' }} />
+                    <div style={{ height: '16px', background: isDark ? '#1A1A1A' : '#F1F5F9', borderRadius: '4px', width: '25%', marginBottom: '12px' }} />
+                    <div style={{ height: '20px', background: isDark ? '#1A1A1A' : '#F1F5F9', borderRadius: '4px', width: '33%', marginBottom: '12px' }} />
+                    <div style={{ height: '12px', background: isDark ? '#1A1A1A' : '#F1F5F9', borderRadius: '4px', width: '75%' }} />
                   </div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
               /* Empty state */
               <div style={{
-                background: '#111111',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: isDark ? '#111111' : '#FFFFFF',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
                 borderRadius: '12px',
                 padding: '48px 24px',
                 textAlign: 'center',
+                boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
               }}>
                 <div style={{
                   width: '48px',
                   height: '48px',
-                  background: 'rgba(37,99,235,0.1)',
-                  border: '1px solid rgba(37,99,235,0.2)',
+                  background: isDark ? 'rgba(37,99,235,0.1)' : '#EFF6FF',
+                  border: `1px solid ${isDark ? 'rgba(37,99,235,0.2)' : '#BFDBFE'}`,
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
@@ -256,8 +266,8 @@ export default function Feed() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF' }}>All clear for today</p>
-                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>All classes are holding as scheduled</p>
+                <p style={{ fontSize: '16px', fontWeight: 700, color: isDark ? '#FFFFFF' : '#0F172A' }}>All clear for today</p>
+                <p style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B', marginTop: '4px' }}>All classes are holding as scheduled</p>
               </div>
             ) : (
               <div className="space-y-3">

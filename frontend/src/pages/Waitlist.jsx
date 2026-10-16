@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
+import ThemeToggle from '../components/ThemeToggle'
 
 /* ------------------------------------------------------------------ */
 /* Inline styles — mirrors SignUp and SignIn                            */
@@ -13,17 +14,18 @@ const S = {
   page: {
     display: 'flex',
     minHeight: '100vh',
-    background: '#0A0A0A',
+    background: 'var(--bg-app)',
     fontFamily: font,
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
+    position: 'relative',
   },
 
   /* ---- Left panel ---- */
   left: {
     width: '45%',
-    background: '#0A0A0A',
+    background: 'var(--bg-app)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -33,7 +35,7 @@ const S = {
     fontWeight: 800,
     fontSize: '17px',
     letterSpacing: '-0.04em',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     textDecoration: 'none',
   },
   leftMiddle: {
@@ -44,7 +46,7 @@ const S = {
     fontWeight: 800,
     lineHeight: 1.12,
     letterSpacing: '-0.03em',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     margin: '0 0 32px',
   },
   trustItem: {
@@ -56,15 +58,15 @@ const S = {
     fontSize: '14px',
     fontWeight: 500,
     lineHeight: 1.55,
-    color: 'rgba(255,255,255,0.5)',
+    color: 'var(--text-secondary)',
     margin: 0,
   },
   leftBottom: {
     fontSize: '13px',
-    color: 'rgba(255,255,255,0.35)',
+    color: 'var(--text-muted)',
   },
   leftBottomLink: {
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontWeight: 600,
     textDecoration: 'none',
     marginLeft: '4px',
@@ -73,12 +75,12 @@ const S = {
   /* ---- Right panel ---- */
   right: {
     width: '55%',
-    background: '#111111',
+    background: 'var(--bg-card)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px 48px',
-    borderLeft: '1px solid rgba(255,255,255,0.06)',
+    borderLeft: '1px solid var(--border-card)',
     overflowY: 'auto',
   },
   formWrapper: {
@@ -105,16 +107,16 @@ const S = {
     fontWeight: 600,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: '#888888',
+    color: 'var(--text-secondary)',
     marginBottom: '8px',
   },
   input: {
     width: '100%',
     padding: '13px 16px',
-    background: '#1A1A1A',
-    border: '1px solid #2A2A2A',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-card)',
     borderRadius: '6px',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontSize: '15px',
     fontFamily: font,
     fontWeight: 500,
@@ -130,8 +132,8 @@ const S = {
   submit: {
     width: '100%',
     padding: '14px 24px',
-    background: '#FFFFFF',
-    color: '#0A0A0A',
+    background: 'var(--button-primary-bg)',
+    color: 'var(--button-primary-text)',
     fontSize: '15px',
     fontWeight: 700,
     fontFamily: font,
@@ -148,12 +150,12 @@ const S = {
   },
   bottomText: {
     fontSize: '13px',
-    color: 'rgba(255,255,255,0.35)',
+    color: 'var(--text-muted)',
     textAlign: 'center',
     marginTop: '24px',
   },
   bottomLink: {
-    color: '#FFFFFF',
+    color: 'var(--brand-blue)',
     fontWeight: 600,
     textDecoration: 'none',
     marginLeft: '4px',
@@ -234,6 +236,10 @@ export default function Waitlist() {
 
   return (
     <div style={S.page}>
+      {/* Floating Theme Switcher */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={S.left}>
@@ -269,8 +275,8 @@ export default function Waitlist() {
 
           {success ? (
             <div style={{
-              background: '#161616',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--bg-card-subtle)',
+              border: '1px solid var(--border-card)',
               borderRadius: '8px',
               padding: '40px 24px',
               textAlign: 'center',
@@ -290,19 +296,19 @@ export default function Waitlist() {
               }}>
                 ✓
               </div>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', margin: '0 0 10px', letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 10px', letterSpacing: '-0.02em' }}>
                 You're on the priority list!
               </h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: '0 0 28px' }}>
-                We prioritize department rollouts by request volume. We'll email you the moment ClassCheck launches for <strong style={{ color: '#FFFFFF' }}>{form.department}</strong> at <strong style={{ color: '#FFFFFF' }}>{form.university}</strong>.
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: '0 0 28px' }}>
+                We prioritize department rollouts by request volume. We'll email you the moment ClassCheck launches for <strong style={{ color: 'var(--text-primary)' }}>{form.department}</strong> at <strong style={{ color: 'var(--text-primary)' }}>{form.university}</strong>.
               </p>
               <Link
                 to="/"
                 style={{
                   display: 'inline-block',
                   padding: '12px 28px',
-                  background: '#FFFFFF',
-                  color: '#0A0A0A',
+                  background: 'var(--button-primary-bg)',
+                  color: 'var(--button-primary-text)',
                   fontSize: '14px',
                   fontWeight: 700,
                   borderRadius: '6px',
@@ -314,10 +320,10 @@ export default function Waitlist() {
             </div>
           ) : (
             <>
-              <h2 style={{ fontSize: '24px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: '0 0 8px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: '0 0 8px' }}>
                 Request your department
               </h2>
-              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5, margin: '0 0 28px' }}>
+              <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0 0 28px' }}>
                 Tell us where you study. The departments with the most votes get onboarded next.
               </p>
 

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import Typewriter from '../components/Typewriter'
+import ThemeToggle from '../components/ThemeToggle'
 
 /* ------------------------------------------------------------------ */
 /* Data                                                                 */
@@ -25,17 +26,18 @@ const styles = {
   page: {
     display: 'flex',
     minHeight: '100vh',
-    background: '#0A0A0A',
+    background: 'var(--bg-app)',
     fontFamily: font,
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
+    position: 'relative',
   },
 
   /* ---- Left panel ---- */
   left: {
     width: '45%',
-    background: '#0A0A0A',
+    background: 'var(--bg-app)',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -46,7 +48,7 @@ const styles = {
     fontWeight: 800,
     fontSize: '17px',
     letterSpacing: '-0.04em',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     textDecoration: 'none',
   },
   leftMiddle: {
@@ -57,7 +59,7 @@ const styles = {
     fontWeight: 800,
     lineHeight: 1.12,
     letterSpacing: '-0.03em',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     margin: '0 0 40px',
   },
   trustItem: {
@@ -69,15 +71,15 @@ const styles = {
     fontSize: '14px',
     fontWeight: 500,
     lineHeight: 1.55,
-    color: 'rgba(255,255,255,0.5)',
+    color: 'var(--text-secondary)',
     margin: 0,
   },
   leftBottom: {
     fontSize: '13px',
-    color: 'rgba(255,255,255,0.35)',
+    color: 'var(--text-muted)',
   },
   leftBottomLink: {
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontWeight: 600,
     textDecoration: 'none',
     marginLeft: '4px',
@@ -86,12 +88,12 @@ const styles = {
   /* ---- Right panel ---- */
   right: {
     width: '55%',
-    background: '#111111',
+    background: 'var(--bg-card)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px 48px',
-    borderLeft: '1px solid rgba(255,255,255,0.06)',
+    borderLeft: '1px solid var(--border-card)',
     overflowY: 'auto',
   },
   formWrapper: {
@@ -118,16 +120,16 @@ const styles = {
     fontWeight: 600,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: '#888888',
+    color: 'var(--text-secondary)',
     marginBottom: '8px',
   },
   input: {
     width: '100%',
     padding: '13px 16px',
-    background: '#1A1A1A',
-    border: '1px solid #2A2A2A',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-card)',
     borderRadius: '6px',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontSize: '15px',
     fontFamily: font,
     fontWeight: 500,
@@ -139,17 +141,17 @@ const styles = {
     boxShadow: '0 0 0 3px rgba(37,99,235,0.15)',
   },
   inputPlaceholder: {
-    color: 'rgba(255,255,255,0.22)',
+    color: 'var(--text-placeholder)',
   },
 
   /* ---- Dropdown ---- */
   dropdownTrigger: {
     width: '100%',
     padding: '13px 16px',
-    background: '#1A1A1A',
-    border: '1px solid #2A2A2A',
+    background: 'var(--bg-input)',
+    border: '1px solid var(--border-card)',
     borderRadius: '6px',
-    color: '#FFFFFF',
+    color: 'var(--text-primary)',
     fontSize: '15px',
     fontFamily: font,
     fontWeight: 500,
@@ -166,9 +168,10 @@ const styles = {
     top: 'calc(100% + 4px)',
     left: 0,
     right: 0,
-    background: '#1A1A1A',
-    border: '1px solid #2A2A2A',
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-card)',
     borderRadius: '6px',
+    boxShadow: 'var(--shadow-elevated)',
     maxHeight: '220px',
     overflowY: 'auto',
     zIndex: 100,
@@ -177,19 +180,19 @@ const styles = {
     padding: '10px 16px',
     fontSize: '14px',
     fontWeight: 500,
-    color: 'rgba(255,255,255,0.7)',
+    color: 'var(--text-secondary)',
     cursor: 'pointer',
     transition: 'background 0.12s, color 0.12s',
     fontFamily: font,
   },
   dropdownOptionHover: {
-    background: 'rgba(37,99,235,0.12)',
-    color: '#FFFFFF',
+    background: 'var(--brand-blue-bg)',
+    color: 'var(--brand-blue)',
   },
   dropdownChevron: {
     width: '16px',
     height: '16px',
-    color: 'rgba(255,255,255,0.3)',
+    color: 'var(--text-muted)',
     flexShrink: 0,
   },
 
@@ -202,9 +205,9 @@ const styles = {
   levelPill: (selected) => ({
     padding: '10px 22px',
     borderRadius: '6px',
-    border: selected ? '1px solid #2563EB' : '1px solid #2A2A2A',
-    background: selected ? '#2563EB' : '#1A1A1A',
-    color: selected ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
+    border: selected ? '1px solid #2563EB' : '1px solid var(--border-card)',
+    background: selected ? '#2563EB' : 'var(--bg-card-subtle)',
+    color: selected ? '#FFFFFF' : 'var(--text-secondary)',
     fontSize: '14px',
     fontWeight: 600,
     fontFamily: font,
@@ -217,8 +220,8 @@ const styles = {
   submit: {
     width: '100%',
     padding: '14px 24px',
-    background: '#FFFFFF',
-    color: '#0A0A0A',
+    background: 'var(--button-primary-bg)',
+    color: 'var(--button-primary-text)',
     fontSize: '15px',
     fontWeight: 700,
     fontFamily: font,
@@ -237,7 +240,7 @@ const styles = {
   },
   terms: {
     fontSize: '12px',
-    color: 'rgba(255,255,255,0.25)',
+    color: 'var(--text-muted)',
     textAlign: 'center',
     marginTop: '16px',
     lineHeight: 1.5,
@@ -393,6 +396,10 @@ export default function SignUp() {
 
   return (
     <div style={styles.page}>
+      {/* Floating Theme Switcher */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={styles.left}>

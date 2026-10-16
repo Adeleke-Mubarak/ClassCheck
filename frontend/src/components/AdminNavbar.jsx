@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
+import ThemeToggle from './ThemeToggle'
 
 export default function AdminNavbar() {
   const { refreshProfile } = useAuth()
@@ -85,6 +86,8 @@ export default function AdminNavbar() {
                 Schedule
               </Link>
             </div>
+
+            <ThemeToggle />
 
             <button
               onClick={handleSignOut}
