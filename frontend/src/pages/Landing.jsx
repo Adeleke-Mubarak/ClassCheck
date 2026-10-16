@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import ThemeToggle from '../components/ThemeToggle'
 
 /* ------------------------------------------------------------------ */
 /* Data                                                                 */
@@ -122,13 +121,11 @@ const WHY_ITEMS = [
 
 const S = {
   root: {
-    background: 'var(--bg-app)',
-    color: 'var(--text-primary)',
+    background: '#0A0A0A',
+    color: '#FFFFFF',
     fontFamily: "'Plus Jakarta Sans', 'Inter', ui-sans-serif, sans-serif",
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
-    minHeight: '100vh',
-    transition: 'background-color 0.2s ease, color 0.2s ease',
   },
   container: {
     maxWidth: '1200px',
@@ -174,9 +171,7 @@ export default function Landing() {
           </Link>
 
           {/* Nav links */}
-          <nav className="flex items-center gap-1.5 sm:gap-2.5">
-            <ThemeToggle />
-
+          <nav className="flex items-center gap-1 sm:gap-2.5">
             <Link
               to="/sender"
               className="text-xs sm:text-[13px] font-medium text-white/50 hover:text-white px-2 sm:px-2.5 py-1.5 rounded transition-colors whitespace-nowrap flex items-center"

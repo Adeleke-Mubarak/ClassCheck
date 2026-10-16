@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react'
 import { pwaUtils } from '../lib/pwaUtils'
-import { useTheme } from '../context/ThemeContext'
 import toast from 'react-hot-toast'
 
 export default function NotificationTestCard() {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
   const [permission, setPermission] = useState(() => pwaUtils.getNotificationPermission())
   const [testing, setTesting] = useState(false)
   const isIos = pwaUtils.isIos()
@@ -48,20 +45,19 @@ export default function NotificationTestCard() {
 
   return (
     <div style={{
-      background: isDark ? '#111111' : '#FFFFFF',
-      border: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.08)' : '#E2E8F0'}`,
+      background: '#111111',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
       borderRadius: '8px',
       padding: '20px 24px',
       marginTop: '16px',
-      boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
     }}>
       {/* Title */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
         <div>
-          <h2 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: isDark ? 'rgba(255, 255, 255, 0.7)' : '#334155', margin: 0 }}>
+          <h2 style={{ fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255, 255, 255, 0.7)', margin: 0 }}>
             Lecture Alert & Device Readiness
           </h2>
-          <p style={{ fontSize: '12px', color: isDark ? 'rgba(255, 255, 255, 0.45)' : '#64748B', margin: '4px 0 0' }}>
+          <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.45)', margin: '4px 0 0' }}>
             Ensure your phone doesn't silence emergency lecture cancellations.
           </p>
         </div>
@@ -76,21 +72,21 @@ export default function NotificationTestCard() {
           fontSize: '11px',
           fontWeight: 700,
           background: permission === 'granted'
-            ? isDark ? 'rgba(16, 185, 129, 0.12)' : '#ECFDF5'
+            ? 'rgba(16, 185, 129, 0.12)'
             : permission === 'denied'
-            ? isDark ? 'rgba(239, 68, 68, 0.12)' : '#FFF1F2'
-            : isDark ? 'rgba(245, 158, 11, 0.12)' : '#FFFBEB',
+            ? 'rgba(239, 68, 68, 0.12)'
+            : 'rgba(245, 158, 11, 0.12)',
           color: permission === 'granted'
-            ? isDark ? '#10B981' : '#059669'
+            ? '#10B981'
             : permission === 'denied'
-            ? isDark ? '#EF4444' : '#E11D48'
-            : isDark ? '#F59E0B' : '#D97706',
+            ? '#EF4444'
+            : '#F59E0B',
           border: `1px solid ${
             permission === 'granted'
-              ? isDark ? 'rgba(16, 185, 129, 0.25)' : '#A7F3D0'
+              ? 'rgba(16, 185, 129, 0.25)'
               : permission === 'denied'
-              ? isDark ? 'rgba(239, 68, 68, 0.25)' : '#FECDD3'
-              : isDark ? 'rgba(245, 158, 11, 0.25)' : '#FDE68A'
+              ? 'rgba(239, 68, 68, 0.25)'
+              : 'rgba(245, 158, 11, 0.25)'
           }`,
         }}>
           <span style={{
@@ -112,11 +108,11 @@ export default function NotificationTestCard() {
         <div style={{
           padding: '12px 14px',
           borderRadius: '6px',
-          background: isDark ? 'rgba(59, 130, 246, 0.08)' : '#EFF6FF',
-          border: `1px solid ${isDark ? 'rgba(59, 130, 246, 0.2)' : '#BFDBFE'}`,
+          background: 'rgba(59, 130, 246, 0.08)',
+          border: '1px solid rgba(59, 130, 246, 0.2)',
           marginBottom: '14px',
           fontSize: '12px',
-          color: isDark ? '#93C5FD' : '#1D4ED8',
+          color: '#93C5FD',
           lineHeight: 1.5,
         }}>
           <strong>iPhone users:</strong> To receive push notifications on iOS, tap the Share button (⎋) in Safari and select <strong>"Add to Home Screen"</strong>. Then open ClassCheck from your home screen.
@@ -157,8 +153,8 @@ export default function NotificationTestCard() {
             style={{
               padding: '10px 18px',
               borderRadius: '6px',
-              background: isDark ? '#FFFFFF' : '#0F172A',
-              color: isDark ? '#0A0A0A' : '#FFFFFF',
+              background: '#FFFFFF',
+              color: '#0A0A0A',
               fontSize: '13px',
               fontWeight: 700,
               border: 'none',
@@ -186,13 +182,13 @@ export default function NotificationTestCard() {
       <div style={{
         marginTop: '16px',
         paddingTop: '12px',
-        borderTop: `1px solid ${isDark ? 'rgba(255, 255, 255, 0.05)' : '#F1F5F9'}`,
+        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
         display: 'flex',
         alignItems: 'flex-start',
         gap: '8px',
       }}>
         <span style={{ fontSize: '13px', flexShrink: 0 }}>💡</span>
-        <p style={{ fontSize: '11px', color: isDark ? 'rgba(255, 255, 255, 0.4)' : '#64748B', margin: 0, lineHeight: 1.5 }}>
+        <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.4)', margin: 0, lineHeight: 1.5 }}>
           <strong>Battery tip:</strong> On Tecno, Infinix, or Xiaomi devices, ensure power-saving mode hasn't restricted ClassCheck from running in the background so updates sound off instantly.
         </p>
       </div>

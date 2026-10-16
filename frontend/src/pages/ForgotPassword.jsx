@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
-import ThemeToggle from '../components/ThemeToggle'
 
 export default function ForgotPassword() {
   const [matricNo, setMatricNo] = useState('')
@@ -24,9 +23,8 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col">
-      <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center justify-between px-6">
+      <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center px-6">
         <Link to="/" className="font-extrabold text-base tracking-tight text-white">ClassCheck</Link>
-        <ThemeToggle />
       </header>
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">

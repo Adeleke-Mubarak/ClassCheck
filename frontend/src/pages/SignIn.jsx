@@ -4,7 +4,6 @@ import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import Typewriter from '../components/Typewriter'
-import ThemeToggle from '../components/ThemeToggle'
 
 /* ------------------------------------------------------------------ */
 /* Inline styles — mirrors SignUp exactly                               */
@@ -16,18 +15,17 @@ const S = {
   page: {
     display: 'flex',
     minHeight: '100vh',
-    background: 'var(--bg-app)',
+    background: '#0A0A0A',
     fontFamily: font,
     WebkitFontSmoothing: 'antialiased',
     MozOsxFontSmoothing: 'grayscale',
-    color: 'var(--text-primary)',
-    position: 'relative',
+    color: '#FFFFFF',
   },
 
   /* ---- Left panel ---- */
   left: {
     width: '45%',
-    background: 'var(--bg-app)',
+    background: '#0A0A0A',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -37,7 +35,7 @@ const S = {
     fontWeight: 800,
     fontSize: '17px',
     letterSpacing: '-0.04em',
-    color: 'var(--text-primary)',
+    color: '#FFFFFF',
     textDecoration: 'none',
   },
   leftMiddle: {
@@ -48,7 +46,7 @@ const S = {
     fontWeight: 800,
     lineHeight: 1.12,
     letterSpacing: '-0.03em',
-    color: 'var(--text-primary)',
+    color: '#FFFFFF',
     margin: '0 0 40px',
   },
   trustItem: {
@@ -60,15 +58,15 @@ const S = {
     fontSize: '14px',
     fontWeight: 500,
     lineHeight: 1.55,
-    color: 'var(--text-secondary)',
+    color: 'rgba(255,255,255,0.5)',
     margin: 0,
   },
   leftBottom: {
     fontSize: '13px',
-    color: 'var(--text-muted)',
+    color: 'rgba(255,255,255,0.35)',
   },
   leftBottomLink: {
-    color: 'var(--text-primary)',
+    color: '#FFFFFF',
     fontWeight: 600,
     textDecoration: 'none',
     marginLeft: '4px',
@@ -77,12 +75,12 @@ const S = {
   /* ---- Right panel ---- */
   right: {
     width: '55%',
-    background: 'var(--bg-card)',
+    background: '#111111',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     padding: '40px 48px',
-    borderLeft: '1px solid var(--border-card)',
+    borderLeft: '1px solid rgba(255,255,255,0.06)',
     overflowY: 'auto',
   },
   formWrapper: {
@@ -109,7 +107,7 @@ const S = {
     fontWeight: 600,
     letterSpacing: '0.08em',
     textTransform: 'uppercase',
-    color: 'var(--text-secondary)',
+    color: '#888888',
     marginBottom: '8px',
   },
   labelRow: {
@@ -121,10 +119,10 @@ const S = {
   input: {
     width: '100%',
     padding: '13px 16px',
-    background: 'var(--bg-input)',
-    border: '1px solid var(--border-card)',
+    background: '#1A1A1A',
+    border: '1px solid #2A2A2A',
     borderRadius: '6px',
-    color: 'var(--text-primary)',
+    color: '#FFFFFF',
     fontSize: '15px',
     fontFamily: font,
     fontWeight: 500,
@@ -138,7 +136,7 @@ const S = {
   forgotLink: {
     fontSize: '12px',
     fontWeight: 500,
-    color: 'var(--text-muted)',
+    color: 'rgba(255,255,255,0.35)',
     textDecoration: 'none',
     transition: 'color 0.15s',
   },
@@ -147,8 +145,8 @@ const S = {
   submit: {
     width: '100%',
     padding: '14px 24px',
-    background: 'var(--button-primary-bg)',
-    color: 'var(--button-primary-text)',
+    background: '#FFFFFF',
+    color: '#0A0A0A',
     fontSize: '15px',
     fontWeight: 700,
     fontFamily: font,
@@ -167,12 +165,12 @@ const S = {
   },
   bottomText: {
     fontSize: '13px',
-    color: 'var(--text-muted)',
+    color: 'rgba(255,255,255,0.35)',
     textAlign: 'center',
     marginTop: '24px',
   },
   bottomLink: {
-    color: 'var(--brand-blue)',
+    color: '#FFFFFF',
     fontWeight: 600,
     textDecoration: 'none',
     marginLeft: '4px',
@@ -250,10 +248,6 @@ export default function SignIn() {
 
   return (
     <div style={S.page}>
-      {/* Floating Theme Switcher */}
-      <div className="absolute top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={S.left}>

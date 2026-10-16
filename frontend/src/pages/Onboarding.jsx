@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
-import ThemeToggle from '../components/ThemeToggle'
 
 export default function Onboarding() {
   const { user, profile, refreshProfile } = useAuth()
@@ -62,10 +61,7 @@ export default function Onboarding() {
     <div className="min-h-screen bg-[#0A0A0A] text-white">
       <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center justify-between px-6">
         <span className="font-extrabold text-base tracking-tight text-white">ClassCheck</span>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Step 2 of 2 · Setup</span>
-        </div>
+        <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Step 2 of 2 · Setup</span>
       </header>
 
       <div className="max-w-[640px] mx-auto px-4 sm:px-6 py-10">

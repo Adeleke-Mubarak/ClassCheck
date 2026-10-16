@@ -3,12 +3,9 @@ import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
-import { useTheme } from '../context/ThemeContext'
 
 export default function MyCourses() {
   const { user, profile } = useAuth()
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
   const [courses, setCourses] = useState([])
   const [subscribed, setSubscribed] = useState(new Set())
   const [loading, setLoading] = useState(true)
@@ -91,10 +88,8 @@ export default function MyCourses() {
       <Navbar />
       <div className="feed-container">
         <div className="mb-6">
-          <h1 style={{ fontSize: '24px', fontWeight: 800, color: isDark ? '#FFFFFF' : '#0F172A', letterSpacing: '-0.02em', margin: 0 }}>
-            My courses
-          </h1>
-          <p style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B', marginTop: '4px' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em' }}>My courses</h1>
+          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>
             Toggle to subscribe or unsubscribe from a course
           </p>
         </div>
@@ -105,10 +100,10 @@ export default function MyCourses() {
           justifyContent: 'space-between',
           marginBottom: '16px',
         }}>
-          <span style={{ fontSize: '13px', color: isDark ? 'rgba(255,255,255,0.45)' : '#64748B', fontWeight: 500 }}>
+          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
             {profile?.department} — {profile?.level} Level
           </span>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#FFFFFF' : '#0F172A' }}>
+          <span style={{ fontSize: '13px', fontWeight: 600, color: '#FFFFFF' }}>
             {subscribed.size} subscribed
           </span>
         </div>
@@ -117,14 +112,13 @@ export default function MyCourses() {
           <div className="space-y-2">
             {[...Array(6)].map((_, i) => (
               <div key={i} style={{
-                background: isDark ? '#111111' : '#FFFFFF',
-                border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
+                background: '#111111',
+                border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '10px',
                 padding: '16px',
-                boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
               }}>
-                <div style={{ height: '14px', background: isDark ? '#1A1A1A' : '#F1F5F9', borderRadius: '4px', width: '30%', marginBottom: '8px' }} />
-                <div style={{ height: '12px', background: isDark ? '#1A1A1A' : '#F1F5F9', borderRadius: '4px', width: '60%' }} />
+                <div style={{ height: '14px', background: '#1A1A1A', borderRadius: '4px', width: '30%', marginBottom: '8px' }} />
+                <div style={{ height: '12px', background: '#1A1A1A', borderRadius: '4px', width: '60%' }} />
               </div>
             ))}
           </div>
@@ -132,14 +126,11 @@ export default function MyCourses() {
           <div style={{
             textAlign: 'center',
             padding: '64px 24px',
-            background: isDark ? '#111111' : '#FFFFFF',
-            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'}`,
+            background: '#111111',
+            border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: '12px',
-            boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
           }}>
-            <p style={{ fontSize: '14px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B' }}>
-              No courses found for your department.
-            </p>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>No courses found for your department.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -150,22 +141,19 @@ export default function MyCourses() {
                 <div
                   key={course.id}
                   style={{
-                    background: isDark ? '#111111' : '#FFFFFF',
-                    border: isOn
-                      ? isDark ? '1px solid rgba(37,99,235,0.35)' : '1px solid #BFDBFE'
-                      : isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E2E8F0',
+                    background: '#111111',
+                    border: isOn ? '1px solid rgba(37,99,235,0.3)' : '1px solid rgba(255,255,255,0.08)',
                     borderRadius: '10px',
                     padding: '16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    boxShadow: isDark ? 'none' : '0 1px 3px 0 rgba(0, 0, 0, 0.04)',
-                    transition: 'all 0.2s',
+                    transition: 'border-color 0.2s',
                   }}
                 >
                   <div>
-                    <p style={{ fontSize: '14px', fontWeight: 800, color: isDark ? '#FFFFFF' : '#0F172A' }}>{course.course_code}</p>
-                    <p style={{ fontSize: '12px', color: isDark ? 'rgba(255,255,255,0.5)' : '#64748B', marginTop: '2px' }}>{course.course_name}</p>
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#FFFFFF' }}>{course.course_code}</p>
+                    <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', marginTop: '2px' }}>{course.course_name}</p>
                   </div>
                   <button
                     onClick={() => handleToggle(course.id)}
@@ -176,7 +164,7 @@ export default function MyCourses() {
                       width: '44px',
                       height: '24px',
                       borderRadius: '12px',
-                      background: isOn ? '#2563EB' : (isDark ? '#2A2A2A' : '#CBD5E1'),
+                      background: isOn ? '#2563EB' : '#2A2A2A',
                       border: 'none',
                       cursor: isToggling ? 'wait' : 'pointer',
                       transition: 'background 0.2s',
@@ -192,7 +180,6 @@ export default function MyCourses() {
                       height: '18px',
                       background: '#FFFFFF',
                       borderRadius: '50%',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
                       transition: 'left 0.2s',
                     }} />
                   </button>

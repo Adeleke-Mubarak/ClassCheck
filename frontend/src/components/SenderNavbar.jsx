@@ -1,7 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../lib/api'
-import ThemeToggle from './ThemeToggle'
 
 export default function SenderNavbar() {
   const { profile, refreshProfile } = useAuth()
@@ -90,8 +89,6 @@ export default function SenderNavbar() {
                   {profile?.role === 'class_rep' ? 'Class rep' : 'Lecturer'}
                 </p>
               </div>
-              <ThemeToggle />
-
               <button
                 onClick={handleSignOut}
                 className="text-xs sm:text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/5"

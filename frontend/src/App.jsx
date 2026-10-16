@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './context/AuthContext'
-import { ThemeProvider } from './context/ThemeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Public pages
@@ -30,9 +29,8 @@ import Dashboard from './pages/admin/Dashboard'
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
         <Toaster
           position="top-center"
           toastOptions={{
@@ -137,6 +135,5 @@ export default function App() {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
-  </ThemeProvider>
   )
 }

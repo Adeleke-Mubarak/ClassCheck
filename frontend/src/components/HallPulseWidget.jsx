@@ -162,9 +162,9 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
     <div style={{
       marginTop: '16px',
       padding: '16px',
-      borderRadius: '8px',
-      background: 'var(--bg-card-subtle)',
-      border: '1px solid var(--border-card)',
+      borderRadius: '10px',
+      background: 'rgba(255, 255, 255, 0.025)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
     }}>
       {/* Header */}
       <div style={{
@@ -206,7 +206,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
             fontWeight: 800,
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
-            color: 'var(--text-primary)',
+            color: '#FFFFFF',
           }}>
             Hall Pulse · {courseCode ? `${courseCode} @ ${venue}` : venue}
           </span>
@@ -216,7 +216,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
         {totalReports > 0 && (
           <span style={{
             fontSize: '11px',
-            color: 'var(--text-muted)',
+            color: 'rgba(255, 255, 255, 0.45)',
             fontWeight: 500,
           }}>
             {totalReports} coursemate{totalReports === 1 ? '' : 's'} reported
@@ -247,7 +247,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
             }}>
               Community Verified · {consensusConfig.label}
             </p>
-            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+            <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.6)', margin: '2px 0 0' }}>
               Confirmed by {pulse.counts[pulse.consensus]} coursemates physically present in {venue}.
             </p>
           </div>
@@ -255,7 +255,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
       ) : totalReports > 0 ? (
         <p style={{
           fontSize: '12px',
-          color: 'var(--text-secondary)',
+          color: 'rgba(255, 255, 255, 0.6)',
           margin: '0 0 12px',
           lineHeight: 1.4,
         }}>
@@ -268,14 +268,14 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
           {pulse.counts.class_holding > 0 && (
             <span>📖 {pulse.counts.class_holding} reported in session · </span>
           )}
-          <span style={{ color: 'var(--text-muted)' }}>
+          <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
             (Need 3 votes for verified badge)
           </span>
         </p>
       ) : (
         <p style={{
           fontSize: '12px',
-          color: 'var(--text-secondary)',
+          color: 'rgba(255, 255, 255, 0.5)',
           margin: '0 0 12px',
           lineHeight: 1.4,
         }}>
@@ -305,14 +305,26 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
                 justifyContent: 'space-between',
                 padding: '8px 12px',
                 borderRadius: '6px',
-                background: isSelected ? config.activeBg : 'var(--bg-card)',
-                border: `1px solid ${isSelected ? config.border : 'var(--border-card)'}`,
-                color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                background: isSelected ? config.activeBg : 'rgba(255, 255, 255, 0.04)',
+                border: `1px solid ${isSelected ? config.border : 'rgba(255, 255, 255, 0.08)'}`,
+                color: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)',
                 fontSize: '12px',
                 fontWeight: isSelected ? 700 : 500,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 textAlign: 'left',
+              }}
+              onMouseEnter={(e) => {
+                if (!isSelected) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isSelected) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'
+                }
               }}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -326,8 +338,8 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
                   fontWeight: 700,
                   padding: '2px 6px',
                   borderRadius: '100px',
-                  background: isSelected ? config.color : 'var(--border-card)',
-                  color: isSelected ? '#FFFFFF' : 'var(--text-primary)',
+                  background: isSelected ? config.color : 'rgba(255, 255, 255, 0.1)',
+                  color: isSelected ? '#0A0A0A' : 'rgba(255, 255, 255, 0.7)',
                   marginLeft: '4px',
                 }}>
                   {count}
@@ -341,11 +353,11 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
       {myVote && (
         <p style={{
           fontSize: '11px',
-          color: 'var(--text-muted)',
+          color: 'rgba(255, 255, 255, 0.4)',
           margin: '10px 0 0',
           textAlign: 'center',
         }}>
-          You reported: <strong style={{ color: 'var(--text-primary)' }}>{STATUS_CONFIG[myVote]?.label}</strong>. Tap another button to update if things changed.
+          You reported: <strong style={{ color: '#FFFFFF' }}>{STATUS_CONFIG[myVote]?.label}</strong>. Tap another button to update if things changed.
         </p>
       )}
     </div>
