@@ -162,12 +162,77 @@ export const NotificationService = {
     supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false),
 }
 
+export type WaitlistStatus = 'pending' | 'contacted' | 'launched'
+export type HallPulseStatus = 'in_class' | 'late' | 'not_in_class'
+
 export const WaitlistService = {
   join: (data: { name: string; email: string; department: string; university: string }) =>
     supabase.from('waitlist').insert(data).select().single(),
+
+  getAll: () =>
+    supabase.from('waitlist').select('*').order('created_at', { ascending: false }),
+
+  updateStatus: (id: string, status: WaitlistStatus) =>
+    supabase.from('waitlist').update({ status }).eq('id', id).select().maybeSingle(),
+
+  remove: (id: string) =>
+    supabase.from('waitlist').delete().eq('id', id).select('id').maybeSingle(),
 }
 
+export const HallPulseService = {
+  getRecentConsensus: async (courseId: string) => {
+    const since = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    const { data, error } = await supabase
+      .from('hall_pulse_reports')
+      .select('status, created_at')
+      .eq('course_id', courseId)
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+
+    if (error) return { data: null, error }
+
+    const counts: Record<HallPulseStatus, number> = {
+      in_class: 0,
+      late: 0,
+      not_in_class: 0,
+    }
+    for (const report of data ?? []) {
+      const status = report.status as HallPulseStatus
+      counts[status] = (counts[status] ?? 0) + 1
+    }
+
+    const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
+    const highest = Math.max(...Object.values(counts))
+    const leaders = (Object.entries(counts) as [HallPulseStatus, number][])
+      .filter(([, count]) => count === highest && count > 0)
+    const latest = data?.[0]?.created_at ?? null
+
+    return {
+      data: {
+        course_id: courseId,
+        consensus: total === 0 ? null : leaders.length === 1 ? leaders[0]![0] : 'mixed',
+        counts,
+        total_reports: total,
+        last_updated: latest,
+      },
+      error: null,
+    }
+  },
+
+  submit: (userId: string, courseId: string, status: HallPulseStatus) =>
+    supabase.from('hall_pulse_reports')
+      .upsert({ user_id: userId, course_id: courseId, status, created_at: new Date().toISOString() }, { onConflict: 'course_id,user_id' })
+      .select().single(),
+}
+
+
 export const AdminService = {
+  getStudents: () =>
+    supabase.from('profiles')
+      .select('id, full_name, email, matric_no, department, level, role, status, created_at')
+      .eq('role', 'student')
+      .order('created_at', { ascending: false }),
+
   getOverview: async () => {
     const todayStart = new Date()
     todayStart.setHours(0, 0, 0, 0)

@@ -3,17 +3,14 @@ import cors from 'cors'
 import helmet from 'helmet'
 import { env } from './config/env.js'
 import routes from './routes/index.route.js'
+import accessLogger from './middleware/accessLogger.middleware.js'
 
 const app = express()
 
 app.use(helmet())
 app.use(cors({ origin: env.clientUrl }))
-
 app.use(express.json())
-
-// NOTE (Backend Dev): If you wish to enable access logging to files, import and mount accessLogger here:
-// import accessLogger from './middleware/accessLogger.middleware.js'
-// app.use(accessLogger)
+app.use(accessLogger)
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }))
 app.use('/api/v1', routes)
