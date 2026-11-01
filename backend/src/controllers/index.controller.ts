@@ -4,7 +4,7 @@ import {
   AuthService, ProfileService, CourseService,
   StudentCourseService, SenderCourseService, UpdatePostService,
   SenderService, NotificationService, WaitlistService, AdminService,
-  TimetableService, DirectoryService,
+  TimetableService, DirectoryService, HallPulseService,
 } from '../services/index.service.js'
 
 type IdParam = { id: string }
@@ -283,6 +283,12 @@ export const SenderController = {
 }
 
 export const AdminController = {
+  getStudents: async (_req: Request, res: Response) => {
+    const { data, error } = await AdminService.getStudents()
+    if (error) { fail(res, error.message); return }
+    ok(res, data ?? [])
+  },
+
   getOverview: async (_req: Request, res: Response) => {
     const data = await AdminService.getOverview()
     ok(res, data)
@@ -310,6 +316,27 @@ export const NotificationController = {
 }
 
 export const WaitlistController = {
+  getAll: async (_req: Request, res: Response) => {
+    const { data, error } = await WaitlistService.getAll()
+    if (error) { fail(res, error.message); return }
+    ok(res, data ?? [])
+  },
+
+  updateStatus: async (req: Request<IdParam>, res: Response) => {
+    const { status } = req.body as { status: 'pending' | 'contacted' | 'launched' }
+    const { data, error } = await WaitlistService.updateStatus(req.params.id, status)
+    if (error) { fail(res, error.message); return }
+    if (!data) { fail(res, 'Waitlist entry not found.', 404); return }
+    ok(res, data)
+  },
+
+  remove: async (req: Request<IdParam>, res: Response) => {
+    const { data, error } = await WaitlistService.remove(req.params.id)
+    if (error) { fail(res, error.message); return }
+    if (!data) { fail(res, 'Waitlist entry not found.', 404); return }
+    ok(res, { message: 'Waitlist entry removed.' })
+  },
+
   join: async (req: Request, res: Response) => {
     const { data, error } = await WaitlistService.join(req.body)
     if (error) {
@@ -317,6 +344,21 @@ export const WaitlistController = {
       fail(res, error.message)
       return
     }
+    ok(res, data, 201)
+  },
+}
+
+export const HallPulseController = {
+  getStatus: async (req: Request<{ courseId: string }>, res: Response) => {
+    const { data, error } = await HallPulseService.getRecentConsensus(req.params.courseId)
+    if (error) { fail(res, error.message); return }
+    ok(res, data)
+  },
+
+  submit: async (req: Request, res: Response) => {
+    const { course_id, status } = req.body as { course_id: string; status: 'in_class' | 'late' | 'not_in_class' }
+    const { data, error } = await HallPulseService.submit(req.user!.id, course_id, status)
+    if (error) { fail(res, error.message); return }
     ok(res, data, 201)
   },
 }

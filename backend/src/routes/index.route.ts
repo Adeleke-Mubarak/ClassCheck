@@ -8,13 +8,13 @@ import {
   AuthController, ProfileController, CourseController,
   StudentCourseController, SenderCourseController, UpdateController,
   SenderController, AdminController, NotificationController, WaitlistController,
-  TimetableController, DirectoryController,
+  TimetableController, DirectoryController, HallPulseController,
 } from '../controllers/index.controller.js'
 import {
   signUpSchema, signInSchema, forgotPasswordSchema, updatePasswordSchema, updateProfileSchema,
   createCourseSchema, updateSubscriptionsSchema, createUpdateSchema,
   createSenderSchema, updateSenderStatusSchema, joinWaitlistSchema,
-  createTimetableEntrySchema, updateTimetableEntrySchema,
+  createTimetableEntrySchema, updateTimetableEntrySchema, updateWaitlistStatusSchema, submitHallPulseSchema,
 } from '../schemas/index.schema.js'
 
 const router = Router()
@@ -72,6 +72,7 @@ router.delete('/senders/:id',        requireAuth, requireAdmin,                 
 
 // Admin: overview
 router.get('/admin/overview', requireAuth, requireAdmin, AdminController.getOverview)
+router.get('/students', requireAuth, requireAdmin, AdminController.getStudents)
 
 // Notifications
 router.get('/notifications',          requireAuth, NotificationController.getMine)
@@ -80,6 +81,13 @@ router.put('/notifications/:id/read', requireAuth, NotificationController.markRe
 
 // Waitlist (public)
 router.post('/waitlist', authLimiter, validate(joinWaitlistSchema), WaitlistController.join)
+router.get('/waitlist', requireAuth, requireAdmin, WaitlistController.getAll)
+router.put('/waitlist/:id', requireAuth, requireAdmin, validate(updateWaitlistStatusSchema), WaitlistController.updateStatus)
+router.delete('/waitlist/:id', requireAuth, requireAdmin, WaitlistController.remove)
+
+// Hall Pulse crowd verification
+router.get('/hall-pulse/:courseId', requireAuth, HallPulseController.getStatus)
+router.post('/hall-pulse', requireAuth, validate(submitHallPulseSchema), HallPulseController.submit)
 
 router.use(notFound)
 router.use(errorHandler)

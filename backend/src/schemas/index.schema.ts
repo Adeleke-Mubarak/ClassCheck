@@ -91,3 +91,12 @@ export const createTimetableEntrySchema = z.object({
 })
 
 export const updateTimetableEntrySchema = createTimetableEntrySchema.partial()
+
+export const updateWaitlistStatusSchema = z.object({
+  status: z.enum(['pending', 'contacted', 'launched']),
+})
+
+export const submitHallPulseSchema = z.object({
+  course_id: z.uuid(),
+  status: z.enum(['in_class', 'late', 'not_in_class']),
+})
