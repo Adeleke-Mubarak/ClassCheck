@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
 const STATUS_CONFIG = {
-  lecturer_present: {
+  in_class: {
     label: 'Lecturer is here',
     shortLabel: 'Lecturer arrived',
     icon: '👨‍🏫',
@@ -13,7 +13,16 @@ const STATUS_CONFIG = {
     border: 'rgba(16, 185, 129, 0.3)',
     activeBg: 'rgba(16, 185, 129, 0.25)',
   },
-  hall_empty: {
+  late: {
+    label: 'Class running late',
+    shortLabel: 'Running late',
+    icon: '⏳',
+    color: '#3B82F6',
+    bg: 'rgba(59, 130, 246, 0.12)',
+    border: 'rgba(59, 130, 246, 0.3)',
+    activeBg: 'rgba(59, 130, 246, 0.25)',
+  },
+  not_in_class: {
     label: 'Hall locked / empty',
     shortLabel: 'Hall empty',
     icon: '🔒',
@@ -22,23 +31,20 @@ const STATUS_CONFIG = {
     border: 'rgba(245, 158, 11, 0.3)',
     activeBg: 'rgba(245, 158, 11, 0.25)',
   },
-  class_holding: {
-    label: 'Class in session',
-    shortLabel: 'In session',
-    icon: '📖',
-    color: '#3B82F6',
-    bg: 'rgba(59, 130, 246, 0.12)',
-    border: 'rgba(59, 130, 246, 0.3)',
-    activeBg: 'rgba(59, 130, 246, 0.25)',
-  },
 }
+
+// Backward-compatible aliases for cached state
+STATUS_CONFIG.lecturer_present = STATUS_CONFIG.in_class
+STATUS_CONFIG.class_holding = STATUS_CONFIG.late
+STATUS_CONFIG.hall_empty = STATUS_CONFIG.not_in_class
 
 export default function HallPulseWidget({ courseId, courseCode, venue }) {
   const { user } = useAuth()
   const [pulse, setPulse] = useState({
     consensus: null,
     reports: [],
-    counts: { lecturer_present: 0, hall_empty: 0, class_holding: 0 },
+    counts: { in_class: 0, late: 0, not_in_class: 0 },
+    total_reports: 0,
   })
   const [loading, setLoading] = useState(false)
   const [myVote, setMyVote] = useState(null)
@@ -139,11 +145,11 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
         setPulse(res.data)
       }
       toast.success(
-        status === 'lecturer_present'
+        status === 'in_class' || status === 'lecturer_present'
           ? 'Marked: Lecturer is in the hall! Coursemates notified.'
-          : status === 'hall_empty'
+          : status === 'not_in_class' || status === 'hall_empty'
           ? 'Alert logged: Hall empty / locked.'
-          : 'Reported: Class is holding.'
+          : 'Reported: Class is running late.'
       )
     } catch {
       // Rollback on failure
@@ -155,7 +161,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
     }
   }
 
-  const totalReports = (pulse.reports || []).length
+  const totalReports = pulse.total_reports ?? (pulse.reports || []).length
   const consensusConfig = pulse.consensus ? STATUS_CONFIG[pulse.consensus] : null
 
   return (
@@ -259,14 +265,14 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
           margin: '0 0 12px',
           lineHeight: 1.4,
         }}>
-          {pulse.counts.lecturer_present > 0 && (
-            <span>👨‍🏫 {pulse.counts.lecturer_present} reported lecturer here · </span>
+          {(pulse.counts?.in_class > 0 || pulse.counts?.lecturer_present > 0) && (
+            <span>👨‍🏫 {pulse.counts?.in_class || pulse.counts?.lecturer_present} reported lecturer here · </span>
           )}
-          {pulse.counts.hall_empty > 0 && (
-            <span>🔒 {pulse.counts.hall_empty} reported hall empty · </span>
+          {(pulse.counts?.not_in_class > 0 || pulse.counts?.hall_empty > 0) && (
+            <span>🔒 {pulse.counts?.not_in_class || pulse.counts?.hall_empty} reported hall empty · </span>
           )}
-          {pulse.counts.class_holding > 0 && (
-            <span>📖 {pulse.counts.class_holding} reported in session · </span>
+          {(pulse.counts?.late > 0 || pulse.counts?.class_holding > 0) && (
+            <span>⏳ {pulse.counts?.late || pulse.counts?.class_holding} reported running late · </span>
           )}
           <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
             (Need 3 votes for verified badge)

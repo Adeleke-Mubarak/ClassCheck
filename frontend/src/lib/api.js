@@ -887,7 +887,8 @@ function handleDevFallback(endpoint, options = {}) {
       status: null,
       consensus: null,
       reports: [],
-      counts: { lecturer_present: 0, hall_empty: 0, class_holding: 0 },
+      counts: { in_class: 0, late: 0, not_in_class: 0 },
+      total_reports: 0,
     }
     try {
       const stored = localStorage.getItem(storageKey)
@@ -896,11 +897,17 @@ function handleDevFallback(endpoint, options = {}) {
 
     if (method === 'POST') {
       const { status, user_id, user_name } = body
+      // Normalize legacy keys if passed
+      const normalizedStatus =
+        status === 'lecturer_present' ? 'in_class' :
+        status === 'hall_empty' ? 'not_in_class' :
+        status === 'class_holding' ? 'late' : status
+
       const existingIdx = pulseData.reports.findIndex((r) => r.user_id === user_id)
       const report = {
         user_id: user_id || `anon_${Date.now()}`,
         user_name: user_name || 'Coursemate',
-        status,
+        status: normalizedStatus,
         timestamp: new Date().toISOString(),
       }
       if (existingIdx !== -1) {
@@ -909,12 +916,17 @@ function handleDevFallback(endpoint, options = {}) {
         pulseData.reports.push(report)
       }
 
-      pulseData.counts = { lecturer_present: 0, hall_empty: 0, class_holding: 0 }
+      pulseData.counts = { in_class: 0, late: 0, not_in_class: 0 }
       for (const r of pulseData.reports) {
-        if (pulseData.counts[r.status] !== undefined) {
-          pulseData.counts[r.status]++
+        const s = r.status === 'lecturer_present' ? 'in_class' :
+                  r.status === 'hall_empty' ? 'not_in_class' :
+                  r.status === 'class_holding' ? 'late' : r.status
+        if (pulseData.counts[s] !== undefined) {
+          pulseData.counts[s]++
         }
       }
+
+      pulseData.total_reports = pulseData.reports.length
 
       let consensus = null
       for (const [st, count] of Object.entries(pulseData.counts)) {
