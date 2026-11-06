@@ -19,7 +19,7 @@ export default function SenderNavbar() {
     <>
       {/* ── Top Header (Fixed with Safe Area Support) ────────────────── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08]"
+        className="app-header fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#DCE5DE]"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           height: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
@@ -27,10 +27,10 @@ export default function SenderNavbar() {
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <Link to="/sender/portal" className="font-extrabold text-[17px] text-white tracking-tight">
+            <Link to="/sender/portal" className="font-extrabold text-[17px] text-[#172A25] tracking-tight">
               ClassCheck
             </Link>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/25 text-blue-400">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#EAF1FF] border border-[#C9D8FA] text-[#2563EB]">
               Sender
             </span>
           </div>
@@ -42,8 +42,8 @@ export default function SenderNavbar() {
                 to="/sender/portal"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/sender/portal')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Post update
@@ -52,8 +52,8 @@ export default function SenderNavbar() {
                 to="/schedule"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/schedule')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Timetable
@@ -62,8 +62,8 @@ export default function SenderNavbar() {
                 to="/directory"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/directory')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Directory
@@ -72,8 +72,8 @@ export default function SenderNavbar() {
                 to="/sender/history"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/sender/history')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 My history
@@ -82,16 +82,16 @@ export default function SenderNavbar() {
 
             <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-3 md:border-l md:border-white/10">
               <div className="text-right hidden sm:block">
-                <p className="text-xs sm:text-sm font-medium text-white leading-none">
+                <p className="text-xs sm:text-sm font-medium text-[#172A25] leading-none">
                   {profile?.full_name}
                 </p>
-                <p className="text-[11px] text-white/40 mt-1 capitalize">
+                <p className="text-[11px] text-[#687871] mt-1 capitalize">
                   {profile?.role === 'class_rep' ? 'Class rep' : 'Lecturer'}
                 </p>
               </div>
               <button
                 onClick={handleSignOut}
-                className="text-xs sm:text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5 px-2 py-1 rounded hover:bg-white/5"
+                className="text-xs sm:text-sm text-[#687871] hover:text-[#172A25] transition-colors flex items-center gap-1.5 px-2 py-1 rounded hover:bg-[#EFF3EE]"
                 title="Log out"
               >
                 <svg className="w-3.5 h-3.5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,7 +106,7 @@ export default function SenderNavbar() {
 
       {/* ── Sender Mobile Bottom Navigation Dock ────────────────────── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] md:hidden px-2"
+        className="app-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#DCE5DE] md:hidden px-2"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           height: 'calc(3.75rem + env(safe-area-inset-bottom, 0px))',
@@ -119,11 +119,11 @@ export default function SenderNavbar() {
             className="relative h-full flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-all"
           >
             {isActive('/sender/portal') && (
-              <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
+              <span className="absolute top-0 w-8 h-[2.5px] bg-[#2563EB] rounded-full" />
             )}
             <svg
               className={`w-5 h-5 transition-transform ${
-                isActive('/sender/portal') ? 'scale-105 text-blue-400' : 'text-white/40'
+                isActive('/sender/portal') ? 'scale-105 text-[#2563EB]' : 'text-[#87948C]'
               }`}
               fill="none"
               stroke="currentColor"
@@ -133,7 +133,7 @@ export default function SenderNavbar() {
             </svg>
             <span
               className={`text-[9.5px] tracking-tight transition-colors ${
-                isActive('/sender/portal') ? 'text-white font-bold' : 'text-white/45 font-medium'
+                isActive('/sender/portal') ? 'text-[#2563EB] font-bold' : 'text-[#87948C] font-medium'
               }`}
             >
               Post
@@ -145,11 +145,11 @@ export default function SenderNavbar() {
             className="relative h-full flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-all"
           >
             {isActive('/schedule') && (
-              <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
+              <span className="absolute top-0 w-8 h-[2.5px] bg-[#2563EB] rounded-full" />
             )}
             <svg
               className={`w-5 h-5 transition-transform ${
-                isActive('/schedule') ? 'scale-105 text-blue-400' : 'text-white/40'
+                isActive('/schedule') ? 'scale-105 text-[#2563EB]' : 'text-[#87948C]'
               }`}
               fill="none"
               stroke="currentColor"
@@ -159,7 +159,7 @@ export default function SenderNavbar() {
             </svg>
             <span
               className={`text-[9.5px] tracking-tight transition-colors ${
-                isActive('/schedule') ? 'text-white font-bold' : 'text-white/45 font-medium'
+                isActive('/schedule') ? 'text-[#2563EB] font-bold' : 'text-[#87948C] font-medium'
               }`}
             >
               Timetable
@@ -171,11 +171,11 @@ export default function SenderNavbar() {
             className="relative h-full flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-all"
           >
             {isActive('/directory') && (
-              <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
+              <span className="absolute top-0 w-8 h-[2.5px] bg-[#2563EB] rounded-full" />
             )}
             <svg
               className={`w-5 h-5 transition-transform ${
-                isActive('/directory') ? 'scale-105 text-blue-400' : 'text-white/40'
+                isActive('/directory') ? 'scale-105 text-[#2563EB]' : 'text-[#87948C]'
               }`}
               fill="none"
               stroke="currentColor"
@@ -185,7 +185,7 @@ export default function SenderNavbar() {
             </svg>
             <span
               className={`text-[9.5px] tracking-tight transition-colors ${
-                isActive('/directory') ? 'text-white font-bold' : 'text-white/45 font-medium'
+                isActive('/directory') ? 'text-[#2563EB] font-bold' : 'text-[#87948C] font-medium'
               }`}
             >
               Directory
@@ -197,11 +197,11 @@ export default function SenderNavbar() {
             className="relative h-full flex flex-col items-center justify-center gap-0.5 active:scale-95 transition-all"
           >
             {isActive('/sender/history') && (
-              <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
+              <span className="absolute top-0 w-8 h-[2.5px] bg-[#2563EB] rounded-full" />
             )}
             <svg
               className={`w-5 h-5 transition-transform ${
-                isActive('/sender/history') ? 'scale-105 text-blue-400' : 'text-white/40'
+                isActive('/sender/history') ? 'scale-105 text-[#2563EB]' : 'text-[#87948C]'
               }`}
               fill="none"
               stroke="currentColor"
@@ -211,7 +211,7 @@ export default function SenderNavbar() {
             </svg>
             <span
               className={`text-[9.5px] tracking-tight transition-colors ${
-                isActive('/sender/history') ? 'text-white font-bold' : 'text-white/45 font-medium'
+                isActive('/sender/history') ? 'text-[#2563EB] font-bold' : 'text-[#87948C] font-medium'
               }`}
             >
               History

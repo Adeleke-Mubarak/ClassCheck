@@ -18,7 +18,7 @@ export default function AdminNavbar() {
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08]"
+        className="app-header fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#DCE5DE]"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           height: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
@@ -27,10 +27,10 @@ export default function AdminNavbar() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2.5">
-              <Link to="/admin" className="font-extrabold text-[17px] text-white tracking-tight">
+              <Link to="/admin" className="font-extrabold text-[17px] text-[#172A25] tracking-tight">
                 ClassCheck
               </Link>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-500/10 border border-red-500/25 text-red-400">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#FBE9E5] border border-[#F0C6BC] text-[#B94E39]">
                 Admin
               </span>
             </div>
@@ -40,8 +40,8 @@ export default function AdminNavbar() {
                 to="/admin"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/admin')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Dashboard
@@ -50,8 +50,8 @@ export default function AdminNavbar() {
                 to="/schedule"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/schedule')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Timetable
@@ -60,8 +60,8 @@ export default function AdminNavbar() {
                 to="/directory"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isActive('/directory')
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Directory
@@ -74,13 +74,13 @@ export default function AdminNavbar() {
             <div className="flex sm:hidden items-center gap-1 mr-1">
               <Link
                 to="/admin"
-                className={`text-xs px-2 py-1 rounded ${isActive('/admin') ? 'text-white font-bold bg-white/10' : 'text-white/50'}`}
+                className={`text-xs px-2 py-1 rounded ${isActive('/admin') ? 'text-[#2563EB] font-bold bg-[#EAF1FF]' : 'text-[#687871]'}`}
               >
                 Admin
               </Link>
               <Link
                 to="/schedule"
-                className={`text-xs px-2 py-1 rounded ${isActive('/schedule') ? 'text-white font-bold bg-white/10' : 'text-white/50'}`}
+                className={`text-xs px-2 py-1 rounded ${isActive('/schedule') ? 'text-[#2563EB] font-bold bg-[#EAF1FF]' : 'text-[#687871]'}`}
               >
                 Schedule
               </Link>
@@ -88,7 +88,7 @@ export default function AdminNavbar() {
 
             <button
               onClick={handleSignOut}
-              className="text-xs font-medium text-white/50 hover:text-white transition-colors px-2.5 py-1.5 rounded hover:bg-white/5"
+              className="text-xs font-medium text-[#687871] hover:text-[#172A25] transition-colors px-2.5 py-1.5 rounded hover:bg-[#EFF3EE]"
             >
               Sign out
             </button>

@@ -67,7 +67,7 @@ export default function History() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white pt-[calc(4.25rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-12 px-4">
+    <div className="light-workspace min-h-screen bg-[#0A0A0A] text-white pt-[calc(4.25rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-12 px-4">
       <SenderNavbar />
       <div className="max-w-[560px] mx-auto">
         <div className="mb-6">

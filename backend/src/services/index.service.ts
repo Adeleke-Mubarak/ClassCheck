@@ -206,11 +206,16 @@ export const HallPulseService = {
     const leaders = (Object.entries(counts) as [HallPulseStatus, number][])
       .filter(([, count]) => count === highest && count > 0)
     const latest = data?.[0]?.created_at ?? null
+    const consensus = leaders.length > 1
+      ? 'mixed'
+      : highest >= 3
+      ? leaders[0]![0]
+      : null
 
     return {
       data: {
         course_id: courseId,
-        consensus: total === 0 ? null : leaders.length === 1 ? leaders[0]![0] : 'mixed',
+        consensus,
         counts,
         total_reports: total,
         last_updated: latest,

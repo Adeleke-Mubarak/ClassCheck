@@ -20,7 +20,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="light-workspace min-h-screen bg-[#0A0A0A] text-white">
       <AdminNavbar />
 
       {/* Tab bar */}

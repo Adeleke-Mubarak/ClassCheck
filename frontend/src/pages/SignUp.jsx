@@ -392,7 +392,7 @@ export default function SignUp() {
   }
 
   return (
-    <div style={styles.page}>
+    <div className="auth-page" style={styles.page}>
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={styles.left}>
@@ -510,6 +510,7 @@ export default function SignUp() {
                   <button
                     key={l}
                     type="button"
+                    aria-pressed={form.level === l}
                     onClick={() => setForm((prev) => ({ ...prev, level: l }))}
                     style={styles.levelPill(form.level === l)}
                     onMouseEnter={(e) => {

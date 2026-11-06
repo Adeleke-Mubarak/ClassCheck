@@ -227,7 +227,7 @@ export default function SenderSignIn() {
   }
 
   return (
-    <div style={S.page}>
+    <div className="auth-page" style={S.page}>
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={S.left}>
         <Link to="/" style={S.logo}>ClassCheck</Link>

@@ -166,7 +166,7 @@ export default function Directory() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans">
+    <div className="light-workspace min-h-screen bg-[#0A0A0A] text-white flex flex-col font-sans">
       {renderNavbar()}
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-12">

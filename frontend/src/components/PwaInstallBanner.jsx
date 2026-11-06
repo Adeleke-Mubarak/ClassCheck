@@ -38,13 +38,13 @@ export default function PwaInstallBanner() {
   }
 
   return (
-    <div style={{
-      background: 'linear-gradient(180deg, #161616 0%, #111111 100%)',
-      border: '1px solid rgba(37, 99, 235, 0.3)',
-      borderRadius: '10px',
+    <div className="pwa-install-banner" style={{
+      background: '#FFFFFF',
+      border: '1px solid #DCE5DE',
+      borderRadius: '6px',
       padding: '14px 18px',
       marginBottom: '20px',
-      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+      boxShadow: '0 5px 20px rgba(23, 42, 37, 0.06)',
       position: 'relative',
     }}>
       <div style={{
@@ -59,8 +59,8 @@ export default function PwaInstallBanner() {
             width: '38px',
             height: '38px',
             borderRadius: '8px',
-            background: 'rgba(37, 99, 235, 0.15)',
-            border: '1px solid rgba(37, 99, 235, 0.3)',
+            background: 'var(--cc-accent-soft)',
+            border: '1px solid var(--cc-accent-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -70,10 +70,10 @@ export default function PwaInstallBanner() {
             📲
           </div>
           <div>
-            <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#FFFFFF', margin: 0, letterSpacing: '-0.01em' }}>
+            <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#172A25', margin: 0 }}>
               Install ClassCheck for Instant Lecture Alerts
             </h3>
-            <p style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.5)', margin: '2px 0 0' }}>
+            <p style={{ fontSize: '12px', color: '#687871', margin: '2px 0 0' }}>
               Add to your home screen for faster loading and reliable cancellation alerts.
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function PwaInstallBanner() {
             style={{
               padding: '8px 14px',
               borderRadius: '6px',
-              background: '#2563EB',
+              background: 'var(--cc-accent)',
               color: '#FFFFFF',
               fontSize: '12px',
               fontWeight: 700,
@@ -112,7 +112,7 @@ export default function PwaInstallBanner() {
               borderRadius: '4px',
               background: 'transparent',
               border: 'none',
-              color: 'rgba(255, 255, 255, 0.4)',
+              color: '#687871',
               cursor: 'pointer',
               fontSize: '16px',
               display: 'flex',
@@ -130,19 +130,19 @@ export default function PwaInstallBanner() {
         <div style={{
           marginTop: '14px',
           paddingTop: '12px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+          borderTop: '1px solid #DCE5DE',
           fontSize: '12px',
-          color: 'rgba(255, 255, 255, 0.75)',
+          color: '#52635A',
         }}>
-          <p style={{ margin: '0 0 8px', fontWeight: 700, color: '#FFFFFF' }}>
+          <p style={{ margin: '0 0 8px', fontWeight: 700, color: '#172A25' }}>
             2 steps to install on your iPhone:
           </p>
           <ol style={{ margin: 0, paddingLeft: '18px', lineHeight: 1.6 }}>
             <li>
-              Tap the Safari <strong>Share button</strong> (the square icon with upward arrow <span style={{ color: '#3B82F6' }}>⎋</span> at the bottom of your screen).
+              Tap the Safari <strong>Share button</strong> (the square icon with upward arrow <span style={{ color: 'var(--cc-accent)' }}>⎋</span> at the bottom of your screen).
             </li>
             <li>
-              Scroll down the menu and tap <strong>"Add to Home Screen"</strong> (with the <span style={{ color: '#3B82F6' }}>[+]</span> icon).
+              Scroll down the menu and tap <strong>"Add to Home Screen"</strong> (with the <span style={{ color: 'var(--cc-accent)' }}>[+]</span> icon).
             </li>
           </ol>
         </div>

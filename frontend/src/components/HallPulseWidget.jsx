@@ -3,40 +3,18 @@ import { api } from '../lib/api'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 
-const STATUS_CONFIG = {
-  in_class: {
-    label: 'Lecturer is here',
-    shortLabel: 'Lecturer arrived',
-    icon: '👨‍🏫',
-    color: '#10B981',
-    bg: 'rgba(16, 185, 129, 0.12)',
-    border: 'rgba(16, 185, 129, 0.3)',
-    activeBg: 'rgba(16, 185, 129, 0.25)',
-  },
-  late: {
-    label: 'Class running late',
-    shortLabel: 'Running late',
-    icon: '⏳',
-    color: '#3B82F6',
-    bg: 'rgba(59, 130, 246, 0.12)',
-    border: 'rgba(59, 130, 246, 0.3)',
-    activeBg: 'rgba(59, 130, 246, 0.25)',
-  },
-  not_in_class: {
-    label: 'Hall locked / empty',
-    shortLabel: 'Hall empty',
-    icon: '🔒',
-    color: '#F59E0B',
-    bg: 'rgba(245, 158, 11, 0.12)',
-    border: 'rgba(245, 158, 11, 0.3)',
-    activeBg: 'rgba(245, 158, 11, 0.25)',
-  },
-}
+const STATUS_OPTIONS = [
+  { key: 'in_class', label: 'Lecturer is here', shortLabel: 'Lecturer arrived', icon: '👨‍🏫' },
+  { key: 'late', label: 'Class running late', shortLabel: 'Running late', icon: '⏳' },
+  { key: 'not_in_class', label: 'Hall locked / empty', shortLabel: 'Hall empty', icon: '🔒' },
+]
 
-// Backward-compatible aliases for cached state
-STATUS_CONFIG.lecturer_present = STATUS_CONFIG.in_class
-STATUS_CONFIG.class_holding = STATUS_CONFIG.late
-STATUS_CONFIG.hall_empty = STATUS_CONFIG.not_in_class
+function normalizeStatus(status) {
+  if (status === 'lecturer_present') return 'in_class'
+  if (status === 'class_holding') return 'late'
+  if (status === 'hall_empty') return 'not_in_class'
+  return status
+}
 
 export default function HallPulseWidget({ courseId, courseCode, venue }) {
   const { user } = useAuth()
@@ -57,9 +35,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
         setPulse(res.data)
         // Detect current user's vote
         const userReport = (res.data.reports || []).find((r) => r.user_id === user?.id)
-        if (userReport) {
-          setMyVote(userReport.status)
-        }
+        if (userReport) setMyVote(normalizeStatus(userReport.status))
       }
     } catch {
       // Fail silently for background polling
@@ -83,7 +59,7 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
               const userReport = (event.data.payload.reports || []).find(
                 (r) => r.user_id === user?.id
               )
-              if (userReport) setMyVote(userReport.status)
+              if (userReport) setMyVote(normalizeStatus(userReport.status))
             } else {
               fetchPulse()
             }
@@ -115,17 +91,13 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
 
     // Optimistic UI update
     setMyVote(status)
-    const newCounts = { ...pulse.counts }
+    const newCounts = { in_class: 0, late: 0, not_in_class: 0, ...pulse.counts }
     if (prevVote && newCounts[prevVote] > 0) newCounts[prevVote]--
     newCounts[status] = (newCounts[status] || 0) + 1
 
-    let newConsensus = null
-    for (const [st, count] of Object.entries(newCounts)) {
-      if (count >= 3) {
-        newConsensus = st
-        break
-      }
-    }
+    const highest = Math.max(...Object.values(newCounts))
+    const leaders = Object.entries(newCounts).filter(([, count]) => count === highest && count > 0)
+    const newConsensus = leaders.length > 1 ? 'mixed' : highest >= 3 ? leaders[0][0] : null
 
     setPulse((prev) => ({
       ...prev,
@@ -135,21 +107,19 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
 
     setLoading(true)
     try {
-      const res = await api.submitHallPulse({
+      await api.submitHallPulse({
         course_id: courseId,
         status,
         user_id: user?.id,
         user_name: user?.full_name || 'Coursemate',
       })
-      if (res?.data) {
-        setPulse(res.data)
-      }
+      await fetchPulse()
       toast.success(
         status === 'in_class' || status === 'lecturer_present'
-          ? 'Marked: Lecturer is in the hall! Coursemates notified.'
+          ? 'Your report is in. Thanks for helping your coursemates.'
           : status === 'not_in_class' || status === 'hall_empty'
-          ? 'Alert logged: Hall empty / locked.'
-          : 'Reported: Class is running late.'
+          ? 'Your hall status report is in.'
+          : 'Your class status report is in.'
       )
     } catch {
       // Rollback on failure
@@ -161,211 +131,91 @@ export default function HallPulseWidget({ courseId, courseCode, venue }) {
     }
   }
 
+  const counts = { in_class: 0, late: 0, not_in_class: 0, ...pulse.counts }
   const totalReports = pulse.total_reports ?? (pulse.reports || []).length
-  const consensusConfig = pulse.consensus ? STATUS_CONFIG[pulse.consensus] : null
+  const consensusConfig = STATUS_OPTIONS.find((option) => option.key === pulse.consensus)
+  const reportTimes = (pulse.reports || [])
+    .map((report) => report.created_at || report.timestamp)
+    .filter(Boolean)
+    .map((timestamp) => new Date(timestamp).getTime())
+    .filter(Number.isFinite)
+  const latestReportTime = pulse.last_updated
+    ? new Date(pulse.last_updated).getTime()
+    : Math.max(0, ...reportTimes)
+  const reportAge = latestReportTime ? Math.max(0, Math.floor((Date.now() - latestReportTime) / 60000)) : null
+  const freshness = reportAge === null
+    ? 'No recent reports'
+    : reportAge < 1
+    ? 'Updated just now'
+    : reportAge < 60
+    ? `Updated ${reportAge}m ago`
+    : `Updated ${Math.floor(reportAge / 60)}h ago`
+  const isMixed = pulse.consensus === 'mixed'
+  const leadingCount = Math.max(...Object.values(counts))
 
   return (
-    <div style={{
-      marginTop: '16px',
-      padding: '16px',
-      borderRadius: '10px',
-      background: 'rgba(255, 255, 255, 0.025)',
-      border: '1px solid rgba(255, 255, 255, 0.08)',
-    }}>
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '8px',
-        marginBottom: '12px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {/* Pulsing beacon */}
-          <span style={{
-            position: 'relative',
-            display: 'flex',
-            width: '10px',
-            height: '10px',
-          }}>
-            <span style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              borderRadius: '50%',
-              background: '#3B82F6',
-              opacity: 0.75,
-              animation: 'ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
-            }} />
-            <span style={{
-              position: 'relative',
-              borderRadius: '50%',
-              width: '10px',
-              height: '10px',
-              background: '#2563EB',
-            }} />
-          </span>
-
-          <span style={{
-            fontSize: '11px',
-            fontWeight: 800,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: '#FFFFFF',
-          }}>
-            Hall Pulse · {courseCode ? `${courseCode} @ ${venue}` : venue}
-          </span>
+    <section className="hall-pulse" aria-label={`Crowdsourced status for ${courseCode || 'this lecture'}`}>
+      <header className="hall-pulse-header">
+        <div>
+          <p className="hall-pulse-kicker">HALL PULSE</p>
+          <h3>{courseCode ? `${courseCode} · ${venue}` : venue}</h3>
         </div>
+        <div className="hall-pulse-meta">
+          <strong>{totalReports} {totalReports === 1 ? 'report' : 'reports'}</strong>
+          <time>{freshness}</time>
+        </div>
+      </header>
 
-        {/* Tally counter */}
-        {totalReports > 0 && (
-          <span style={{
-            fontSize: '11px',
-            color: 'rgba(255, 255, 255, 0.45)',
-            fontWeight: 500,
-          }}>
-            {totalReports} coursemate{totalReports === 1 ? '' : 's'} reported
-          </span>
+      <div className={`hall-pulse-signal ${isMixed ? 'mixed' : consensusConfig ? 'consensus' : 'unconfirmed'}`} role="status">
+        {isMixed ? (
+          <>
+            <strong>Reports don’t agree yet</strong>
+            <span>Check the official course update before changing plans.</span>
+          </>
+        ) : consensusConfig ? (
+          <>
+            <strong>{consensusConfig.label} · community consensus</strong>
+            <span>{counts[pulse.consensus]} recent reports match this status.</span>
+          </>
+        ) : totalReports > 0 ? (
+          <>
+            <strong>Early signal, not confirmed</strong>
+            <span>{leadingCount} matching {leadingCount === 1 ? 'report' : 'reports'}; 3 matching reports are needed for consensus.</span>
+          </>
+        ) : (
+          <>
+            <strong>No student reports yet</strong>
+            <span>Only report if you are at the venue.</span>
+          </>
         )}
       </div>
 
-      {/* Consensus Banner or Status text */}
-      {consensusConfig ? (
-        <div style={{
-          padding: '10px 12px',
-          borderRadius: '6px',
-          background: consensusConfig.bg,
-          border: `1px solid ${consensusConfig.border}`,
-          marginBottom: '14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-        }}>
-          <span style={{ fontSize: '15px' }}>{consensusConfig.icon}</span>
-          <div>
-            <p style={{
-              fontSize: '12px',
-              fontWeight: 800,
-              color: consensusConfig.color,
-              margin: 0,
-              letterSpacing: '-0.01em',
-            }}>
-              Community Verified · {consensusConfig.label}
-            </p>
-            <p style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.6)', margin: '2px 0 0' }}>
-              Confirmed by {pulse.counts[pulse.consensus]} coursemates physically present in {venue}.
-            </p>
-          </div>
-        </div>
-      ) : totalReports > 0 ? (
-        <p style={{
-          fontSize: '12px',
-          color: 'rgba(255, 255, 255, 0.6)',
-          margin: '0 0 12px',
-          lineHeight: 1.4,
-        }}>
-          {(pulse.counts?.in_class > 0 || pulse.counts?.lecturer_present > 0) && (
-            <span>👨‍🏫 {pulse.counts?.in_class || pulse.counts?.lecturer_present} reported lecturer here · </span>
-          )}
-          {(pulse.counts?.not_in_class > 0 || pulse.counts?.hall_empty > 0) && (
-            <span>🔒 {pulse.counts?.not_in_class || pulse.counts?.hall_empty} reported hall empty · </span>
-          )}
-          {(pulse.counts?.late > 0 || pulse.counts?.class_holding > 0) && (
-            <span>⏳ {pulse.counts?.late || pulse.counts?.class_holding} reported running late · </span>
-          )}
-          <span style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
-            (Need 3 votes for verified badge)
-          </span>
-        </p>
-      ) : (
-        <p style={{
-          fontSize: '12px',
-          color: 'rgba(255, 255, 255, 0.5)',
-          margin: '0 0 12px',
-          lineHeight: 1.4,
-        }}>
-          Are you at {venue}? Confirm the situation to save your coursemates from guessing:
-        </p>
-      )}
-
-      {/* 3 Quick Action Tap Pills */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-        gap: '8px',
-      }}>
-        {Object.entries(STATUS_CONFIG).map(([key, config]) => {
-          const isSelected = myVote === key
-          const count = pulse.counts[key] || 0
-
+      <p className="hall-pulse-prompt">
+        Are you at {venue}? Confirm the situation to save your coursemates from guessing:
+      </p>
+      <div className="hall-pulse-options" role="group" aria-label="Report lecture status">
+        {STATUS_OPTIONS.map((option) => {
+          const isSelected = myVote === option.key
           return (
             <button
-              key={key}
+              key={option.key}
               type="button"
+              className={`hall-pulse-option ${option.key} ${isSelected ? 'selected' : ''}`}
               disabled={loading}
-              onClick={() => handleVote(key)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '8px 12px',
-                borderRadius: '6px',
-                background: isSelected ? config.activeBg : 'rgba(255, 255, 255, 0.04)',
-                border: `1px solid ${isSelected ? config.border : 'rgba(255, 255, 255, 0.08)'}`,
-                color: isSelected ? '#FFFFFF' : 'rgba(255, 255, 255, 0.75)',
-                fontSize: '12px',
-                fontWeight: isSelected ? 700 : 500,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                textAlign: 'left',
-              }}
-              onMouseEnter={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)'
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)'
-                }
-              }}
+              onClick={() => handleVote(option.key)}
+              aria-pressed={isSelected}
             >
-              <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span>{config.icon}</span>
-                <span>{config.shortLabel}</span>
-              </span>
-
-              {count > 0 && (
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  padding: '2px 6px',
-                  borderRadius: '100px',
-                  background: isSelected ? config.color : 'rgba(255, 255, 255, 0.1)',
-                  color: isSelected ? '#0A0A0A' : 'rgba(255, 255, 255, 0.7)',
-                  marginLeft: '4px',
-                }}>
-                  {count}
-                </span>
-              )}
+              <span className="hall-pulse-option-label"><i aria-hidden="true">{option.icon}</i>{option.shortLabel}</span>
+              <strong>{counts[option.key]}</strong>
             </button>
           )
         })}
       </div>
-
       {myVote && (
-        <p style={{
-          fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.4)',
-          margin: '10px 0 0',
-          textAlign: 'center',
-        }}>
-          You reported: <strong style={{ color: '#FFFFFF' }}>{STATUS_CONFIG[myVote]?.label}</strong>. Tap another button to update if things changed.
+        <p className="hall-pulse-your-vote">
+          Your report: <strong>{STATUS_OPTIONS.find((option) => option.key === myVote)?.label}</strong>. You can update it if the situation changes.
         </p>
       )}
-    </div>
+    </section>
   )
 }

@@ -122,7 +122,7 @@ export default function Navbar() {
     <>
       {/* ── Top Header (Fixed with Safe Area Support) ────────────────── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-b border-white/[0.08]"
+        className="app-header fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#DCE5DE]"
         style={{
           paddingTop: 'env(safe-area-inset-top, 0px)',
           height: 'calc(3.5rem + env(safe-area-inset-top, 0px))',
@@ -133,7 +133,7 @@ export default function Navbar() {
           <div className="flex items-center gap-6">
             <Link
               to="/feed"
-              className="font-extrabold text-[17px] text-white tracking-tight hover:opacity-90 transition-opacity flex items-center gap-2"
+              className="font-extrabold text-[17px] text-[#172A25] tracking-tight hover:opacity-90 transition-opacity flex items-center gap-2"
             >
               <span>ClassCheck</span>
             </Link>
@@ -144,8 +144,8 @@ export default function Navbar() {
                 to="/feed"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isFeed
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Feed
@@ -154,8 +154,8 @@ export default function Navbar() {
                 to="/schedule"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isSchedule
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Schedule
@@ -164,8 +164,8 @@ export default function Navbar() {
                 to="/directory"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isDirectory
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 Directory
@@ -174,8 +174,8 @@ export default function Navbar() {
                 to="/my-courses"
                 className={`text-xs px-3 py-1.5 rounded-[6px] transition-colors ${
                   isCourses
-                    ? 'text-white bg-white/[0.08] font-semibold'
-                    : 'text-white/50 hover:text-white hover:bg-white/[0.04]'
+                    ? 'text-[#2563EB] bg-[#EAF1FF] font-semibold'
+                    : 'text-[#687871] hover:text-[#172A25] hover:bg-[#EFF3EE]'
                 }`}
               >
                 My Courses
@@ -189,24 +189,24 @@ export default function Navbar() {
             <Link
               to="/account"
               className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[6px] transition-colors ${
-                isAccount ? 'bg-white/[0.08]' : 'hover:bg-white/[0.04]'
+                isAccount ? 'bg-[#EAF1FF]' : 'hover:bg-[#EFF3EE]'
               }`}
             >
-              <div className="w-6 h-6 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-full bg-[#2563EB] text-white font-bold text-xs flex items-center justify-center shrink-0">
                 {firstName.charAt(0).toUpperCase()}
               </div>
-              <span className="text-xs font-semibold text-white tracking-tight max-w-[80px] sm:max-w-none truncate">
+              <span className="text-xs font-semibold text-[#172A25] tracking-tight max-w-[80px] sm:max-w-none truncate">
                 {firstName}
               </span>
             </Link>
 
             {/* Desktop Divider */}
-            <div className="hidden sm:block w-px h-4 bg-white/10" />
+            <div className="hidden sm:block w-px h-4 bg-[#DCE5DE]" />
 
             {/* Sign Out (Desktop & Mobile) */}
             <button
               onClick={handleSignOut}
-              className="text-xs font-medium text-white/40 hover:text-white transition-colors flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-[6px] hover:bg-white/[0.04]"
+              className="text-xs font-medium text-[#687871] hover:text-[#172A25] transition-colors flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-[6px] hover:bg-[#EFF3EE]"
               aria-label="Sign out"
               title="Sign out"
             >
@@ -226,7 +226,7 @@ export default function Navbar() {
 
       {/* ── Bottom Mobile Navigation Bar (Fixed with Safe Area Support) ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#0A0A0A]/95 backdrop-blur-md border-t border-white/[0.08] md:hidden px-1"
+        className="app-bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[#DCE5DE] md:hidden px-1"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           height: 'calc(3.75rem + env(safe-area-inset-bottom, 0px))',
@@ -244,7 +244,7 @@ export default function Navbar() {
               >
                 {/* Active indicator bar */}
                 {isActive && (
-                  <span className="absolute top-0 w-8 h-[2.5px] bg-blue-500 rounded-full" />
+                  <span className="absolute top-0 w-8 h-[2.5px] bg-[#2563EB] rounded-full" />
                 )}
 
                 {/* Icon */}
@@ -255,7 +255,7 @@ export default function Navbar() {
                 {/* Label */}
                 <span
                   className={`text-[9.5px] tracking-tight transition-colors truncate max-w-full px-0.5 ${
-                    isActive ? 'text-white font-bold' : 'text-white/45 font-medium'
+                    isActive ? 'text-[#2563EB] font-bold' : 'text-[#87948C] font-medium'
                   }`}
                 >
                   {item.label}

@@ -22,7 +22,7 @@ export default function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white flex flex-col">
+    <div className="light-workspace min-h-screen bg-[#0A0A0A] text-white flex flex-col">
       <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center px-6">
         <Link to="/" className="font-extrabold text-base tracking-tight text-white">ClassCheck</Link>
       </header>

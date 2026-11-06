@@ -58,7 +58,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <div className="light-workspace min-h-screen bg-[#0A0A0A] text-white">
       <header className="h-14 border-b border-white/[0.08] bg-[#0A0A0A] flex items-center justify-between px-6">
         <span className="font-extrabold text-base tracking-tight text-white">ClassCheck</span>
         <span className="text-xs font-semibold uppercase tracking-wider text-white/40">Step 2 of 2 · Setup</span>
