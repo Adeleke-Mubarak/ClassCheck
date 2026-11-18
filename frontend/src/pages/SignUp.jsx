@@ -383,7 +383,7 @@ export default function SignUp() {
     try {
       await api.signUpStudent(form)
       await refreshProfile()
-      navigate('/onboarding')
+      navigate('/signin')
     } catch (err) {
       toast.error(err.message || 'Failed to create account')
     } finally {
