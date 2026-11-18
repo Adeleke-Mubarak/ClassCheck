@@ -31,7 +31,7 @@ export default function ProtectedRoute({ children, allowedRoles, redirectTo = '/
     // Redirect to the appropriate home for their role
     if (role === 'admin') return <Navigate to="/admin" replace />
     if (SENDER_ROLES.includes(role)) return <Navigate to="/sender/portal" replace />
-    return <Navigate to="/feed" replace />
+    return <Navigate to="/onboarding" replace />
   }
 
   return children

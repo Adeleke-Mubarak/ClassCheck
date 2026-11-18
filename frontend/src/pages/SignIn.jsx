@@ -237,7 +237,7 @@ export default function SignIn() {
         password: form.password,
       })
       await refreshProfile()
-      navigate('/feed')
+      navigate('/onboarding')
     } catch (err) {
       toast.error(err?.message || 'Sign in failed')
       console.error('Sign in error:', err)
