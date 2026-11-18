@@ -7,9 +7,9 @@ export default function OfflineStatusBanner() {
 
   return (
     <div style={{
-      background: '#FFF4DF',
-      border: '1px solid #EBCB8A',
-      borderRadius: '6px',
+      background: 'rgba(245, 158, 11, 0.12)',
+      border: '1px solid rgba(245, 158, 11, 0.3)',
+      borderRadius: '8px',
       padding: '10px 16px',
       marginBottom: '20px',
       display: 'flex',
@@ -23,21 +23,21 @@ export default function OfflineStatusBanner() {
           width: '8px',
           height: '8px',
           borderRadius: '50%',
-          background: '#B76B16',
+          background: '#F59E0B',
           display: 'inline-block',
         }} />
-        <span style={{ fontSize: '13px', fontWeight: 700, color: '#8D5412' }}>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: '#FCD34D' }}>
           Offline mode active
         </span>
-        <span style={{ fontSize: '13px', color: '#6E6759' }}>
+        <span style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.5)' }}>
           — Viewing saved timetable and updates ({formattedSyncAge})
         </span>
       </div>
       <span style={{
         fontSize: '11px',
         fontWeight: 600,
-        color: '#8D5412',
-        background: 'rgba(183, 107, 22, 0.08)',
+        color: 'rgba(255, 255, 255, 0.4)',
+        background: 'rgba(0, 0, 0, 0.3)',
         padding: '2px 8px',
         borderRadius: '4px',
       }}>

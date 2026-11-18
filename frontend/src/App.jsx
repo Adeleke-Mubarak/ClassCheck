@@ -4,7 +4,7 @@ import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Public pages
-import Landing from './pages/LandingRedesign'
+import Landing from './pages/Landing'
 import SignUp from './pages/SignUp'
 import SignIn from './pages/SignIn'
 import SenderSignIn from './pages/SenderSignIn'

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import FilterPills from '../components/FilterPills'
 import UpdateCard from '../components/UpdateCard'
-import LectureStatusPanel from '../components/LectureStatusPanel'
+import NextLectureCard from '../components/NextLectureCard'
 import OfflineStatusBanner from '../components/OfflineStatusBanner'
 import PwaInstallBanner from '../components/PwaInstallBanner'
 import { api } from '../lib/api'
@@ -141,24 +141,28 @@ export default function Feed() {
         <PwaInstallBanner />
 
         {/* Page header */}
-        <div className="feed-header">
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
           <div>
-            <p className="feed-eyebrow">Your campus signal</p>
-            <h1>Class updates</h1>
+            <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#FFFFFF', letterSpacing: '-0.02em', margin: 0 }}>Class updates</h1>
             {profile && (
-              <p className="feed-subtitle">
+              <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px', margin: '4px 0 0' }}>
                 {profile.department} — {profile.level} Level
               </p>
             )}
           </div>
-          <div className={`feed-connection ${isOnline ? 'online' : 'offline'}`}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', paddingTop: '4px' }}>
             <span style={{
               width: '6px',
               height: '6px',
               borderRadius: '50%',
-              background: isOnline ? 'var(--cc-accent)' : '#B76B16',
+              background: isOnline ? '#10B981' : '#F59E0B',
             }} />
-            <span>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: isOnline ? 'rgba(16, 185, 129, 0.9)' : '#F59E0B',
+              letterSpacing: '0.04em',
+            }}>
               {isOnline ? 'Live sync' : 'Offline mode'}
             </span>
           </div>
@@ -166,7 +170,7 @@ export default function Feed() {
 
         {/* Next Lecture Live Glance Widget */}
         {hasSubscriptions && (
-          <LectureStatusPanel
+          <NextLectureCard
             timetable={timetable}
             todayUpdates={updates}
             isOffline={!isOnline}
@@ -176,14 +180,33 @@ export default function Feed() {
 
         {!hasSubscriptions ? (
           /* No subscriptions state */
-          <div className="feed-empty">
-            <span className="feed-empty-index">01 / COURSES</span>
-            <p className="feed-empty-title">Your feed starts with your courses.</p>
-            <p className="feed-empty-copy">
+          <div style={{
+            background: '#111111',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '12px',
+            padding: '48px 24px',
+            textAlign: 'center',
+          }}>
+            <p style={{ fontSize: '16px', fontWeight: 600, color: '#FFFFFF' }}>You have no courses selected</p>
+            <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '8px' }}>
               Go to My Courses to subscribe to your courses for this semester.
             </p>
-            <Link to="/my-courses" className="feed-empty-link">
-              Choose courses <span aria-hidden="true">↗</span>
+            <Link
+              to="/my-courses"
+              style={{
+                display: 'inline-block',
+                marginTop: '20px',
+                padding: '10px 20px',
+                background: '#FFFFFF',
+                color: '#0A0A0A',
+                fontSize: '14px',
+                fontWeight: 700,
+                borderRadius: '6px',
+                textDecoration: 'none',
+                transition: 'background 0.15s',
+              }}
+            >
+              Go to My Courses
             </Link>
           </div>
         ) : (
@@ -195,24 +218,49 @@ export default function Feed() {
 
             {/* Updates */}
             {loading ? (
-              <div className="feed-updates">
+              <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
-                  <div key={i} className="feed-skeleton-card">
-                    <div className="feed-skeleton-line short" />
-                    <div className="feed-skeleton-line medium" />
-                    <div className="feed-skeleton-line long" />
+                  <div key={i} style={{
+                    background: '#111111',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '12px',
+                    padding: '20px',
+                  }}>
+                    <div style={{ height: '16px', background: '#1A1A1A', borderRadius: '4px', width: '25%', marginBottom: '12px' }} />
+                    <div style={{ height: '20px', background: '#1A1A1A', borderRadius: '4px', width: '33%', marginBottom: '12px' }} />
+                    <div style={{ height: '12px', background: '#1A1A1A', borderRadius: '4px', width: '75%' }} />
                   </div>
                 ))}
               </div>
             ) : filtered.length === 0 ? (
               /* Empty state */
-              <div className="feed-empty feed-empty-clear">
-                <span className="feed-empty-index">NO NEW CHANGES</span>
-                <p className="feed-empty-title">All clear for now.</p>
-                <p className="feed-empty-copy">Your subscribed courses have no updates matching this filter.</p>
+              <div style={{
+                background: '#111111',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '12px',
+                padding: '48px 24px',
+                textAlign: 'center',
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: 'rgba(37,99,235,0.1)',
+                  border: '1px solid rgba(37,99,235,0.2)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 16px',
+                }}>
+                  <svg style={{ width: '20px', height: '20px', color: '#2563EB' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p style={{ fontSize: '16px', fontWeight: 700, color: '#FFFFFF' }}>All clear for today</p>
+                <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>All classes are holding as scheduled</p>
               </div>
             ) : (
-              <div className="feed-updates">
+              <div className="space-y-3">
                 {filtered.map((update) => (
                   <UpdateCard key={update.id} update={update} />
                 ))}

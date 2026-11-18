@@ -247,7 +247,7 @@ export default function SignIn() {
   }
 
   return (
-    <div className="auth-page" style={S.page}>
+    <div style={S.page}>
 
       {/* ── Left panel ─────────────────────────────────────────────── */}
       <div className="signup-left" style={S.left}>
